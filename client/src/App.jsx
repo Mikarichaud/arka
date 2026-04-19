@@ -4,6 +4,8 @@ import Home from './pages/Home/Home';
 import Auth from './pages/Auth/Auth';
 import SessionSetup from './pages/Session/SessionSetup';
 import PackSelection from './pages/Packs/PackSelection';
+import PackLibrary from './pages/Packs/PackLibrary';
+import Editor from './pages/Editor/Editor';
 import Game from './pages/Game/Game';
 
 function AnimatedRoutes() {
@@ -15,6 +17,8 @@ function AnimatedRoutes() {
         <Route path="/login" element={<Auth />} />
         <Route path="/session/setup" element={<SessionSetup />} />
         <Route path="/session/pack" element={<PackSelection />} />
+        <Route path="/packs" element={<PackLibrary />} />
+        <Route path="/editor" element={<Editor />} />
         <Route path="/game" element={<Game />} />
       </Routes>
     </AnimatePresence>

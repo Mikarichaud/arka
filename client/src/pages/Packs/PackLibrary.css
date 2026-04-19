@@ -1,0 +1,124 @@
+.library-page {
+  padding-top: 24px;
+  padding-bottom: 32px;
+  gap: 20px;
+}
+
+.library-header { display: flex; flex-direction: column; gap: 6px; }
+
+.library-title {
+  font-family: var(--font-titre);
+  font-size: 2.2rem;
+  color: var(--bleu-azur);
+}
+
+/* Import */
+.library-import {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.library-import-label { font-weight: 700; font-size: 0.9rem; color: var(--gris-doux); }
+
+.library-import-row { display: flex; gap: 10px; }
+
+.library-import-error { color: var(--rouge-defi); font-size: 0.85rem; font-weight: 700; }
+
+/* Filtres */
+.library-filters {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 2px solid #e0e0e0;
+  background: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.filter-btn.active {
+  background: var(--bleu-azur);
+  border-color: var(--bleu-azur);
+  color: white;
+}
+
+/* Grille packs */
+.library-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.library-pack-card {
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.library-pack-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  cursor: pointer;
+}
+
+.library-pack-icon { font-size: 1.8rem; flex-shrink: 0; }
+
+.library-pack-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+
+.library-pack-name { font-weight: 800; font-size: 1rem; }
+
+.library-pack-desc { font-size: 0.8rem; color: var(--gris-doux); }
+
+.library-pack-chevron { color: var(--gris-doux); font-size: 0.75rem; }
+
+.library-pack-challenges {
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+.library-challenge-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.library-challenge-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.library-loading { text-align: center; color: var(--gris-doux); padding: 40px; }
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .library-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+}

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const Pack = require('../models/Pack');
+const Challenge = require('../models/Challenge');
 
 // Packs officiels
 router.get('/', async (req, res, next) => {
@@ -32,7 +33,17 @@ router.get('/:id', async (req, res, next) => {
 
 router.post('/', protect, async (req, res, next) => {
   try {
-    const pack = await Pack.create({ ...req.body, author: req.user._id, isOfficial: false });
+    const { challenges: challengesData, ...packData } = req.body;
+    if (!challengesData || challengesData.length !== 8) {
+      return res.status(400).json({ message: 'Un pack doit contenir exactement 8 défis.' });
+    }
+    const pack = await Pack.create({ ...packData, author: req.user._id, isOfficial: false });
+    const challenges = await Challenge.insertMany(
+      challengesData.map((c) => ({ ...c, pack: pack._id }))
+    );
+    pack.challenges = challenges.map((c) => c._id);
+    await pack.save();
+    await pack.populate('challenges');
     res.status(201).json({ pack });
   } catch (err) { next(err); }
 });

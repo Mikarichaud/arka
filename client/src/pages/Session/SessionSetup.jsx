@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import useSessionStore from '../../store/sessionStore';
@@ -7,7 +7,9 @@ import './SessionSetup.css';
 
 export default function SessionSetup() {
   const navigate = useNavigate();
-  const { setPlayerNames } = useSessionStore();
+  const location = useLocation();
+  const preselectedPackId = location.state?.preselectedPackId || null;
+  const { setPlayerNames, setSelectedPackId } = useSessionStore();
   const [players, setPlayers] = useState(['', '']);
   const [error, setError] = useState('');
 
@@ -43,6 +45,7 @@ export default function SessionSetup() {
       return;
     }
     setPlayerNames(names);
+    if (preselectedPackId) setSelectedPackId(preselectedPackId);
     navigate('/session/pack');
   };
 
