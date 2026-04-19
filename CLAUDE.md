@@ -12,13 +12,13 @@ Jeu **physique** (les joueurs sont dans la même pièce), **pas de multijoueur t
 
 | Couche | Techno |
 |---|---|
-| Frontend | React 18 + Vite, React Router v6, Zustand, Framer Motion |
-| Backend | Node.js + Express |
-| Base de données | MongoDB + Mongoose |
-| Auth | JWT + bcrypt |
-| Médias | Cloudinary (photo/vidéo) + Multer |
+| Frontend | React 18 + Vite 8, React Router v6, Zustand, Framer Motion |
+| Backend | Node.js 22.12 + Express 5 |
+| Base de données | MongoDB 9 + Mongoose |
+| Auth | JWT + bcryptjs |
+| Médias | Cloudinary (stream direct) + Multer (memoryStorage) |
 | QR Code | qrcode.react |
-| PWA | Vite PWA plugin |
+| PWA | vite-plugin-pwa (Phase 6) |
 | Déploiement | Docker Compose + Nginx + Certbot sur OVH |
 
 ---
@@ -29,41 +29,47 @@ Jeu **physique** (les joueurs sont dans la même pièce), **pas de multijoueur t
 la-roulade-marseillaise/
 ├── client/                   # React + Vite
 │   ├── public/
-│   │   ├── sounds/           # Fichiers audio (cigales, TÉ!, HÉ BÉ!, sifflet, erreur)
-│   │   └── textures/         # Images de fond (pierre Vallon des Auffes, etc.)
+│   │   ├── sounds/           # Fichiers audio (vide — à remplir Phase 6)
+│   │   └── favicon.svg
 │   ├── src/
-│   │   ├── assets/           # Images, icônes, fonts
-│   │   ├── components/       # Composants réutilisables
-│   │   │   ├── Roulette/     # Composant roulette animée
+│   │   ├── components/
 │   │   │   ├── ChallengeCard/
+│   │   │   ├── EndGame/          # Écran fin de partie + confettis
+│   │   │   ├── Layout/
+│   │   │   ├── MediaUpload/      # Upload photo/vidéo Cloudinary
 │   │   │   ├── PastisTimer/
 │   │   │   ├── PlayerCard/
-│   │   │   ├── QRCodeShare/
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── Roulette/
 │   │   │   └── VotePanel/
 │   │   ├── pages/
+│   │   │   ├── Auth/             # Login + Register (pseudo ou email)
+│   │   │   ├── Editor/           # Éditeur de packs perso (protégé)
+│   │   │   ├── Gallery/          # /gallery/:shareLink — public
+│   │   │   ├── Game/             # Écran de jeu principal
+│   │   │   ├── History/          # /history — protégé
 │   │   │   ├── Home/
-│   │   │   ├── Auth/         # Login + Register
-│   │   │   ├── Session/      # Setup joueurs + choix pack
-│   │   │   ├── Game/         # Écran de jeu principal
-│   │   │   ├── Editor/       # Éditeur de listes perso
-│   │   │   ├── Packs/        # Bibliothèque de packs
-│   │   │   ├── History/      # Historique des parties
-│   │   │   ├── Profile/      # Profil utilisateur
-│   │   │   └── Gallery/      # Galerie de session (photos/vidéos)
-│   │   ├── store/            # Zustand stores
+│   │   │   ├── Packs/            # PackSelection + PackLibrary
+│   │   │   ├── Profile/          # (à implémenter)
+│   │   │   └── Session/          # SessionSetup
+│   │   ├── store/
 │   │   │   ├── authStore.js
-│   │   │   ├── gameStore.js
+│   │   │   ├── gameStore.js      # session locale, roulette, history, media
 │   │   │   └── sessionStore.js
-│   │   ├── hooks/            # Custom hooks
-│   │   ├── services/         # Appels API (axios)
-│   │   ├── utils/            # Helpers (QR, timer, sons...)
-│   │   ├── styles/           # CSS global + variables (thème)
+│   │   ├── hooks/                # (à créer Phase 6 : useSound, useDarkMode)
+│   │   ├── services/
+│   │   │   └── api.js            # Axios, baseURL=/api (proxy Vite)
+│   │   ├── styles/
+│   │   │   ├── global.css
+│   │   │   └── variables.css
 │   │   └── App.jsx
 │   ├── index.html
 │   └── vite.config.js
 │
 ├── server/
 │   ├── src/
+│   │   ├── config/
+│   │   │   └── db.js
 │   │   ├── models/
 │   │   │   ├── User.js
 │   │   │   ├── Pack.js
@@ -74,16 +80,17 @@ la-roulade-marseillaise/
 │   │   │   ├── auth.js
 │   │   │   ├── users.js
 │   │   │   ├── packs.js
-│   │   │   ├── challenges.js
 │   │   │   ├── sessions.js
 │   │   │   └── media.js
-│   │   ├── controllers/
 │   │   ├── middlewares/
-│   │   │   ├── auth.js       # Vérification JWT
-│   │   │   └── upload.js     # Multer config
+│   │   │   ├── auth.js           # Vérification JWT
+│   │   │   └── errorHandler.js
 │   │   ├── services/
-│   │   │   └── cloudinary.js
+│   │   │   └── cloudinary.js     # cloudinary.v2 configuré
 │   │   └── app.js
+│   ├── scripts/
+│   │   └── seed.js               # npm run seed — 7 packs officiels
+│   ├── .env
 │   ├── .env.example
 │   └── server.js
 │
@@ -101,6 +108,7 @@ la-roulade-marseillaise/
 - Branche `main` : code stable, déployé en production
 - Branche `dev` : tout le développement actif
 - On merge `dev` → `main` uniquement quand une phase est terminée et stable
+- **Ne pas mentionner Claude/Anthropic dans les messages de commit**
 
 ---
 
@@ -109,41 +117,53 @@ la-roulade-marseillaise/
 ### Couleurs
 ```css
 --bleu-azur: #0057A8
+--bleu-azur-dark: #003d7a
 --blanc-velodrome: #F5F5F0
 --or-etoile: #C9A84C
+--or-etoile-light: #e0c070
 --rouge-defi: #E63946
 --vert-valide: #2DC653
 --nuit-goudes: #0D1117  /* dark mode background */
 ```
 
 ### Typographie
-- Titres : fonte bold impact-style (à définir)
-- Corps : Nunito ou Inter
+- Titres : `Bebas Neue` (Google Fonts)
+- Corps : `Nunito`
 
 ### Composants clés
-- Boutons : forme arrondie style jetons de pétanque
-- Fonds : texture pierre du Vallon des Auffes (subtile, en overlay)
-- Transitions : `Vague de la Corniche` (effet slide horizontal fluide entre pages)
-- Animations popups : effet fumigènes (smoke puff avec Framer Motion)
+- Boutons : forme arrondie style jetons de pétanque (`border-radius: 50px`)
+- Transitions : `Vague de la Corniche` (slide horizontal fluide entre pages)
+- Animations popups : effet fumigènes (smoke puff Framer Motion)
 - Validation : animation `carreau` (snap sec et satisfaisant)
 
 ### Dark mode
-Nom : **"Nuit sur les Goudes"** — activable manuellement, fond `--nuit-goudes`
+Nom : **"Nuit sur les Goudes"** — activable manuellement, fond `--nuit-goudes`, persisté en `localStorage`
 
 ---
 
 ## Sound Design
 
-| Événement | Son |
-|---|---|
-| Roulette qui tourne | Cigales qui s'excitent (accélèrent avec la vitesse) |
-| Roulette qui s'arrête | Coup de sifflet d'arbitre + "TÉ !" ou "HÉ BÉ !" |
-| Validation d'un défi | Claquement de carreau sec |
-| Erreur / champ vide | Vibration + "Oh fada, tu nous as pris pour des touristes ? Remplis la case !" |
-| Timer qui expire | Son dramatique + animation verre vide |
-| Vote refus | Soupir marseillais |
+| Événement | Fichier | Statut |
+|---|---|---|
+| Roulette qui tourne | `sounds/cigales.mp3` | ⏳ à ajouter |
+| Roulette qui s'arrête | `sounds/sifflet.mp3` | ⏳ à ajouter |
+| Validation d'un défi | `sounds/carreau.mp3` | ⏳ à ajouter |
+| Timer qui expire | `sounds/dramatique.mp3` | ⏳ à ajouter |
+| Vote refus | `sounds/soupir.mp3` | ⏳ à ajouter |
 
-Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactivable globalement.
+Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manquant. Toggle global `soundEnabled` dans `gameStore`.
+
+---
+
+## Décisions architecturales importantes
+
+- **Le jeu est 100% client-side** : la session n'est PAS créée en DB au début. Elle est sauvegardée uniquement en fin de partie via `POST /api/sessions`.
+- **PackSelection** : fetche le pack via `GET /api/packs/:id` et construit la session localement, sans appel API.
+- **Upload média** : ne requiert pas d'auth (joueurs non connectés peuvent uploader).
+- **Port serveur** : `5003` (5000 réservé par macOS AirPlay).
+- **CORS** : résolu via proxy Vite (`/api` → `http://localhost:5003`). `VITE_API_URL=/api`.
+- **Login** : accepte pseudo OU email (champ `login` côté client, logique serveur côté `authController`).
+- **Mongoose 9** : hooks pre-save avec `async function()` sans paramètre `next`.
 
 ---
 
@@ -154,14 +174,10 @@ Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactiva
 {
   username: String (unique),
   email: String (unique),
-  password: String (hashé bcrypt),
+  password: String (hashé bcrypt, select: false),
   avatar: String (URL Cloudinary),
-  stats: {
-    totalGames: Number,
-    totalChallengesCompleted: Number,
-    totalChallengesRefused: Number,
-  },
-  customPacks: [{ type: ObjectId, ref: 'Pack' }],
+  stats: { totalGames, totalChallengesCompleted, totalChallengesRefused },
+  customPacks: [ObjectId → Pack],
   createdAt: Date
 }
 ```
@@ -171,11 +187,11 @@ Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactiva
 {
   name: String,
   description: String,
-  theme: String,           // 'marseillais' | 'amis' | 'sportif' | 'couple' | 'enfants' | 'custom'
-  isOfficial: Boolean,     // packs prédéfinis vs packs utilisateur
-  author: { type: ObjectId, ref: 'User' },
-  challenges: [{ type: ObjectId, ref: 'Challenge' }],  // exactement 8
-  shareCode: String,       // code unique pour import/export
+  theme: 'marseillais' | 'amis' | 'sportif' | 'couple' | 'enfants' | 'custom',
+  isOfficial: Boolean,
+  author: ObjectId → User,
+  challenges: [ObjectId → Challenge],  // exactement 8
+  shareCode: String (nanoid),
   isPublic: Boolean,
   createdAt: Date
 }
@@ -184,14 +200,10 @@ Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactiva
 ### Challenge
 ```js
 {
-  text: String,            // description du défi
-  intensity: {
-    level: Number,         // 1 (easy) à 3 (hard)
-    label: String,         // 'Facile' | 'Moyen' | 'Hard'
-    color: String          // '#2DC653' | '#C9A84C' | '#E63946'
-  },
+  text: String,
+  intensity: { level: 1|2|3, label: 'Facile'|'Moyen'|'Hard', color: String },
   category: String,
-  pack: { type: ObjectId, ref: 'Pack' }
+  pack: ObjectId → Pack
 }
 ```
 
@@ -199,32 +211,20 @@ Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactiva
 ```js
 {
   players: [{ name: String, score: Number, avatar: String }],
-  pack: { type: ObjectId, ref: 'Pack' },
+  pack: ObjectId → Pack,
   currentPlayerIndex: Number,
-  currentSpinResult: Number,  // index 0-7
-  status: String,             // 'setup' | 'playing' | 'finished'
+  status: 'setup' | 'playing' | 'finished',
   history: [{
-    player: String,
-    challenge: { type: ObjectId, ref: 'Challenge' },
-    result: String,           // 'completed' | 'refused'
-    media: [String],          // URLs Cloudinary
+    playerName: String,
+    challenge: ObjectId → Challenge (optionnel),
+    challengeText: String,       // dénormalisé
+    result: 'completed' | 'refused' | 'pending',
+    points: Number,
+    media: [String],             // URLs Cloudinary
     timestamp: Date
   }],
-  createdBy: { type: ObjectId, ref: 'User' },
-  shareLink: String,          // lien galerie publique
-  createdAt: Date
-}
-```
-
-### GameHistory
-```js
-{
-  session: { type: ObjectId, ref: 'Session' },
-  user: { type: ObjectId, ref: 'User' },
-  players: [String],
-  packUsed: String,
-  totalRounds: Number,
-  highlights: [String],       // URLs médias uploadés
+  createdBy: ObjectId → User (optionnel),
+  shareLink: String (nanoid 10, unique),  // généré auto en pre-save
   createdAt: Date
 }
 ```
@@ -236,7 +236,7 @@ Tous les sons sont dans `client/public/sounds/`. Le son est activable/désactiva
 ### Auth
 ```
 POST   /api/auth/register
-POST   /api/auth/login
+POST   /api/auth/login        # body: { login: "pseudo ou email", password }
 POST   /api/auth/logout
 GET    /api/auth/me
 ```
@@ -245,126 +245,108 @@ GET    /api/auth/me
 ```
 GET    /api/users/:id
 PUT    /api/users/:id
-DELETE /api/users/:id
 GET    /api/users/:id/history
 ```
 
 ### Packs
 ```
-GET    /api/packs                  # tous les packs officiels
-GET    /api/packs/:id
-POST   /api/packs                  # créer un pack perso
+GET    /api/packs             # tous les packs officiels
+GET    /api/packs/:id         # pack avec challenges populés
+POST   /api/packs             # créer un pack perso (protect)
 PUT    /api/packs/:id
 DELETE /api/packs/:id
-GET    /api/packs/share/:shareCode # import par code/QR
-POST   /api/packs/:id/duplicate    # copier un pack officiel pour le modifier
+GET    /api/packs/share/:shareCode
+POST   /api/packs/:id/duplicate
 ```
 
 ### Sessions
 ```
-POST   /api/sessions               # créer une session
+POST   /api/sessions          # sauvegarder une partie terminée (auth optionnelle)
 GET    /api/sessions/:id
-PUT    /api/sessions/:id           # update (score, tour, etc.)
-POST   /api/sessions/:id/spin      # résultat du spin
-POST   /api/sessions/:id/vote      # soumettre un vote
-GET    /api/sessions/:id/gallery   # galerie publique
+GET    /api/sessions/gallery/:shareLink   # galerie publique
+GET    /api/sessions/user/me              # historique de l'utilisateur connecté
 ```
 
 ### Médias
 ```
-POST   /api/media/upload           # upload photo/vidéo → Cloudinary
-DELETE /api/media/:publicId
+POST   /api/media/upload      # upload vers Cloudinary (sans auth requise)
+DELETE /api/media/:publicId   # (protect)
 ```
 
 ---
 
 ## Phases de développement
 
-### Phase 1 — Fondations backend
-- [ ] Init repo + structure dossiers + git (main + dev)
-- [ ] Setup Node/Express + MongoDB + Mongoose
-- [ ] Variables d'environnement (.env.example)
-- [ ] Model User + Model Pack + Model Challenge + Model Session + Model GameHistory
-- [ ] Route POST /api/auth/register (hash bcrypt)
-- [ ] Route POST /api/auth/login (génération JWT)
-- [ ] Route GET /api/auth/me (middleware auth JWT)
-- [ ] Middleware d'erreur global
-- [ ] Tests manuels Postman/Thunder Client
+### Phase 1 — Fondations backend ✅
+- [x] Init repo + structure dossiers + git (main + dev)
+- [x] Setup Node/Express + MongoDB + Mongoose
+- [x] Variables d'environnement (.env.example)
+- [x] Models : User, Pack, Challenge, Session, GameHistory
+- [x] Route POST /api/auth/register (hash bcrypt)
+- [x] Route POST /api/auth/login (JWT) — accepte pseudo ou email
+- [x] Route GET /api/auth/me (middleware JWT)
+- [x] Middleware d'erreur global
 
-### Phase 2 — UI Core (Roulette + Session setup)
-- [ ] Init Vite React + React Router + Zustand + Framer Motion
-- [ ] Design system : variables CSS, fonts, composants de base
-- [ ] Page Home (landing)
-- [ ] Page Auth (Login / Register)
-- [ ] Page Session Setup : saisir les noms des joueurs (min 2, max 10), ordre aléatoire ou manuel
-- [ ] Page Choix du Pack : liste des packs dispo, aperçu des 8 cases
-- [ ] Composant Roulette : animation 8 cases, spin, atterrissage sur une case avec effet physique (décélération réaliste)
-- [ ] Page Game : affichage du défi, nom du joueur actif, score en cours
-- [ ] Store Zustand : sessionStore (joueurs, scores, tour actuel)
-- [ ] Store Zustand : gameStore (état de la roulette, défi en cours)
+### Phase 2 — UI Core ✅
+- [x] Init Vite 8 + React Router + Zustand + Framer Motion
+- [x] Design system : variables CSS, fonts, composants de base
+- [x] Page Home (landing, affiche user connecté)
+- [x] Page Auth (Login / Register)
+- [x] Page Session Setup (noms joueurs, min 2 max 10)
+- [x] Page Choix du Pack
+- [x] Composant Roulette animée 8 cases
+- [x] Page Game (phases : idle → spinning → challenge → vote → result → endgame)
+- [x] Stores Zustand : authStore, gameStore, sessionStore
+- [x] Layout desktop 2 colonnes (roulette gauche, contenu droite)
 
-### Phase 3 — Contenu (Packs + Éditeur + Partage)
-- [ ] Seed MongoDB : packs officiels prédéfinis
-  - Pack "Soirée entre amis"
-  - Pack "Défis sportifs"
-  - Pack "Couple"
-  - Pack "Enfants"
-  - Pack "Mireille" (défis de daronne marseillaise)
-  - Pack "Virage Sud" (défis de supporters OM)
-  - Pack "Mouloud le Pêcheur" (défis d'exagération)
-- [ ] Routes GET /api/packs (avec filtres par thème)
-- [ ] Page Bibliothèque de packs
-- [ ] Éditeur de listes perso : créer/nommer/sauvegarder 8 défis avec niveau d'intensité par case
-- [ ] Route POST /api/packs (création pack custom)
-- [ ] Génération shareCode unique par pack custom
-- [ ] Génération QR code (qrcode.react) + lien de partage
-- [ ] Route GET /api/packs/share/:shareCode (import depuis QR ou lien)
-- [ ] Duplication d'un pack officiel pour modification
+### Phase 3 — Contenu ✅
+- [x] Seed MongoDB : 7 packs officiels (56 défis)
+- [x] Routes GET /api/packs
+- [x] Page Bibliothèque de packs
+- [x] Éditeur de listes perso (protégé)
+- [x] Route POST /api/packs (création pack custom)
+- [x] shareCode unique par pack (nanoid)
+- [ ] QR code (qrcode.react) + lien de partage — prévu mais non implémenté
+- [ ] Duplication d'un pack officiel
 
-### Phase 4 — Gameplay (Timer, Vote, Scoring)
-- [ ] Pastis-Timer : composant verre de pastis animé qui se vide, durée configurable par défi
-- [ ] Système de vote : après un défi, les autres joueurs valident ou refusent à la majorité
-- [ ] Calcul des scores selon l'intensité du défi (Facile=1pt, Moyen=2pts, Hard=3pts)
-- [ ] Bouton "C'est pas ma faute !" : relance la roulette avec excuse aléatoire
-- [ ] Mode "L'Exagérateur" : multiplicateur de score x2 si activé
-- [ ] Commentaires aléatoires après chaque spin
-  - "Oh, c'est cadeau ça !"
-  - "À ta place, je rentrerais à la maison direct !"
-  - "Même mon minot il le fait les yeux fermés !"
-- [ ] Écran de fin de session : classement, MVP, stats rigolotes
-- [ ] Sauvegarde session terminée → GameHistory
-- [ ] Feature cachée "Radar à Parisiens" : bouton rouge discret dans l'UI, active un faux sonar animé qui "scanne" la zone et affiche "C'est bon, y'en a pas ici, on est entre nous."
+### Phase 4 — Gameplay ✅
+- [x] PastisTimer animé (durée selon intensité : 45/30/20s)
+- [x] Système de vote (VotePanel, majorité)
+- [x] Scoring : Facile=1pt, Moyen=2pts, Hard=3pts
+- [x] Bouton "C'est pas ma faute !" — relance la roulette
+- [x] Mode Exagérateur x2
+- [x] Commentaires aléatoires après chaque spin (10 phrases)
+- [x] Écran EndGame : podium 🥇🥈🥉, confettis, stats fun
+- [x] Sauvegarde session en fin de partie
+- [x] Feature cachée "Radar à Parisiens" (sonar animé Easter egg)
 
-### Phase 5 — Médias (Photos/Vidéos)
-- [ ] Setup Cloudinary + Multer côté serveur
-- [ ] Route POST /api/media/upload
-- [ ] Composant upload dans l'écran de jeu (après un défi complété)
-- [ ] Affichage miniatures dans le fil de la session
-- [ ] Page Galerie de session : grille photos/vidéos, accessible via lien public unique
-- [ ] Page Historique profil : liste des sessions passées avec accès aux galeries
+### Phase 5 — Médias ✅
+- [x] Setup Cloudinary (stream direct, sans multer-storage-cloudinary)
+- [x] Route POST /api/media/upload (sans auth)
+- [x] Composant MediaUpload dans phase result
+- [x] Page Galerie /gallery/:shareLink (publique, lightbox)
+- [x] Page Historique /history (protégée)
+- [x] Session sauvegardée avec history + media + shareLink
 
-### Phase 6 — Polish (Design, Sons, PWA)
-- [ ] Intégration sons (tous les événements du sound design)
-- [ ] Toggle son ON/OFF global
-- [ ] Transitions "Vague de la Corniche" entre toutes les pages (Framer Motion)
-- [ ] Animations fumigènes sur les popups et modales
-- [ ] Animation "carreau" sur les validations
-- [ ] Texture pierre en overlay sur les fonds
-- [ ] Dark mode "Nuit sur les Goudes" (toggle + persistence localStorage)
-- [ ] Setup PWA (Vite PWA plugin) : manifest, service worker, icônes
-- [ ] Mode offline : packs déjà chargés restent disponibles sans réseau
-- [ ] Responsive check sur tous les écrans mobiles courants
+### Phase 6 — Polish (Design, Sons, PWA) 🔄 EN COURS
+- [ ] Dark mode "Nuit sur les Goudes" (uiStore + toggle + localStorage)
+- [ ] Sons : hook useSound + Toggle ON/OFF + sons Web Audio API (placeholders)
+- [ ] Transitions "Vague de la Corniche" (slide directionnel Framer Motion)
+- [ ] Animation "carreau" sur validations
+- [ ] Animations fumigènes sur popups
+- [ ] Texture pierre overlay CSS
+- [ ] Setup PWA (vite-plugin-pwa) : manifest, service worker, offline
+- [ ] Responsive final check
 
 ### Phase 7 — Déploiement OVH
-- [ ] Dockerfile client (build Vite + Nginx statique)
+- [ ] Dockerfile client (Vite build + Nginx)
 - [ ] Dockerfile server (Node.js)
-- [ ] docker-compose.prod.yml (client + server + MongoDB)
-- [ ] Configuration Nginx (reverse proxy, gzip, headers sécurité)
-- [ ] Certbot SSL (HTTPS)
+- [ ] docker-compose.prod.yml
+- [ ] Nginx config (reverse proxy, gzip, headers sécurité)
+- [ ] Certbot SSL
 - [ ] Variables d'environnement production
-- [ ] Script de déploiement (pull + rebuild + restart)
-- [ ] Test de charge léger
-- [ ] Monitoring basique (logs Nginx + PM2 ou Docker logs)
+- [ ] Script de déploiement
+- [ ] Monitoring basique
 
 ---
 
@@ -406,19 +388,20 @@ DELETE /api/media/:publicId
 
 ### server/.env.example
 ```
-PORT=5000
+PORT=5003
 MONGODB_URI=mongodb://localhost:27017/roulade-marseillaise
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRES_IN=7d
-CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_CLOUD_NAME=your_cloud_name   # identifiant lowercase Cloudinary
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 CLIENT_URL=http://localhost:5173
+NODE_ENV=development
 ```
 
 ### client/.env.example
 ```
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL=/api
 VITE_APP_NAME=La Roulade Marseillaise
 ```
 
@@ -429,5 +412,6 @@ VITE_APP_NAME=La Roulade Marseillaise
 - Pas de commentaires sauf pour la logique non évidente
 - Pas d'over-engineering : si ça peut être simple, ça reste simple
 - Validation des entrées uniquement aux frontières (formulaires, API)
-- Toujours gérer les erreurs côté API avec des messages en français marseillais quand c'est côté utilisateur
+- Toujours gérer les erreurs côté API avec des messages en français marseillais
 - Les sons et animations sont toujours optionnels (accessibilité)
+- Ne pas mentionner Claude/Anthropic dans les commits git
