@@ -1,0 +1,30 @@
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import Home from './pages/Home/Home';
+import Auth from './pages/Auth/Auth';
+import SessionSetup from './pages/Session/SessionSetup';
+import PackSelection from './pages/Packs/PackSelection';
+import Game from './pages/Game/Game';
+
+function AnimatedRoutes() {
+  const location = useLocation();
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/session/setup" element={<SessionSetup />} />
+        <Route path="/session/pack" element={<PackSelection />} />
+        <Route path="/game" element={<Game />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AnimatedRoutes />
+    </BrowserRouter>
+  );
+}

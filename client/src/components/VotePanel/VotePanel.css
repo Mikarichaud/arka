@@ -1,0 +1,63 @@
+.vote-panel {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+  width: 100%;
+}
+
+.vote-title {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+
+.vote-subtitle {
+  color: var(--gris-doux);
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+}
+
+.vote-list { display: flex; flex-direction: column; gap: 10px; }
+
+.vote-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--blanc-velodrome);
+  border-radius: var(--radius-md);
+}
+
+.vote-player-name { font-weight: 700; }
+
+.vote-btns { display: flex; gap: 8px; }
+
+.vote-btn {
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  font-weight: 700;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.vote-yes { border-color: var(--vert-valide); color: var(--vert-valide); background: transparent; }
+.vote-yes.active { background: var(--vert-valide); color: white; }
+.vote-no { border-color: var(--rouge-defi); color: var(--rouge-defi); background: transparent; }
+.vote-no.active { background: var(--rouge-defi); color: white; }
+
+.vote-excuse-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: none;
+  border: none;
+  color: var(--gris-doux);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-decoration: underline;
+  font-style: italic;
+  padding: 4px;
+}

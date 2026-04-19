@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap');
+@import './variables.css';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-corps);
+  background-color: var(--blanc-velodrome);
+  color: #1a1a2e;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar discrète */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gris-doux); border-radius: 4px; }
+
+/* Bouton de base style jeton pétanque */
+.btn {
+  font-family: var(--font-corps);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--bleu-azur), var(--bleu-azur-dark));
+  color: white;
+  padding: 14px 28px;
+  font-size: 1rem;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--or-etoile), var(--or-etoile-light));
+  color: #1a1a2e;
+  padding: 14px 28px;
+  font-size: 1rem;
+  box-shadow: var(--shadow-or);
+}
+
+.btn-gold:hover { box-shadow: 0 6px 28px rgba(201, 168, 76, 0.5); transform: translateY(-1px); }
+
+.btn-danger {
+  background: var(--rouge-defi);
+  color: white;
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--bleu-azur);
+  border: 2px solid var(--bleu-azur);
+  padding: 12px 24px;
+  font-size: 1rem;
+}
+
+.btn-sm { padding: 8px 16px; font-size: 0.875rem; }
+
+/* Cards */
+.card {
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px;
+}
+
+/* Input */
+.input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid #e0e0e0;
+  border-radius: var(--radius-md);
+  font-family: var(--font-corps);
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+  outline: none;
+}
+
+.input:focus { border-color: var(--bleu-azur); }
+
+/* Badge intensité */
+.badge-facile { background: var(--intensite-facile); color: white; }
+.badge-moyen  { background: var(--intensite-moyen); color: #1a1a2e; }
+.badge-hard   { background: var(--intensite-hard); color: white; }
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Texture pierre (subtile) */
+.texture-pierre {
+  background-image: url('/textures/pierre.png');
+  background-blend-mode: overlay;
+  background-size: 200px;
+  background-repeat: repeat;
+}
+
+/* Page container mobile-first */
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }

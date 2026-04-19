@@ -1,0 +1,55 @@
+.setup-page {
+  padding-top: 24px;
+  padding-bottom: 32px;
+  gap: 24px;
+}
+
+.setup-header { display: flex; flex-direction: column; gap: 6px; }
+
+.setup-title {
+  font-family: var(--font-titre);
+  font-size: 2.2rem;
+  color: var(--bleu-azur);
+}
+
+.setup-subtitle { color: var(--gris-doux); }
+
+.setup-players { display: flex; flex-direction: column; gap: 10px; }
+
+.setup-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setup-player-num {
+  font-family: var(--font-titre);
+  font-size: 1.3rem;
+  color: var(--or-etoile);
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.setup-remove-btn {
+  background: none;
+  border: none;
+  color: var(--rouge-defi);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px;
+  flex-shrink: 0;
+}
+
+.setup-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setup-error {
+  color: var(--rouge-defi);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-align: center;
+}

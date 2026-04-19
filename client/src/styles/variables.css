@@ -1,0 +1,49 @@
+:root {
+  /* Couleurs principales */
+  --bleu-azur: #0057A8;
+  --bleu-azur-dark: #003d7a;
+  --blanc-velodrome: #F5F5F0;
+  --or-etoile: #C9A84C;
+  --or-etoile-light: #e0c070;
+  --rouge-defi: #E63946;
+  --vert-valide: #2DC653;
+  --gris-doux: #8892a4;
+
+  /* Intensités */
+  --intensite-facile: #2DC653;
+  --intensite-moyen: #C9A84C;
+  --intensite-hard: #E63946;
+
+  /* Dark mode */
+  --nuit-goudes: #0D1117;
+  --nuit-surface: #161b22;
+  --nuit-border: #30363d;
+
+  /* Typographie */
+  --font-titre: 'Bebas Neue', 'Impact', sans-serif;
+  --font-corps: 'Nunito', 'Inter', sans-serif;
+
+  /* Espacements */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-pill: 50px;
+
+  /* Ombres */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.18);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.25);
+  --shadow-or: 0 4px 20px rgba(201, 168, 76, 0.35);
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-mid: 0.3s ease;
+  --transition-slow: 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+[data-theme="dark"] {
+  --blanc-velodrome: #0D1117;
+  --nuit-surface: #161b22;
+  background-color: var(--nuit-goudes);
+  color: #e6edf3;
+}
