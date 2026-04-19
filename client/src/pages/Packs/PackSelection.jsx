@@ -35,12 +35,15 @@ export default function PackSelection() {
     if (!selectedPackId) return;
     setStarting(true);
     try {
-      const { data } = await api.post('/sessions', {
-        players: playerNames,
-        packId: selectedPackId,
-      });
-      setSession(data.session);
-      setPack(data.pack);
+      const { data } = await api.get(`/packs/${selectedPackId}`);
+      const pack = data.pack;
+      const session = {
+        players: playerNames.map((name) => ({ name, score: 0 })),
+        currentPlayerIndex: 0,
+        pack: pack._id,
+      };
+      setSession(session);
+      setPack(pack);
       navigate('/game');
     } catch (err) {
       console.error(err);
