@@ -24,13 +24,16 @@ const register = async (req, res, next) => {
 
 const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) {
+    const { login: identifier, password } = req.body;
+    if (!identifier || !password) {
       return res.status(400).json({ message: 'Oh fada, remplis tous les champs !' });
     }
-    const user = await User.findOne({ email }).select('+password');
+    const isEmail = identifier.includes('@');
+    const user = await User.findOne(
+      isEmail ? { email: identifier.toLowerCase() } : { username: identifier }
+    ).select('+password');
     if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: 'Email ou mot de passe incorrect.' });
+      return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect.' });
     }
     const token = signToken(user._id);
     res.json({ token, user });

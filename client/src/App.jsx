@@ -7,6 +7,7 @@ import PackSelection from './pages/Packs/PackSelection';
 import PackLibrary from './pages/Packs/PackLibrary';
 import Editor from './pages/Editor/Editor';
 import Game from './pages/Game/Game';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -18,7 +19,7 @@ function AnimatedRoutes() {
         <Route path="/session/setup" element={<SessionSetup />} />
         <Route path="/session/pack" element={<PackSelection />} />
         <Route path="/packs" element={<PackLibrary />} />
-        <Route path="/editor" element={<Editor />} />
+        <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
         <Route path="/game" element={<Game />} />
       </Routes>
     </AnimatePresence>

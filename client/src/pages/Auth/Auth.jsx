@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import useAuthStore from '../../store/authStore';
@@ -7,9 +7,11 @@ import './Auth.css';
 
 export default function Auth() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/';
   const { login, register, isLoading } = useAuthStore();
   const [mode, setMode] = useState('login');
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState({ username: '', login: '', email: '', password: '' });
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -17,11 +19,11 @@ export default function Auth() {
     setError('');
     try {
       if (mode === 'login') {
-        await login(form.email, form.password);
+        await login(form.login, form.password);
       } else {
         await register(form.username, form.email, form.password);
       }
-      navigate('/');
+      navigate(from);
     } catch (err) {
       setError(err.response?.data?.message || 'Erreur inattendue, té !');
     }
@@ -49,13 +51,21 @@ export default function Auth() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <AnimatePresence mode="wait">
-            {mode === 'register' && (
-              <motion.div
-                key="username"
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-              >
+            {mode === 'login' ? (
+              <motion.div key="login-fields" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <input
+                  className="input"
+                  type="text"
+                  placeholder="Pseudo ou email"
+                  value={form.login}
+                  onChange={(e) => setForm({ ...form, login: e.target.value })}
+                  required
+                />
+              </motion.div>
+            ) : (
+              <motion.div key="register-fields" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <input
                   className="input"
                   type="text"
@@ -64,18 +74,18 @@ export default function Auth() {
                   onChange={(e) => setForm({ ...form, username: e.target.value })}
                   required
                 />
+                <input
+                  className="input"
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <input
-            className="input"
-            type="email"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            required
-          />
           <input
             className="input"
             type="password"
