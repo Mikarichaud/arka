@@ -1,0 +1,128 @@
+.endgame {
+  min-height: 100dvh;
+  background: linear-gradient(135deg, #0d1b3e 0%, #0057A8 60%, #C9A84C 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.confetti-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  top: 0;
+}
+
+.endgame-content {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.endgame-header { text-align: center; }
+
+.endgame-pack {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+
+.endgame-title {
+  font-family: var(--font-titre);
+  font-size: 3.5rem;
+  color: white;
+  line-height: 1;
+  margin-bottom: 12px;
+}
+
+.endgame-winner-stat {
+  color: var(--or-etoile-light);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.endgame-podium {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.endgame-player-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.endgame-player-row.winner {
+  background: rgba(201,168,76,0.2);
+  border-color: var(--or-etoile);
+  box-shadow: 0 0 20px rgba(201,168,76,0.2);
+}
+
+.endgame-medal { font-size: 1.4rem; }
+
+.endgame-player-name {
+  flex: 1;
+  font-weight: 700;
+  color: white;
+  font-size: 1.05rem;
+}
+
+.endgame-player-score {
+  font-family: var(--font-titre);
+  font-size: 1.4rem;
+  color: var(--or-etoile-light);
+}
+
+.endgame-loser-stat {
+  text-align: center;
+  color: rgba(255,255,255,0.45);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.endgame-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.endgame-actions .btn-ghost {
+  color: rgba(255,255,255,0.7);
+  border-color: rgba(255,255,255,0.3);
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .endgame-content { max-width: 600px; padding: 48px 40px; }
+  .endgame-title { font-size: 5rem; }
+}
