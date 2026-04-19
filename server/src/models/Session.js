@@ -13,8 +13,10 @@ const sessionSchema = new mongoose.Schema({
   status: { type: String, enum: ['setup', 'playing', 'finished'], default: 'setup' },
   history: [{
     playerName: { type: String, required: true },
-    challenge: { type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' },
+    challenge: { type: mongoose.Schema.Types.ObjectId, ref: 'Challenge', default: null },
+    challengeText: { type: String, default: '' },
     result: { type: String, enum: ['completed', 'refused', 'pending'], default: 'pending' },
+    points: { type: Number, default: 0 },
     media: [{ type: String }],
     timestamp: { type: Date, default: Date.now },
   }],

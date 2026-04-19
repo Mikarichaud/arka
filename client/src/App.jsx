@@ -7,6 +7,8 @@ import PackSelection from './pages/Packs/PackSelection';
 import PackLibrary from './pages/Packs/PackLibrary';
 import Editor from './pages/Editor/Editor';
 import Game from './pages/Game/Game';
+import Gallery from './pages/Gallery/Gallery';
+import History from './pages/History/History';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function AnimatedRoutes() {
@@ -21,6 +23,8 @@ function AnimatedRoutes() {
         <Route path="/packs" element={<PackLibrary />} />
         <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
         <Route path="/game" element={<Game />} />
+        <Route path="/gallery/:shareLink" element={<Gallery />} />
+        <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
       </Routes>
     </AnimatePresence>
   );

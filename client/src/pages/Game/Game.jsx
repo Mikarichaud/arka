@@ -8,6 +8,7 @@ import PastisTimer from '../../components/PastisTimer/PastisTimer';
 import VotePanel from '../../components/VotePanel/VotePanel';
 import PlayerCard from '../../components/PlayerCard/PlayerCard';
 import EndGame from '../../components/EndGame/EndGame';
+import MediaUpload from '../../components/MediaUpload/MediaUpload';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import api from '../../services/api';
@@ -25,13 +26,14 @@ export default function Game() {
     session, pack, isSpinning, spinResult, currentChallenge,
     currentComment, exagerateurMode,
     spin, nextPlayer, updatePlayerScore, addHistoryEntry,
-    resetGame, toggleExagerateur, getTimerDuration,
+    addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
   } = useGameStore();
   const { user } = useAuthStore();
 
   const [phase, setPhase] = useState('idle'); // idle | spinning | challenge | vote | result | endgame
   const [timerRunning, setTimerRunning] = useState(false);
   const [lastPoints, setLastPoints] = useState(null);
+  const [shareLink, setShareLink] = useState(null);
   const [radarResult, setRadarResult] = useState(null);
   const [radarVisible, setRadarVisible] = useState(false);
   const [radarScanning, setRadarScanning] = useState(false);
@@ -82,14 +84,14 @@ export default function Game() {
   };
 
   const handleEndGame = async () => {
-    if (user) {
-      try {
-        await api.post('/sessions', {
-          players: session.players.map((p) => p.name),
-          packId: pack._id,
-        });
-      } catch {}
-    }
+    try {
+      const res = await api.post('/sessions', {
+        players: session.players,
+        packId: pack._id,
+        history: useGameStore.getState().gameHistory,
+      });
+      setShareLink(res.data.shareLink);
+    } catch {}
     setPhase('endgame');
   };
 
@@ -113,6 +115,7 @@ export default function Game() {
       <EndGame
         players={session.players}
         packName={pack.name}
+        shareLink={shareLink}
         onRestart={handleRestart}
         onHome={() => { resetGame(); navigate('/'); }}
       />
@@ -240,6 +243,10 @@ export default function Game() {
                   <PlayerCard key={p.name} player={p} isActive={p.name === currentPlayer.name} rank={i + 1} />
                 ))}
               </div>
+
+              {lastPoints !== null && (
+                <MediaUpload onUploaded={addMediaToLastEntry} />
+              )}
 
               <div className="game-result-actions">
                 <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleNext}>

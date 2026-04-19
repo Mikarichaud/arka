@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import './EndGame.css';
 
@@ -14,7 +15,8 @@ const LOSER_STATS = [
   (p) => `${p.name} repassera l'année prochaine.`,
 ];
 
-export default function EndGame({ players, packName, onRestart, onHome }) {
+export default function EndGame({ players, packName, shareLink, onRestart, onHome }) {
+  const navigate = useNavigate();
   const sorted = [...players].sort((a, b) => b.score - a.score);
   const winner = sorted[0];
   const loser = sorted[sorted.length - 1];
@@ -86,6 +88,11 @@ export default function EndGame({ players, packName, onRestart, onHome }) {
         )}
 
         <div className="endgame-actions">
+          {shareLink && (
+            <button className="btn btn-primary" style={{ width: '100%' }} onClick={() => navigate(`/gallery/${shareLink}`)}>
+              📸 Voir la galerie
+            </button>
+          )}
           <button className="btn btn-gold" style={{ width: '100%' }} onClick={onRestart}>
             Rejouer
           </button>

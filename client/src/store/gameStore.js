@@ -75,6 +75,7 @@ const useGameStore = create((set, get) => ({
         challengeText: state.currentChallenge?.text || '',
         result: 'completed',
         points,
+        media: [],
       };
       return {
         session: { ...state.session, players },
@@ -91,8 +92,20 @@ const useGameStore = create((set, get) => ({
         challengeText: state.currentChallenge?.text || '',
         result,
         points: 0,
+        media: [],
       }],
     }));
+  },
+
+  addMediaToLastEntry: (url) => {
+    set((state) => {
+      if (state.gameHistory.length === 0) return {};
+      const updated = [...state.gameHistory];
+      const last = { ...updated[updated.length - 1] };
+      last.media = [...(last.media || []), url];
+      updated[updated.length - 1] = last;
+      return { gameHistory: updated };
+    });
   },
 
   resetGame: () => set({

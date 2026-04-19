@@ -4,28 +4,49 @@ const { protect } = require('../middlewares/auth');
 const Session = require('../models/Session');
 const Pack = require('../models/Pack');
 
-router.post('/', protect, async (req, res, next) => {
+router.post('/', async (req, res, next) => {
   try {
-    const { players, packId } = req.body;
+    const { players, packId, history = [] } = req.body;
     if (!players || players.length < 2) {
       return res.status(400).json({ message: 'Il faut au moins 2 joueurs, oh fada !' });
     }
-    const pack = await Pack.findById(packId).populate('challenges');
+    const pack = await Pack.findById(packId);
     if (!pack) return res.status(404).json({ message: 'Pack introuvable.' });
 
-    const session = await Session.create({
-      players: players.map((name) => ({ name })),
+    const sessionData = {
+      players: players.map((p) => ({
+        name: typeof p === 'string' ? p : p.name,
+        score: typeof p === 'object' ? (p.score || 0) : 0,
+      })),
       pack: packId,
-      createdBy: req.user._id,
-      status: 'playing',
-    });
-    res.status(201).json({ session, pack });
+      status: 'finished',
+      history: history.map((h) => ({
+        playerName: h.playerName,
+        challengeText: h.challengeText || '',
+        result: h.result || 'pending',
+        points: h.points || 0,
+        media: h.media || [],
+      })),
+    };
+
+    if (req.headers.authorization) {
+      const jwt = require('jsonwebtoken');
+      try {
+        const token = req.headers.authorization.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        sessionData.createdBy = decoded.id;
+      } catch {}
+    }
+
+    const session = await Session.create(sessionData);
+    res.status(201).json({ session, shareLink: session.shareLink });
   } catch (err) { next(err); }
 });
 
 router.get('/:id', async (req, res, next) => {
   try {
-    const session = await Session.findById(req.params.id).populate({ path: 'pack', populate: { path: 'challenges' } });
+    const session = await Session.findById(req.params.id)
+      .populate({ path: 'pack', populate: { path: 'challenges' } });
     if (!session) return res.status(404).json({ message: 'Session introuvable.' });
     res.json({ session });
   } catch (err) { next(err); }
@@ -38,55 +59,39 @@ router.put('/:id', protect, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Résultat du spin : index de case aléatoire 0-7
-router.post('/:id/spin', protect, async (req, res, next) => {
+// Galerie publique — accessible sans auth via shareLink
+router.get('/gallery/:shareLink', async (req, res, next) => {
   try {
-    const spinResult = Math.floor(Math.random() * 8);
-    const session = await Session.findByIdAndUpdate(
-      req.params.id,
-      { currentSpinResult: spinResult },
-      { new: true }
-    ).populate({ path: 'pack', populate: { path: 'challenges' } });
-    const challenge = session.pack.challenges[spinResult];
-    res.json({ spinResult, challenge });
-  } catch (err) { next(err); }
-});
-
-// Vote sur un défi
-router.post('/:id/vote', protect, async (req, res, next) => {
-  try {
-    const { result, historyEntryIndex } = req.body;
-    const session = await Session.findById(req.params.id);
-    if (!session) return res.status(404).json({ message: 'Session introuvable.' });
-
-    session.history[historyEntryIndex].result = result;
-
-    // Mise à jour du score si défi complété
-    if (result === 'completed') {
-      const challenge = await require('../models/Challenge').findById(
-        session.history[historyEntryIndex].challenge
-      );
-      const playerName = session.history[historyEntryIndex].playerName;
-      const playerIndex = session.players.findIndex((p) => p.name === playerName);
-      if (playerIndex !== -1 && challenge) {
-        session.players[playerIndex].score += challenge.intensity.level;
-      }
-    }
-
-    // Passer au joueur suivant
-    session.currentPlayerIndex = (session.currentPlayerIndex + 1) % session.players.length;
-    await session.save();
-    res.json({ session });
-  } catch (err) { next(err); }
-});
-
-// Galerie publique de la session
-router.get('/:id/gallery', async (req, res, next) => {
-  try {
-    const session = await Session.findOne({ shareLink: req.params.id });
+    const session = await Session.findOne({ shareLink: req.params.shareLink });
     if (!session) return res.status(404).json({ message: 'Galerie introuvable.' });
-    const medias = session.history.flatMap((h) => h.media);
-    res.json({ medias, players: session.players });
+
+    const media = session.history
+      .filter((h) => h.media && h.media.length > 0)
+      .flatMap((h) => h.media.map((url) => ({
+        url,
+        playerName: h.playerName,
+        challengeText: h.challengeText,
+        result: h.result,
+      })));
+
+    res.json({
+      shareLink: session.shareLink,
+      players: session.players,
+      packId: session.pack,
+      media,
+      createdAt: session.createdAt,
+    });
+  } catch (err) { next(err); }
+});
+
+// Historique des sessions d'un utilisateur connecté
+router.get('/user/me', protect, async (req, res, next) => {
+  try {
+    const sessions = await Session.find({ createdBy: req.user._id })
+      .sort({ createdAt: -1 })
+      .populate('pack', 'name theme')
+      .select('players pack shareLink createdAt status history');
+    res.json({ sessions });
   } catch (err) { next(err); }
 });
 
