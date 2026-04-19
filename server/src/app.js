@@ -13,7 +13,12 @@ const mediaRoutes = require('./routes/media');
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
+
+const corsOptions = process.env.NODE_ENV === 'production'
+  ? { origin: process.env.CLIENT_URL, credentials: true }
+  : { origin: true, credentials: true };
+
+app.use(cors(corsOptions));
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

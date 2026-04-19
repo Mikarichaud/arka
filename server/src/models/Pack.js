@@ -16,11 +16,10 @@ const packSchema = new mongoose.Schema({
   isPublic: { type: Boolean, default: false },
 }, { timestamps: true });
 
-packSchema.pre('save', function (next) {
+packSchema.pre('save', async function () {
   if (!this.shareCode) {
     this.shareCode = nanoid(8).toUpperCase();
   }
-  next();
 });
 
 module.exports = mongoose.model('Pack', packSchema);

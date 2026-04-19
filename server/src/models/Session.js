@@ -22,11 +22,10 @@ const sessionSchema = new mongoose.Schema({
   shareLink: { type: String, unique: true, sparse: true },
 }, { timestamps: true });
 
-sessionSchema.pre('save', function (next) {
+sessionSchema.pre('save', async function () {
   if (!this.shareLink) {
     this.shareLink = nanoid(10);
   }
-  next();
 });
 
 module.exports = mongoose.model('Session', sessionSchema);
