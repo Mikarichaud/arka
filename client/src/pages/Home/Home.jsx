@@ -2,12 +2,14 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import useSessionStore from '../../store/sessionStore';
+import useAuthStore from '../../store/authStore';
 import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
   const toggleTheme = useSessionStore((s) => s.toggleTheme);
   const theme = useSessionStore((s) => s.theme);
+  const { user, logout } = useAuthStore();
 
   return (
     <Layout className="home-page">
@@ -50,14 +52,23 @@ export default function Home() {
           Les packs de défis
         </motion.button>
 
-        <motion.button
-          className="btn btn-ghost"
-          style={{ width: '100%' }}
-          onClick={() => navigate('/login')}
-          whileTap={{ scale: 0.96 }}
-        >
-          Se connecter
-        </motion.button>
+        {user ? (
+          <div className="home-user-bar">
+            <span className="home-username">👋 {user.username}</span>
+            <button className="btn btn-ghost btn-sm" onClick={logout}>
+              Déconnexion
+            </button>
+          </div>
+        ) : (
+          <motion.button
+            className="btn btn-ghost"
+            style={{ width: '100%' }}
+            onClick={() => navigate('/login')}
+            whileTap={{ scale: 0.96 }}
+          >
+            Se connecter
+          </motion.button>
+        )}
       </div>
 
       <div className="home-footer">
