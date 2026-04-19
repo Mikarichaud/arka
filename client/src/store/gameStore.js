@@ -25,12 +25,21 @@ const useGameStore = create((set, get) => ({
   currentChallenge: null,
   currentComment: randomComment(),
   exagerateurMode: false,
-  soundEnabled: true,
+  soundEnabled: localStorage.getItem('roulade-sound') !== 'false',
   gameHistory: [], // { playerName, challengeText, result, points }
 
   setSession: (session) => set({ session }),
   setPack: (pack) => set({ pack }),
-  setSoundEnabled: (v) => set({ soundEnabled: v }),
+  setSoundEnabled: (v) => {
+    localStorage.setItem('roulade-sound', v);
+    set({ soundEnabled: v });
+  },
+  toggleSound: () =>
+    set((state) => {
+      const next = !state.soundEnabled;
+      localStorage.setItem('roulade-sound', next);
+      return { soundEnabled: next };
+    }),
   toggleExagerateur: () => set((s) => ({ exagerateurMode: !s.exagerateurMode })),
 
   spin: async () => {

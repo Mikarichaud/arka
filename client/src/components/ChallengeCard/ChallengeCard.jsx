@@ -12,9 +12,9 @@ export default function ChallengeCard({ challenge, playerName, caseNumber }) {
   return (
     <motion.div
       className={`challenge-card intensity-${INTENSITY_CLASS[lvl]}`}
-      initial={{ scale: 0.85, opacity: 0, y: 20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+      initial={{ opacity: 0, scale: 0.88, filter: 'blur(10px)', y: 16 }}
+      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)', y: 0 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 22 }}
     >
       <div className="challenge-header">
         <span className="challenge-case">Case {caseNumber}</span>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import useSessionStore from '../../store/sessionStore';
 import useAuthStore from '../../store/authStore';
+import useGameStore from '../../store/gameStore';
 import './Home.css';
 
 export default function Home() {
@@ -10,6 +11,7 @@ export default function Home() {
   const toggleTheme = useSessionStore((s) => s.toggleTheme);
   const theme = useSessionStore((s) => s.theme);
   const { user, logout } = useAuthStore();
+  const { soundEnabled, toggleSound } = useGameStore();
 
   return (
     <Layout className="home-page">
@@ -72,6 +74,9 @@ export default function Home() {
       </div>
 
       <div className="home-footer">
+        <button className="theme-toggle" onClick={toggleSound} title="Sons">
+          {soundEnabled ? '🔊' : '🔇'}
+        </button>
         <button className="theme-toggle" onClick={toggleTheme} title="Nuit sur les Goudes">
           {theme === 'light' ? '🌙' : '☀️'}
         </button>

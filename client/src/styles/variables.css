@@ -14,14 +14,26 @@
   --intensite-moyen: #C9A84C;
   --intensite-hard: #E63946;
 
-  /* Dark mode */
+  /* Surfaces (light mode) */
+  --surface-bg: #F5F5F0;
+  --surface-card: #ffffff;
+  --surface-input: #ffffff;
+  --surface-border: #e0e0e0;
+  --surface-border-focus: var(--bleu-azur);
+  --text-primary: #1a1a2e;
+  --text-secondary: #8892a4;
+  --text-inverse: #ffffff;
+
+  /* Dark mode surfaces */
   --nuit-goudes: #0D1117;
   --nuit-surface: #161b22;
+  --nuit-surface-2: #1c2128;
   --nuit-border: #30363d;
 
   /* Typographie */
   --font-titre: 'Bebas Neue', 'Impact', sans-serif;
   --font-corps: 'Nunito', 'Inter', sans-serif;
+  --font-accent: 'Pacifico', cursive;
 
   /* Espacements */
   --radius-sm: 8px;
@@ -39,11 +51,24 @@
   --transition-fast: 0.15s ease;
   --transition-mid: 0.3s ease;
   --transition-slow: 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* Animations */
+  --ease-corniche: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-carreau: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* ── Dark mode "Nuit sur les Goudes" ── */
 [data-theme="dark"] {
+  --surface-bg: #0D1117;
+  --surface-card: #161b22;
+  --surface-input: #1c2128;
+  --surface-border: #30363d;
+  --surface-border-focus: var(--or-etoile);
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
   --blanc-velodrome: #0D1117;
-  --nuit-surface: #161b22;
-  background-color: var(--nuit-goudes);
-  color: #e6edf3;
+  --bleu-azur: #388bfd;
+  --bleu-azur-dark: #1f6feb;
+  --or-etoile: #e3b341;
+  --or-etoile-light: #f0d070;
 }

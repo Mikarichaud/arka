@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import Home from './pages/Home/Home';
 import Auth from './pages/Auth/Auth';
@@ -11,22 +12,34 @@ import Gallery from './pages/Gallery/Gallery';
 import History from './pages/History/History';
 import ProtectedRoute from './components/ProtectedRoute';
 
+export const NavDirectionContext = createContext(1);
+export const useNavDirection = () => useContext(NavDirectionContext);
+
 function AnimatedRoutes() {
   const location = useLocation();
+  const navType = useNavigationType();
+  const [direction, setDirection] = useState(1);
+
+  useEffect(() => {
+    setDirection(navType === 'POP' ? -1 : 1);
+  }, [location.key, navType]);
+
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/session/setup" element={<SessionSetup />} />
-        <Route path="/session/pack" element={<PackSelection />} />
-        <Route path="/packs" element={<PackLibrary />} />
-        <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
-        <Route path="/game" element={<Game />} />
-        <Route path="/gallery/:shareLink" element={<Gallery />} />
-        <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-      </Routes>
-    </AnimatePresence>
+    <NavDirectionContext.Provider value={direction}>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/session/setup" element={<SessionSetup />} />
+          <Route path="/session/pack" element={<PackSelection />} />
+          <Route path="/packs" element={<PackLibrary />} />
+          <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+          <Route path="/game" element={<Game />} />
+          <Route path="/gallery/:shareLink" element={<Gallery />} />
+          <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
+        </Routes>
+      </AnimatePresence>
+    </NavDirectionContext.Provider>
   );
 }
 

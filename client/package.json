@@ -10,6 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/bebas-neue": "^5.2.7",
+    "@fontsource/nunito": "^5.2.7",
+    "@fontsource/pacifico": "^5.2.7",
     "@rolldown/binding-darwin-arm64": "^1.0.0-rc.15",
     "axios": "^1.15.0",
     "framer-motion": "^12.38.0",
@@ -17,6 +20,7 @@
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.14.1",
+    "vite-plugin-pwa": "^1.2.0",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

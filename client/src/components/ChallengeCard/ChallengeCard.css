@@ -1,5 +1,5 @@
 .challenge-card {
-  background: white;
+  background: var(--surface-card);
   border-radius: var(--radius-lg);
   padding: 24px;
   box-shadow: var(--shadow-md);
@@ -34,7 +34,8 @@
 
 .challenge-text {
   font-size: 1.1rem;
-  font-weight: 600;
-  line-height: 1.5;
-  color: #1a1a2e;
+  font-weight: 700;
+  line-height: 1.55;
+  color: var(--text-primary);
+  font-family: var(--font-corps);
 }

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
@@ -11,6 +11,7 @@ import EndGame from '../../components/EndGame/EndGame';
 import MediaUpload from '../../components/MediaUpload/MediaUpload';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
+import { useSound } from '../../hooks/useSound';
 import api from '../../services/api';
 import './Game.css';
 
@@ -24,11 +25,12 @@ export default function Game() {
   const navigate = useNavigate();
   const {
     session, pack, isSpinning, spinResult, currentChallenge,
-    currentComment, exagerateurMode,
+    currentComment, exagerateurMode, soundEnabled, toggleSound,
     spin, nextPlayer, updatePlayerScore, addHistoryEntry,
     addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
   } = useGameStore();
   const { user } = useAuthStore();
+  const { play } = useSound();
 
   const [phase, setPhase] = useState('idle'); // idle | spinning | challenge | vote | result | endgame
   const [timerRunning, setTimerRunning] = useState(false);
@@ -48,9 +50,11 @@ export default function Game() {
 
   const handleSpin = async () => {
     if (isSpinning) return;
+    play('spin');
     setPhase('spinning');
     setLastPoints(null);
     await spin();
+    play('stop');
     setPhase('challenge');
     setTimerRunning(true);
   };
@@ -58,8 +62,10 @@ export default function Game() {
   const handleRelance = async () => {
     setTimerRunning(false);
     addHistoryEntry(currentPlayer.name, 'refused');
+    play('spin');
     setPhase('spinning');
     await spin();
+    play('stop');
     setPhase('challenge');
     setTimerRunning(true);
   };
@@ -68,9 +74,11 @@ export default function Game() {
     setTimerRunning(false);
     let points = 0;
     if (result === 'completed') {
+      play('validate');
       points = updatePlayerScore(currentPlayer.name, currentChallenge?.intensity?.level || 1);
       setLastPoints(points);
     } else {
+      play('refuse');
       addHistoryEntry(currentPlayer.name, 'refused');
     }
     setPhase('result');
@@ -131,6 +139,10 @@ export default function Game() {
             <span className="score-pts">{p.score}</span>
           </div>
         ))}
+
+        <button className="sound-btn" onClick={toggleSound} title="Sons" aria-label="toggle son">
+          {soundEnabled ? '🔊' : '🔇'}
+        </button>
 
         {/* Radar à Parisiens — bouton caché */}
         <button className="radar-btn" onClick={handleRadar} title="..." aria-label="radar">

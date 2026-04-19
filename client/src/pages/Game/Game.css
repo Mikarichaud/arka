@@ -221,6 +221,20 @@
   text-shadow: 0 2px 12px rgba(201,168,76,0.5);
 }
 
+/* Son toggle */
+.sound-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sound-btn:hover { opacity: 1; }
+
 /* Radar overlay */
 .radar-btn {
   background: transparent;
