@@ -16,13 +16,22 @@ router.post('/upload', upload.single('file'), (req, res, next) => {
 
   const isVideo = req.file.mimetype.startsWith('video/');
 
+  console.log('Cloudinary config:', {
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY ? '***set***' : 'MISSING',
+    api_secret: process.env.CLOUDINARY_API_SECRET ? '***set***' : 'MISSING',
+  });
+
   const stream = cloudinary.uploader.upload_stream(
     {
       folder: 'roulade-marseillaise',
       resource_type: isVideo ? 'video' : 'image',
     },
     (error, result) => {
-      if (error) return next(error);
+      if (error) {
+        console.error('Cloudinary upload error:', JSON.stringify(error));
+        return res.status(500).json({ message: error.message || JSON.stringify(error) });
+      }
       res.json({ url: result.secure_url, publicId: result.public_id });
     }
   );

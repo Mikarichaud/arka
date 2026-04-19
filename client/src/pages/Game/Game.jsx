@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Roulette from '../../components/Roulette/Roulette';
@@ -39,8 +39,7 @@ export default function Game() {
   const [radarScanning, setRadarScanning] = useState(false);
 
   if (!session || !pack) {
-    navigate('/');
-    return null;
+    return <Navigate to="/" replace />;
   }
 
   const currentPlayer = session.players[session.currentPlayerIndex];
