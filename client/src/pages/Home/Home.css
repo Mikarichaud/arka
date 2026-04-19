@@ -77,3 +77,38 @@
   align-items: center;
   justify-content: center;
 }
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .home-page {
+    flex-direction: row;
+    align-items: center;
+    padding: 60px;
+    gap: 80px;
+    max-width: 100%;
+  }
+
+  .home-hero {
+    flex: 1;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .home-tagline { margin: 0; max-width: 380px; font-size: 1.1rem; }
+
+  .home-title { font-size: clamp(4rem, 6vw, 6rem); }
+
+  .home-roulette-preview { font-size: 10rem; }
+
+  .home-actions {
+    width: 340px;
+    flex-shrink: 0;
+  }
+
+  .home-footer {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    padding: 0;
+  }
+}

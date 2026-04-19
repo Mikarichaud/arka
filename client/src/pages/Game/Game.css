@@ -1,3 +1,4 @@
+/* ── MOBILE (défaut) ── */
 .game-page {
   padding-top: 16px;
   padding-bottom: 24px;
@@ -148,4 +149,139 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* ── DESKTOP / TV (≥ 1024px) ── */
+@media (min-width: 1024px) {
+  .game-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "header header"
+      "left   right";
+    padding: 0;
+    gap: 0;
+    background: linear-gradient(135deg, #0d1b3e 0%, #0057A8 50%, #003d7a 100%);
+    min-height: 100dvh;
+  }
+
+  /* Barre de scores en haut full width */
+  .game-scores {
+    grid-area: header;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 16px 32px;
+    gap: 12px;
+    overflow-x: visible;
+    flex-wrap: wrap;
+    justify-content: center;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .score-chip {
+    min-width: 80px;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255,255,255,0.15);
+  }
+
+  .score-chip.active {
+    background: var(--or-etoile);
+    border-color: var(--or-etoile);
+  }
+
+  .score-chip.active .score-name { color: #1a1a2e; }
+  .score-chip.active .score-pts { color: #1a1a2e; }
+  .score-name { color: rgba(255,255,255,0.8); max-width: 100px; }
+  .score-pts { color: var(--or-etoile-light); font-size: 1.4rem; }
+
+  /* Colonne gauche : roulette */
+  .game-roulette-area {
+    grid-area: left;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    gap: 24px;
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .game-roulette-area .roulette-wrapper {
+    max-width: 460px;
+    width: 100%;
+  }
+
+  .game-active-player {
+    order: -1;
+  }
+
+  .game-turn-label {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .game-turn-name {
+    font-size: 3rem;
+    color: white;
+    text-shadow: 0 2px 20px rgba(201,168,76,0.4);
+  }
+
+  .game-comment {
+    color: rgba(255,255,255,0.7);
+    font-size: 1.1rem;
+  }
+
+  /* Colonne droite : contenu */
+  .game-content {
+    grid-area: right;
+    padding: 32px;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .game-spin-btn {
+    font-size: 1.8rem;
+    padding: 28px;
+  }
+
+  .game-spinning-text {
+    color: rgba(255,255,255,0.6);
+    font-size: 1.2rem;
+  }
+
+  /* Challenge card sur desktop */
+  .game-challenge-area .challenge-card {
+    border-radius: var(--radius-lg);
+  }
+
+  .game-timer-row {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Scores résultat */
+  .game-result-scores .player-card {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .game-result-scores .player-card .player-name,
+  .game-result-scores .player-card .player-turn {
+    color: white;
+  }
+}
+
+/* ── TV large (≥ 1440px) ── */
+@media (min-width: 1440px) {
+  .game-turn-name { font-size: 4rem; }
+
+  .game-roulette-area .roulette-wrapper { max-width: 560px; }
+
+  .game-spin-btn { font-size: 2rem; padding: 32px; }
+
+  .score-chip { min-width: 100px; padding: 12px 24px; }
+  .score-name { font-size: 0.9rem; }
+  .score-pts { font-size: 1.6rem; }
 }

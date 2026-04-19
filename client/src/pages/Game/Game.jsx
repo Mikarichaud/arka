@@ -68,9 +68,9 @@ export default function Game() {
 
   return (
     <Layout className="game-page">
-      {/* Header : scores */}
+      {/* Header : scores (full width desktop) */}
       <div className="game-scores">
-        {session.players.map((p, i) => (
+        {session.players.map((p) => (
           <div key={p.name} className={`score-chip ${p.name === currentPlayer.name ? 'active' : ''}`}>
             <span className="score-name">{p.name}</span>
             <span className="score-pts">{p.score}</span>
@@ -78,19 +78,18 @@ export default function Game() {
         ))}
       </div>
 
-      {/* Joueur actif */}
-      <motion.div
-        className="game-active-player"
-        key={currentPlayer.name}
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <span className="game-turn-label">À toi de jouer,</span>
-        <span className="game-turn-name">{currentPlayer.name} !</span>
-      </motion.div>
-
-      {/* Roulette */}
+      {/* Colonne gauche desktop : roulette + joueur actif */}
       <div className="game-roulette-area">
+        <motion.div
+          className="game-active-player"
+          key={currentPlayer.name}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <span className="game-turn-label">À toi de jouer,</span>
+          <span className="game-turn-name">{currentPlayer.name} !</span>
+        </motion.div>
+
         <Roulette
           challenges={pack.challenges}
           targetIndex={spinResult}
@@ -110,7 +109,7 @@ export default function Game() {
         )}
       </div>
 
-      {/* Zone principale selon la phase */}
+      {/* Colonne droite desktop : actions */}
       <div className="game-content">
         <AnimatePresence mode="wait">
           {phase === 'idle' && (

@@ -7,3 +7,24 @@
   padding: 0 16px;
   width: 100%;
 }
+
+/* Tablet */
+@media (min-width: 768px) {
+  .layout-page {
+    max-width: 640px;
+    padding: 0 24px;
+  }
+}
+
+/* Desktop / TV */
+@media (min-width: 1024px) {
+  .layout-page {
+    max-width: 900px;
+    padding: 0 32px;
+  }
+
+  .layout-page.game-page {
+    max-width: 100%;
+    padding: 0;
+  }
+}
