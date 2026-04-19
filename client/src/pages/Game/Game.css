@@ -105,16 +105,35 @@
   box-shadow: var(--shadow-or);
 }
 
-.game-spinning-text {
+.game-spinning-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 16px;
   text-align: center;
-  color: var(--gris-doux);
-  font-style: italic;
-  animation: pulse 1s infinite;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+.game-spinning-dots {
+  font-size: 1.4rem;
+  color: var(--or-etoile);
+  letter-spacing: 8px;
+}
+
+.game-spinning-text {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  letter-spacing: 0.06em;
+  color: var(--bleu-azur);
+}
+
+.game-spinning-comment {
+  font-style: italic;
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  max-width: 260px;
+  line-height: 1.4;
+  font-weight: 600;
 }
 
 .game-challenge-area {

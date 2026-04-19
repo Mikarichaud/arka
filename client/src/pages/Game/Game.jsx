@@ -200,9 +200,26 @@ export default function Game() {
           )}
 
           {phase === 'spinning' && (
-            <motion.p key="spinning" className="game-spinning-text" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              La roulade est lancée...
-            </motion.p>
+            <motion.div key="spinning" className="game-spinning-panel"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <motion.div
+                className="game-spinning-dots"
+                animate={{ opacity: [1, 0.4, 1] }}
+                transition={{ duration: 0.6, repeat: Infinity }}
+              >
+                ● ● ●
+              </motion.div>
+              <p className="game-spinning-text">La roulade est lancée…</p>
+              <motion.p
+                className="game-spinning-comment"
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              >
+                {currentComment}
+              </motion.p>
+            </motion.div>
           )}
 
           {phase === 'challenge' && currentChallenge && (

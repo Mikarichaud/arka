@@ -44,13 +44,14 @@ const useGameStore = create((set, get) => ({
 
   spin: async () => {
     if (get().isSpinning) return;
-    set({ isSpinning: true, spinResult: null, currentChallenge: null, currentComment: randomComment() });
-
     const result = Math.floor(Math.random() * 8);
-    await new Promise((r) => setTimeout(r, 4000));
+    // spinResult défini AVANT le délai pour que la Roulette démarre son animation immédiatement
+    set({ isSpinning: true, spinResult: result, currentChallenge: null, currentComment: randomComment() });
+
+    await new Promise((r) => setTimeout(r, 4400)); // légèrement > durée animation roulette
 
     const challenge = get().pack?.challenges?.[result] || null;
-    set({ isSpinning: false, spinResult: result, currentChallenge: challenge });
+    set({ isSpinning: false, currentChallenge: challenge });
     return { result, challenge };
   },
 
