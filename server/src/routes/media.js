@@ -1,26 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { protect } = require('../middlewares/auth');
 const cloudinary = require('../services/cloudinary');
-const multer = require('multer');
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'roulade-marseillaise',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'mov'],
-    resource_type: 'auto',
-  },
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
 });
 
-const upload = multer({ storage });
-
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), (req, res, next) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Aucun fichier reçu.' });
   }
-  res.json({ url: req.file.path, publicId: req.file.filename });
+
+  const isVideo = req.file.mimetype.startsWith('video/');
+
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: 'roulade-marseillaise',
+      resource_type: isVideo ? 'video' : 'image',
+    },
+    (error, result) => {
+      if (error) return next(error);
+      res.json({ url: result.secure_url, publicId: result.public_id });
+    }
+  );
+
+  stream.end(req.file.buffer);
 });
 
 router.delete('/:publicId', protect, async (req, res, next) => {
