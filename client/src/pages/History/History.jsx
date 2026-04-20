@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import Icon from '../../components/Icon/Icon';
 import api from '../../services/api';
 import './History.css';
 
@@ -60,7 +61,7 @@ export default function History() {
                       {new Date(s.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
                     </p>
                     {mediaCount > 0 && (
-                      <span className="history-media-badge">📸 {mediaCount}</span>
+                      <span className="history-media-badge"><Icon name="camera" size={13} style={{ marginRight: 3 }} />{mediaCount}</span>
                     )}
                   </div>
                 </div>
@@ -68,7 +69,7 @@ export default function History() {
                 <div className="history-card-scores">
                   {[...s.players].sort((a, b) => b.score - a.score).slice(0, 3).map((p, rank) => (
                     <span key={p.name} className={`history-player-score ${rank === 0 ? 'winner' : ''}`}>
-                      {rank === 0 ? '🥇' : rank === 1 ? '🥈' : '🥉'} {p.name} {p.score}pts
+                      <Icon name={rank === 0 ? 'medal-gold' : rank === 1 ? 'medal-silver' : 'medal-bronze'} size={18} style={{ marginRight: 4 }} />{p.name} {p.score}pts
                     </span>
                   ))}
                 </div>

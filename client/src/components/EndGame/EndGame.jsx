@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import Icon from '../Icon/Icon';
 import './EndGame.css';
 
 const WIN_LINES = [
@@ -14,7 +15,7 @@ const LOSE_LINES = [
   (p) => `${p} a tout donné. C'était pas assez.`,
 ];
 
-const MEDALS = ['🥇', '🥈', '🥉'];
+const MEDALS = ['medal-gold', 'medal-silver', 'medal-bronze'];
 const TABS = ['Podium', 'Récap', 'Historique'];
 
 export default function EndGame({ players, packName, shareLink, history = [], onRestart, onHome }) {
@@ -127,7 +128,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.08 }}
                 >
-                  <span className="endgame-medal">{MEDALS[i] || `${i + 1}.`}</span>
+                  <span className="endgame-medal">{MEDALS[i] ? <Icon name={MEDALS[i]} size={28} /> : `${i + 1}.`}</span>
                   <div className="endgame-player-info">
                     <span className="endgame-player-name">{p.name}</span>
                     {pStats[p.name] && (
@@ -217,7 +218,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
               <div className="recap-distinctions">
                 {mvp && mvp[1].ok > 0 && (
                   <div className="recap-distinction gold">
-                    <span className="recap-dist-icon">🏅</span>
+                    <span className="recap-dist-icon"><Icon name="trophy" size={22} /></span>
                     <div>
                       <p className="recap-dist-title">Le plus courageux</p>
                       <p className="recap-dist-name">{mvp[0]} — {mvp[1].ok} défi{mvp[1].ok > 1 ? 's' : ''} réussi{mvp[1].ok > 1 ? 's' : ''}</p>
@@ -226,7 +227,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
                 )}
                 {fada && fada[1].ko > 0 && players.length > 1 && (
                   <div className="recap-distinction red">
-                    <span className="recap-dist-icon">🤌</span>
+                    <span className="recap-dist-icon"><Icon name="pinch" size={22} /></span>
                     <div>
                       <p className="recap-dist-title">Le plus fada</p>
                       <p className="recap-dist-name">{fada[0]} — {fada[1].ko} refus</p>
@@ -266,7 +267,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
                       <div className="history-entry-right">
                         {entry.result === 'completed'
                           ? <span className="history-pts">+{entry.points}pt</span>
-                          : <span className="history-refused">✗</span>
+                          : <span className="history-refused"><Icon name="cross" size={14} /></span>
                         }
                       </div>
                     </motion.div>
@@ -281,9 +282,9 @@ export default function EndGame({ players, packName, shareLink, history = [], on
         {/* Actions */}
         <div className="endgame-actions">
           {shareLink && (
-            <button className="btn btn-primary" style={{ width: '100%' }}
+            <button className="btn btn-primary" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
               onClick={() => navigate(`/gallery/${shareLink}`)}>
-              📸 Voir la galerie
+              <Icon name="photo" size={18} /> Voir la galerie
             </button>
           )}
           <button className="btn btn-gold" style={{ width: '100%' }} onClick={onRestart}>

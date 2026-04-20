@@ -1,0 +1,125 @@
+.home-roulette {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+/* ── Lueur pulsante ── */
+.home-roulette-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(0, 87, 168, 0.45) 0%,
+    rgba(201, 168, 76, 0.15) 45%,
+    transparent 70%
+  );
+  pointer-events: none;
+  animation: hr-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes hr-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.08); }
+}
+
+/* ── Aiguille ── */
+.home-roulette-needle-wrap {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.7));
+  pointer-events: none;
+}
+
+/* ── Disque ── */
+.home-roulette-disc {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.home-roulette-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.6));
+}
+
+/* Rotation lente décorative via CSS */
+.home-roulette-disc.idle-css-spin {
+  animation: hr-idle 40s linear infinite;
+}
+.home-roulette-disc.no-css-spin {
+  animation: none;
+}
+
+@keyframes hr-idle {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Invite clic ── */
+.home-roulette-cta {
+  position: absolute;
+  bottom: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+  animation: hr-blink 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes hr-blink {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ── Hover ── */
+.home-roulette:hover .home-roulette-glow {
+  background: radial-gradient(circle,
+    rgba(201, 168, 76, 0.45) 0%,
+    rgba(0, 87, 168, 0.25) 40%,
+    transparent 70%
+  );
+}
+
+.home-roulette:hover .home-roulette-disc.idle-css-spin {
+  animation-duration: 20s; /* accélère légèrement au hover */
+}
+
+/* ── Desktop ── */
+@media (min-width: 1024px) {
+  .home-roulette {
+    width:  min(68vh, 460px);
+    height: min(68vh, 460px);
+  }
+  .home-roulette-cta {
+    font-size: 0.82rem;
+    bottom: -50px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .home-roulette {
+    width:  min(72vh, 520px);
+    height: min(72vh, 520px);
+  }
+}
+
+@media (min-width: 1600px) {
+  .home-roulette {
+    width:  min(76vh, 600px);
+    height: min(76vh, 600px);
+  }
+}

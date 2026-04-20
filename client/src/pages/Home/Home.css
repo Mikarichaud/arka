@@ -1,139 +1,200 @@
+/* ═══════════════════════════════════════════════════
+   MOBILE — flex colonne : brand → roulette → actions
+   ═══════════════════════════════════════════════════ */
 .home-page {
-  justify-content: space-between;
-  padding-top: 48px;
-  padding-bottom: 32px;
-  background: linear-gradient(160deg, var(--bleu-azur) 0%, #003d7a 45%, #1a1a2e 100%);
-  min-height: 100dvh;
-}
-
-.home-hero {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 24px;
+  min-height: 100dvh;
+  padding: 36px 24px 32px;
+  gap: 0;
+  background: linear-gradient(160deg, #0d1b3e 0%, #0057A8 55%, #003d7a 100%);
 }
 
+/* Sur mobile : home-left transparent → ses enfants deviennent
+   enfants directs du flex, ordonnés par CSS order              */
+.home-left {
+  display: contents;
+}
+
+/* 1 — Titre en haut */
+.home-brand {
+  order: 1;
+  flex-shrink: 0;
+  text-align: center;
+  padding-bottom: 16px;
+}
+
+/* 2 — Roulette au milieu (prend tout l'espace libre) */
+.home-roulette-area {
+  order: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0 56px; /* 56px = label "Appuie pour jouer" */
+}
+
+/* 3 — Boutons en bas */
+.home-actions {
+  order: 3;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Typographie ── */
 .home-by {
   font-family: var(--font-titre);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--or-etoile);
-  letter-spacing: 0.2em;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .home-title {
   font-family: var(--font-titre);
-  font-size: clamp(3rem, 12vw, 4.5rem);
+  font-size: clamp(2.8rem, 11vw, 4rem);
   color: white;
-  line-height: 1;
+  line-height: 0.95;
   letter-spacing: 0.02em;
-  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  margin-bottom: 10px;
 }
 
 .home-tagline {
-  color: rgba(255,255,255,0.7);
-  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.88rem;
+  line-height: 1.5;
   max-width: 280px;
   margin: 0 auto;
-  line-height: 1.5;
 }
 
-.home-roulette-preview {
-  font-size: 5rem;
-  line-height: 1;
-}
-
-.home-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+/* ── Boutons ── */
+.home-btn-play {
   width: 100%;
+  font-size: 1.1rem;
+  padding: 18px;
 }
 
-.home-actions .btn-ghost {
-  color: rgba(255,255,255,0.85);
-  border-color: rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.08);
+.home-ghost-btn {
+  width: 100%;
+  color: rgba(255, 255, 255, 0.85) !important;
+  border-color: rgba(255, 255, 255, 0.32) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+.home-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
 }
 
-.home-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  padding-top: 16px;
-}
-
+/* ── User bar ── */
 .home-user-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(255,255,255,0.1);
-  border: 2px solid rgba(255,255,255,0.25);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-pill);
   padding: 10px 18px;
-  width: 100%;
 }
 
 .home-username {
   color: white;
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
 }
 
-.home-user-bar .btn-ghost {
-  color: rgba(255,255,255,0.8);
-  border-color: rgba(255,255,255,0.3);
-  padding: 6px 14px;
-  font-size: 0.8rem;
+/* ── Toggles ── */
+.home-footer {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+  z-index: 50;
 }
 
 .theme-toggle {
-  background: rgba(255,255,255,0.12);
-  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 50%;
   width: 40px;
   height: 40px;
-  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background var(--transition-fast);
 }
+.theme-toggle:hover { background: rgba(255, 255, 255, 0.22); }
 
-/* ── Desktop ── */
+
+/* ═══════════════════════════════════════════════════
+   DESKTOP (≥ 1024px) — flex row : left | roulette
+   ═══════════════════════════════════════════════════ */
 @media (min-width: 1024px) {
   .home-page {
     flex-direction: row;
-    align-items: center;
-    padding: 60px;
-    gap: 80px;
+    align-items: stretch;
+    padding: 0;
+    gap: 0;
+  }
+
+  /* home-left redevient un vrai conteneur flex en colonne,
+     centré verticalement, largeur fixe              */
+  .home-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 40px;
+    flex: 0 0 46%;
+    padding: 60px 56px 60px 8vw;
+    min-height: 100dvh;
+  }
+
+  /* Rétablir l'order natif (ignoré en flex row) */
+  .home-brand  { order: unset; flex-shrink: unset; text-align: left; padding-bottom: 0; }
+  .home-actions { order: unset; flex-shrink: unset; }
+
+  /* Titre — s'adapte à la largeur de la colonne */
+  .home-title {
+    font-size: clamp(3.5rem, 3.8vw, 5.5rem);
+    white-space: nowrap; /* force 2 lignes via <br>, pas de wrap imprévu */
+  }
+
+  .home-tagline {
+    margin: 0;
     max-width: 100%;
+    font-size: 1rem;
   }
 
-  .home-hero {
+  .home-btn-play { font-size: 1.05rem; }
+
+  /* Roulette — prend le reste de l'espace, centrée */
+  .home-roulette-area {
+    order: unset;
     flex: 1;
-    align-items: flex-start;
-    text-align: left;
-  }
-
-  .home-tagline { margin: 0; max-width: 380px; font-size: 1.1rem; }
-
-  .home-title { font-size: clamp(4rem, 6vw, 6rem); }
-
-  .home-roulette-preview { font-size: 10rem; }
-
-  .home-actions {
-    width: 340px;
-    flex-shrink: 0;
+    padding: 0;
+    min-height: 100dvh;
   }
 
   .home-footer {
-    position: fixed;
-    bottom: 24px;
-    right: 32px;
-    padding: 0;
+    bottom: 32px;
+    right: 40px;
   }
+}
+
+/* ── 1280px ── */
+@media (min-width: 1280px) {
+  .home-left { flex: 0 0 44%; padding: 60px 64px 60px 9vw; }
+  .home-title { font-size: clamp(4rem, 4vw, 6rem); }
+}
+
+/* ── 1600px ── */
+@media (min-width: 1600px) {
+  .home-left { flex: 0 0 42%; padding: 80px 72px 80px 10vw; gap: 48px; }
+  .home-title { font-size: clamp(5rem, 4.2vw, 7rem); }
 }

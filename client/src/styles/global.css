@@ -49,6 +49,9 @@ h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }
 
 .font-accent { font-family: var(--font-accent); }
 
+/* ── Icônes SVG ── */
+.icon > svg { width: 100%; height: 100%; display: block; }
+
 /* ── Bouton de base style jeton pétanque ── */
 .btn {
   font-family: var(--font-corps);

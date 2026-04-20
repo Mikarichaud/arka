@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import Icon from '../../components/Icon/Icon';
 import api from '../../services/api';
 import './PackLibrary.css';
 
-const THEME_ICONS = { marseillais: '⚓', amis: '🎉', sportif: '⚽', couple: '❤️', enfants: '🎈', custom: '✏️' };
+const THEME_ICONS = { marseillais: 'anchor', amis: 'party', sportif: 'football', couple: 'heart', enfants: 'balloon', custom: 'pencil' };
 const THEME_LABELS = { marseillais: 'Marseillais', amis: 'Amis', sportif: 'Sport', couple: 'Couple', enfants: 'Enfants', custom: 'Perso' };
 const THEMES = ['tous', 'marseillais', 'amis', 'sportif', 'couple', 'enfants'];
 
@@ -72,7 +73,7 @@ export default function PackLibrary() {
             className={`filter-btn ${filter === t ? 'active' : ''}`}
             onClick={() => setFilter(t)}
           >
-            {t === 'tous' ? '🎡 Tous' : `${THEME_ICONS[t]} ${THEME_LABELS[t]}`}
+            {t === 'tous' ? <><Icon name="wheel" size={16} style={{ marginRight: 4 }} />Tous</> : <><Icon name={THEME_ICONS[t]} size={16} style={{ marginRight: 4 }} />{THEME_LABELS[t]}</>}
           </button>
         ))}
       </div>
@@ -91,7 +92,7 @@ export default function PackLibrary() {
               transition={{ delay: i * 0.06 }}
             >
               <div className="library-pack-top" onClick={() => setExpanded(expanded === pack._id ? null : pack._id)}>
-                <span className="library-pack-icon">{THEME_ICONS[pack.theme] || '🎡'}</span>
+                <span className="library-pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={22} /></span>
                 <div className="library-pack-info">
                   <span className="library-pack-name">{pack.name}</span>
                   <span className="library-pack-desc">{pack.description}</span>

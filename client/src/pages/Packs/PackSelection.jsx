@@ -2,18 +2,19 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import Icon from '../../components/Icon/Icon';
 import useSessionStore from '../../store/sessionStore';
 import useGameStore from '../../store/gameStore';
 import api from '../../services/api';
 import './PackSelection.css';
 
 const THEME_ICONS = {
-  marseillais: '⚓',
-  amis: '🎉',
-  sportif: '⚽',
-  couple: '❤️',
-  enfants: '🎈',
-  custom: '✏️',
+  marseillais: 'anchor',
+  amis: 'party',
+  sportif: 'football',
+  couple: 'heart',
+  enfants: 'balloon',
+  custom: 'pencil',
 };
 
 export default function PackSelection() {
@@ -73,13 +74,13 @@ export default function PackSelection() {
               transition={{ delay: i * 0.08 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span className="pack-icon">{THEME_ICONS[pack.theme] || '🎡'}</span>
+              <span className="pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={24} /></span>
               <div className="pack-info">
                 <span className="pack-name">{pack.name}</span>
                 <span className="pack-desc">{pack.description}</span>
               </div>
               {selectedPackId === pack._id && (
-                <span className="pack-check">✓</span>
+                <span className="pack-check"><Icon name="check" size={16} /></span>
               )}
             </motion.div>
           ))}

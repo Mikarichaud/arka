@@ -121,7 +121,7 @@
   box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
 }
 
-.endgame-medal { font-size: 1.3rem; }
+.endgame-medal { display: flex; align-items: center; }
 
 .endgame-player-info {
   flex: 1;
@@ -309,7 +309,7 @@
   border-color: rgba(230, 57, 70, 0.25);
 }
 
-.recap-dist-icon { font-size: 1.4rem; }
+.recap-dist-icon { display: flex; align-items: center; }
 
 .recap-dist-title {
   font-size: 0.72rem;

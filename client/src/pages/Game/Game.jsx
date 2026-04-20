@@ -9,6 +9,7 @@ import VotePanel from '../../components/VotePanel/VotePanel';
 import PlayerCard from '../../components/PlayerCard/PlayerCard';
 import EndGame from '../../components/EndGame/EndGame';
 import MediaUpload from '../../components/MediaUpload/MediaUpload';
+import Icon from '../../components/Icon/Icon';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import { useSound } from '../../hooks/useSound';
@@ -16,7 +17,7 @@ import api from '../../services/api';
 import './Game.css';
 
 const RADAR_RESULTS = [
-  "C'est bon, y'en a pas ici, on est entre nous. 🔵⚪",
+  "C'est bon, y'en a pas ici, on est entre nous.",
   "Zone sécurisée. Aucun Parisien détecté.",
   "Scan terminé. 0 touriste. 100% Marseille.",
 ];
@@ -143,12 +144,12 @@ export default function Game() {
         ))}
 
         <button className="sound-btn" onClick={toggleSound} title="Sons" aria-label="toggle son">
-          {soundEnabled ? '🔊' : '🔇'}
+          <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={18} />
         </button>
 
         {/* Radar à Parisiens — bouton caché */}
         <button className="radar-btn" onClick={handleRadar} title="..." aria-label="radar">
-          📡
+          <Icon name="radar" size={18} />
         </button>
       </div>
 
@@ -162,7 +163,7 @@ export default function Game() {
         >
           <span className="game-turn-label">À toi de jouer,</span>
           <span className="game-turn-name">{currentPlayer.name} !</span>
-          {exagerateurMode && <span className="exagerateur-badge">⚡ x2</span>}
+          {exagerateurMode && <span className="exagerateur-badge"><Icon name="lightning" size={12} style={{ marginRight: 2 }} /> x2</span>}
         </motion.div>
 
         <Roulette
@@ -196,7 +197,8 @@ export default function Game() {
                 className={`btn exagerateur-toggle ${exagerateurMode ? 'active' : ''}`}
                 onClick={toggleExagerateur}
               >
-                {exagerateurMode ? '⚡ L\'Exagérateur actif (x2)' : '⚡ Activer l\'Exagérateur'}
+                <Icon name="lightning" size={16} style={{ marginRight: 6 }} />
+                {exagerateurMode ? "L'Exagérateur actif (x2)" : "Activer l'Exagérateur"}
               </button>
             </motion.div>
           )}
@@ -212,7 +214,7 @@ export default function Game() {
                 animate={{ opacity: [1, 0.4, 1] }}
                 transition={{ duration: 0.6, repeat: Infinity }}
               >
-                ● ● ●
+                <Icon name="dots" size={40} />
               </motion.div>
               <p className="game-spinning-text">La roulade est lancée…</p>
               <motion.p
@@ -264,7 +266,7 @@ export default function Game() {
                 <motion.div className="game-points-flash"
                   initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 300 }}>
-                  +{lastPoints} pt{lastPoints > 1 ? 's' : ''} {exagerateurMode && '⚡'}
+                  +{lastPoints} pt{lastPoints > 1 ? 's' : ''} {exagerateurMode && <Icon name="lightning" size={28} style={{ marginLeft: 4 }} />}
                 </motion.div>
               )}
 
@@ -299,7 +301,7 @@ export default function Game() {
             onClick={() => !radarScanning && setRadarVisible(false)}>
             <motion.div className="radar-modal"
               initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
-              <h3 className="radar-title">📡 Radar à Parisiens</h3>
+              <h3 className="radar-title"><Icon name="radar" size={22} style={{ marginRight: 8 }} />Radar à Parisiens</h3>
               {radarScanning ? (
                 <div className="radar-scanning">
                   <div className="radar-sonar">

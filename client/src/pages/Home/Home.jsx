@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import Icon from '../../components/Icon/Icon';
+import HomeRoulette from '../../components/HomeRoulette/HomeRoulette';
 import useSessionStore from '../../store/sessionStore';
 import useAuthStore from '../../store/authStore';
 import useGameStore from '../../store/gameStore';
@@ -15,11 +17,16 @@ export default function Home() {
 
   return (
     <Layout className="home-page">
-      <div className="home-hero">
+
+      {/* ── Colonne gauche : brand + actions (desktop) ─────────────
+          Sur mobile : display:contents → brand et actions deviennent
+          des enfants directs du flex, avec order CSS                */}
+      <div className="home-left">
         <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+          className="home-brand"
+          initial={{ opacity: 0, y: -16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45 }}
         >
           <p className="home-by">by ARKA</p>
           <h1 className="home-title">La Roulade<br />Marseillaise</h1>
@@ -27,60 +34,58 @@ export default function Home() {
         </motion.div>
 
         <motion.div
-          className="home-roulette-preview"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+          className="home-actions"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, delay: 0.18 }}
         >
-          🎡
+          <button className="btn btn-gold home-btn-play"
+            onClick={() => navigate('/session/setup')}>
+            Lancer une partie
+          </button>
+          <button className="btn btn-ghost home-ghost-btn"
+            onClick={() => navigate('/packs')}>
+            Les packs de défis
+          </button>
+          {user ? (
+            <div className="home-user-bar">
+              <span className="home-username">
+                <Icon name="wave" size={16} style={{ marginRight: 6 }} />
+                {user.username}
+              </span>
+              <button className="btn btn-ghost btn-sm home-ghost-btn" onClick={logout}>
+                Déconnexion
+              </button>
+            </div>
+          ) : (
+            <button className="btn btn-ghost home-ghost-btn"
+              onClick={() => navigate('/login')}>
+              Se connecter
+            </button>
+          )}
         </motion.div>
       </div>
 
-      <div className="home-actions">
-        <motion.button
-          className="btn btn-gold"
-          style={{ width: '100%', fontSize: '1.1rem', padding: '18px' }}
-          onClick={() => navigate('/session/setup')}
-          whileTap={{ scale: 0.96 }}
-        >
-          Lancer une partie
-        </motion.button>
+      {/* ── Roulette ── */}
+      <motion.div
+        className="home-roulette-area"
+        initial={{ opacity: 0, scale: 0.88 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ type: 'spring', stiffness: 160, damping: 20, delay: 0.1 }}
+      >
+        <HomeRoulette onClick={() => navigate('/session/setup')} />
+      </motion.div>
 
-        <motion.button
-          className="btn btn-ghost"
-          style={{ width: '100%' }}
-          onClick={() => navigate('/packs')}
-          whileTap={{ scale: 0.96 }}
-        >
-          Les packs de défis
-        </motion.button>
-
-        {user ? (
-          <div className="home-user-bar">
-            <span className="home-username">👋 {user.username}</span>
-            <button className="btn btn-ghost btn-sm" onClick={logout}>
-              Déconnexion
-            </button>
-          </div>
-        ) : (
-          <motion.button
-            className="btn btn-ghost"
-            style={{ width: '100%' }}
-            onClick={() => navigate('/login')}
-            whileTap={{ scale: 0.96 }}
-          >
-            Se connecter
-          </motion.button>
-        )}
-      </div>
-
+      {/* Toggles fixés */}
       <div className="home-footer">
         <button className="theme-toggle" onClick={toggleSound} title="Sons">
-          {soundEnabled ? '🔊' : '🔇'}
+          <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={20} />
         </button>
         <button className="theme-toggle" onClick={toggleTheme} title="Nuit sur les Goudes">
-          {theme === 'light' ? '🌙' : '☀️'}
+          <Icon name={theme === 'light' ? 'moon' : 'sun'} size={20} />
         </button>
       </div>
+
     </Layout>
   );
 }

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Icon from '../../components/Icon/Icon';
 import api from '../../services/api';
 import './Gallery.css';
 
@@ -42,7 +43,7 @@ export default function Gallery() {
       <div className="gallery-header">
         <button className="gallery-back" onClick={() => navigate(-1)}>← Retour</button>
         <div className="gallery-meta">
-          <h1 className="gallery-title">📸 Galerie de soirée</h1>
+          <h1 className="gallery-title"><Icon name="photo" size={22} style={{ marginRight: 8 }} />Galerie de soirée</h1>
           <p className="gallery-players">
             {data.players.map((p) => p.name).join(' · ')}
           </p>
@@ -55,7 +56,7 @@ export default function Gallery() {
       {!hasMedia ? (
         <div className="gallery-empty">
           <p>Aucune photo pour cette soirée.</p>
-          <p className="gallery-empty-sub">La prochaine fois, appuyez sur 📸 après chaque défi !</p>
+          <p className="gallery-empty-sub">La prochaine fois, appuyez sur l'icône appareil photo après chaque défi !</p>
         </div>
       ) : (
         <div className="gallery-grid">

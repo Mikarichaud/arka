@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Icon from '../Icon/Icon';
 import api from '../../services/api';
 import './MediaUpload.css';
 
@@ -59,7 +60,7 @@ export default function MediaUpload({ onUploaded }) {
           {status === 'uploading' ? (
             <span className="media-spinner" />
           ) : (
-            '📸'
+            <Icon name="camera" size={18} />
           )}
           <span>{status === 'uploading' ? 'Upload...' : 'Ajouter une photo/vidéo'}</span>
         </button>
@@ -76,7 +77,7 @@ export default function MediaUpload({ onUploaded }) {
                 ) : (
                   <img src={p.preview} alt="" className="media-thumb" />
                 )}
-                {status === 'done' && <span className="media-check">✓</span>}
+                {status === 'done' && <span className="media-check"><Icon name="check" size={14} /></span>}
               </div>
             ))}
           </motion.div>
