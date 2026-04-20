@@ -98,11 +98,11 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
       <motion.div className="roulette-disc" animate={controls}>
         <svg viewBox="0 0 200 200" className="roulette-svg">
           <defs>
-            {/* Brillance métallique globale — simule lumière venue du haut-gauche */}
-            <radialGradient id="metal-sheen" cx="35%" cy="25%" r="72%" gradientUnits="objectBoundingBox">
-              <stop offset="0%"   stopColor="rgba(255,255,255,0.38)"/>
-              <stop offset="40%"  stopColor="rgba(255,255,255,0.06)"/>
-              <stop offset="100%" stopColor="rgba(0,0,0,0.50)"/>
+            {/* Brillance métallique globale — source de lumière fixe en haut-gauche (userSpaceOnUse = cohérente sur toutes les slices) */}
+            <radialGradient id="metal-sheen" cx="72" cy="52" r="105" gradientUnits="userSpaceOnUse">
+              <stop offset="0%"   stopColor="rgba(255,255,255,0.32)"/>
+              <stop offset="45%"  stopColor="rgba(255,255,255,0.03)"/>
+              <stop offset="100%" stopColor="rgba(0,0,0,0.42)"/>
             </radialGradient>
 
             {/* Texture rainures — stries radiales des boules de pétanque */}
@@ -135,20 +135,11 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
               <feDropShadow dx="-0.4" dy="-0.4" stdDeviation="0.2" floodColor="#ffffff" floodOpacity="0.2"/>
             </filter>
 
-            {/* Gradients par slice */}
-            {METALS.map((m, i) => (
-              <radialGradient key={i} id={`m${i}`} cx="30%" cy="20%" r="90%" gradientUnits="objectBoundingBox">
-                <stop offset="0%"   stopColor={m.hi}/>
-                <stop offset="55%"  stopColor={m.base}/>
-                <stop offset="100%" stopColor={m.lo}/>
-              </radialGradient>
-            ))}
-
             {/* Gradient case gagnante */}
-            <radialGradient id="winner-gold" cx="35%" cy="28%" r="80%" gradientUnits="objectBoundingBox">
+            <radialGradient id="winner-gold" cx="72" cy="52" r="105" gradientUnits="userSpaceOnUse">
               <stop offset="0%"   stopColor="#fff0a0"/>
-              <stop offset="40%"  stopColor="#e8c040"/>
-              <stop offset="75%"  stopColor="#C9A84C"/>
+              <stop offset="35%"  stopColor="#e8c040"/>
+              <stop offset="70%"  stopColor="#C9A84C"/>
               <stop offset="100%" stopColor="#8a6010"/>
             </radialGradient>
           </defs>
@@ -162,24 +153,21 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
             const end = start + SLICE_ANGLE;
             const mid = start + SLICE_ANGLE / 2;
             const midRad = ((mid - 90) * Math.PI) / 180;
-            const tx = 100 + 66 * Math.cos(midRad);
-            const ty = 100 + 66 * Math.sin(midRad);
-            const tx2 = 100 + 44 * Math.cos(midRad);
-            const ty2 = 100 + 44 * Math.sin(midRad);
+            const tx = 100 + 62 * Math.cos(midRad);
+            const ty = 100 + 62 * Math.sin(midRad);
             const isWinner = landed && !isSpinning && targetIndex === i;
             const path = arcPath(100, 100, 94, start, end);
-            const challenge = challenges[i];
 
             return (
               <g key={i}>
-                {/* Base métal ou or gagnant */}
-                <path d={path} fill={isWinner ? 'url(#winner-gold)' : `url(#m${i})`}/>
+                {/* Base métal solide */}
+                <path d={path} fill={isWinner ? '#8a6010' : METALS[i].base}/>
 
-                {/* Rainures stries (atténuées sur la case gagnante) */}
+                {/* Rainures stries */}
                 {!isWinner && <path d={path} fill="url(#strie)"/>}
 
-                {/* Brillance métallique */}
-                <path d={path} fill="url(#metal-sheen)" opacity={isWinner ? 0.35 : 0.82}/>
+                {/* Brillance cohérente (source lumière unique en haut-gauche) */}
+                <path d={path} fill={isWinner ? 'url(#winner-gold)' : 'url(#metal-sheen)'} opacity={isWinner ? 1 : 0.9}/>
 
                 {/* Liseret de séparation gravé (encoches boule) */}
                 {(() => {
@@ -200,31 +188,16 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
                 <text
                   x={tx} y={ty}
                   textAnchor="middle" dominantBaseline="central"
-                  fill={isWinner ? '#1a1a2e' : 'rgba(255,255,255,0.95)'}
-                  fontSize="14"
+                  fill={isWinner ? '#fff8d0' : 'rgba(255,255,255,0.95)'}
+                  fontSize="15"
                   fontFamily="Bebas Neue, Impact, sans-serif"
                   letterSpacing="0.04em"
-                  filter={isWinner ? undefined : 'url(#engrave)'}
+                  filter="url(#engrave)"
                   transform={`rotate(${mid}, ${tx}, ${ty})`}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >
                   {i + 1}
                 </text>
-
-                {/* Libellé court du défi */}
-                {challenge?.text && (
-                  <text
-                    x={tx2} y={ty2}
-                    textAnchor="middle" dominantBaseline="central"
-                    fill={isWinner ? 'rgba(26,26,46,0.7)' : 'rgba(255,255,255,0.45)'}
-                    fontSize="4.2"
-                    fontFamily="Nunito, sans-serif"
-                    transform={`rotate(${mid}, ${tx2}, ${ty2})`}
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}
-                  >
-                    {challenge.text.slice(0, 15)}
-                  </text>
-                )}
               </g>
             );
           })}
@@ -234,16 +207,10 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
           <circle cx="100" cy="100" r="92.5" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="0.6"/>
 
           {/* ── Cochonnet central (bouchon doré) ── */}
-          {/* Socle sombre */}
           <circle cx="100" cy="100" r="20" fill="#0d0d1e" stroke="rgba(0,0,0,0.9)" strokeWidth="2.5"/>
-          {/* Corps doré sphérique */}
           <circle cx="100" cy="100" r="17" fill="url(#cochonnet)"/>
-          {/* Reflet brillant */}
-          <ellipse cx="95.5" cy="94.5" rx="5.5" ry="3.8" fill="rgba(255,255,255,0.6)"/>
-          {/* Vis centrale gravée */}
-          <circle cx="100" cy="100" r="4.5" fill="rgba(0,0,0,0.35)" stroke="rgba(255,255,255,0.25)" strokeWidth="0.7"/>
-          <line x1="97.8" y1="100" x2="102.2" y2="100" stroke="rgba(255,255,255,0.35)" strokeWidth="0.7"/>
-          <line x1="100" y1="97.8" x2="100" y2="102.2" stroke="rgba(255,255,255,0.35)" strokeWidth="0.7"/>
+          {/* Reflet sphérique — petit, doux, haut-gauche */}
+          <ellipse cx="95" cy="94" rx="4.5" ry="3" fill="rgba(255,255,255,0.42)"/>
         </svg>
       </motion.div>
 
