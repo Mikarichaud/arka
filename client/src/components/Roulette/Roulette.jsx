@@ -19,11 +19,19 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
     if (!isSpinning || targetIndex === null || targetIndex === undefined) return;
 
     setLanded(false);
+
+    // Orientation visuelle cible (là où le disque DOIT finir, depuis 0°)
     const targetAngle = targetIndex * SLICE_ANGLE + SLICE_ANGLE / 2;
-    const normalizedTarget = (360 - targetAngle) % 360;
-    // 6 tours + atterrissage — assez pour être dramatique
+    const targetOrientation = (360 - targetAngle) % 360;
+
+    // Delta depuis la position visuelle actuelle
+    const currentVisual = currentRotation.current % 360;
+    let delta = (targetOrientation - currentVisual + 360) % 360;
+    // Si delta trop petit, ajouter un tour pour ne pas freiner brusquement
+    if (delta < 15) delta += 360;
+
     const fullSpins = 6 * 360;
-    const finalAngle = currentRotation.current + fullSpins + normalizedTarget;
+    const finalAngle = currentRotation.current + fullSpins + delta;
 
     controls.start({
       rotate: finalAngle,
