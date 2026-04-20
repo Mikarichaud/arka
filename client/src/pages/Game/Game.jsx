@@ -26,6 +26,7 @@ export default function Game() {
   const {
     session, pack, isSpinning, spinResult, currentChallenge,
     currentComment, exagerateurMode, soundEnabled, toggleSound,
+    gameHistory,
     spin, nextPlayer, updatePlayerScore, addHistoryEntry,
     addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
   } = useGameStore();
@@ -123,6 +124,7 @@ export default function Game() {
         players={session.players}
         packName={pack.name}
         shareLink={shareLink}
+        history={gameHistory}
         onRestart={handleRestart}
         onHome={() => { resetGame(); navigate('/'); }}
       />
@@ -280,7 +282,7 @@ export default function Game() {
                 <button className="btn btn-gold" style={{ width: '100%' }} onClick={handleNext}>
                   Tour suivant →
                 </button>
-                <button className="btn btn-ghost btn-sm" style={{ width: '100%' }} onClick={handleEndGame}>
+                <button className="btn btn-end-game" style={{ width: '100%' }} onClick={handleEndGame}>
                   Terminer la partie
                 </button>
               </div>

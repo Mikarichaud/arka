@@ -83,6 +83,7 @@ const useGameStore = create((set, get) => ({
       const entry = {
         playerName,
         challengeText: state.currentChallenge?.text || '',
+        caseNumber: (state.spinResult ?? 0) + 1,
         result: 'completed',
         points,
         media: [],
@@ -100,6 +101,7 @@ const useGameStore = create((set, get) => ({
       gameHistory: [...state.gameHistory, {
         playerName,
         challengeText: state.currentChallenge?.text || '',
+        caseNumber: (state.spinResult ?? 0) + 1,
         result,
         points: 0,
         media: [],

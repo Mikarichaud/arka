@@ -170,6 +170,32 @@
   gap: 10px;
 }
 
+/* Bouton "Terminer la partie" — visible sur fond clair et sombre */
+.btn-end-game {
+  font-family: var(--font-corps);
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 13px 24px;
+  border-radius: var(--radius-pill);
+  border: 2px solid rgba(230, 57, 70, 0.7);
+  background: rgba(230, 57, 70, 0.1);
+  color: var(--rouge-defi);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-end-game:hover {
+  background: rgba(230, 57, 70, 0.2);
+  border-color: var(--rouge-defi);
+  transform: translateY(-1px);
+}
+
+.btn-end-game:active { transform: scale(0.96); }
+
 /* ── Phase 4 elements ── */
 .game-idle {
   display: flex;

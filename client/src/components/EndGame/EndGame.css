@@ -1,20 +1,19 @@
+/* ── Conteneur principal ── */
 .endgame {
   min-height: 100dvh;
   background: linear-gradient(135deg, #0d1b3e 0%, #0057A8 60%, #C9A84C 100%);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding: 24px 16px;
+  padding: 24px 16px 40px;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .confetti-container {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   pointer-events: none;
   z-index: 0;
 }
@@ -23,106 +22,430 @@
   position: absolute;
   width: 10px;
   height: 10px;
-  border-radius: 2px;
   top: 0;
 }
 
+/* ── Card principale ── */
 .endgame-content {
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: var(--radius-lg);
-  padding: 32px 24px;
+  padding: 28px 20px;
   width: 100%;
   max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
   position: relative;
   z-index: 1;
+  margin-top: 8px;
 }
 
+/* ── Header ── */
 .endgame-header { text-align: center; }
 
 .endgame-pack {
-  font-size: 0.8rem;
-  color: rgba(255,255,255,0.5);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 8px;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
 }
 
 .endgame-title {
   font-family: var(--font-titre);
-  font-size: 3.5rem;
+  font-size: 3.2rem;
   color: white;
   line-height: 1;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .endgame-winner-stat {
   color: var(--or-etoile-light);
   font-style: italic;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
+  font-family: var(--font-accent);
 }
 
+/* ── Onglets ── */
+.endgame-tabs {
+  display: flex;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: var(--radius-md);
+  padding: 4px;
+  gap: 4px;
+}
+
+.endgame-tab {
+  flex: 1;
+  padding: 9px 8px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-corps);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.endgame-tab.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Podium ── */
 .endgame-podium {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .endgame-player-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 18px;
-  background: rgba(255,255,255,0.06);
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .endgame-player-row.winner {
-  background: rgba(201,168,76,0.2);
-  border-color: var(--or-etoile);
-  box-shadow: 0 0 20px rgba(201,168,76,0.2);
+  background: rgba(201, 168, 76, 0.18);
+  border-color: rgba(201, 168, 76, 0.6);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
 }
 
-.endgame-medal { font-size: 1.4rem; }
+.endgame-medal { font-size: 1.3rem; }
+
+.endgame-player-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
 
 .endgame-player-name {
-  flex: 1;
   font-weight: 700;
   color: white;
-  font-size: 1.05rem;
+  font-size: 1rem;
+}
+
+.endgame-player-detail {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .endgame-player-score {
   font-family: var(--font-titre);
   font-size: 1.4rem;
   color: var(--or-etoile-light);
+  letter-spacing: 0.04em;
 }
 
 .endgame-loser-stat {
   text-align: center;
-  color: rgba(255,255,255,0.45);
+  color: rgba(255, 255, 255, 0.4);
   font-style: italic;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  margin-top: 4px;
 }
 
+/* ── Récap ── */
+.endgame-recap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recap-stats-row {
+  display: flex;
+  gap: 8px;
+}
+
+.recap-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 12px 8px;
+}
+
+.recap-stat-val {
+  font-family: var(--font-titre);
+  font-size: 2rem;
+  color: white;
+  line-height: 1;
+}
+
+.recap-stat-label {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* Barre de courage */
+.recap-bar-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recap-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.recap-bar-bg {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.recap-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #2DC653, #5ae87a);
+  border-radius: 4px;
+}
+
+/* Distribution des cases */
+.recap-cases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recap-section-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.recap-cases-grid {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 80px;
+}
+
+.recap-case-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.recap-case-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--or-etoile-light);
+  min-height: 12px;
+}
+
+.recap-case-bar {
+  width: 100%;
+  background: linear-gradient(180deg, var(--or-etoile), var(--bleu-azur));
+  border-radius: 3px 3px 0 0;
+  min-height: 6px;
+}
+
+.recap-case-bar.empty {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.recap-case-num {
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.recap-case-top {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+  text-align: center;
+}
+
+/* Distinctions */
+.recap-distinctions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recap-distinction {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+}
+
+.recap-distinction.gold {
+  background: rgba(201, 168, 76, 0.12);
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+.recap-distinction.red {
+  background: rgba(230, 57, 70, 0.1);
+  border-color: rgba(230, 57, 70, 0.25);
+}
+
+.recap-dist-icon { font-size: 1.4rem; }
+
+.recap-dist-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: 2px;
+}
+
+.recap-dist-name {
+  font-weight: 700;
+  color: white;
+  font-size: 0.9rem;
+}
+
+/* ── Historique ── */
+.endgame-history {
+  display: flex;
+  flex-direction: column;
+}
+
+.history-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-style: italic;
+  padding: 24px 0;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.history-list::-webkit-scrollbar { width: 3px; }
+.history-list::-webkit-scrollbar-track { background: transparent; }
+.history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
+.history-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border-left: 3px solid transparent;
+}
+
+.history-entry.completed { border-left-color: #2DC653; }
+.history-entry.refused   { border-left-color: #E63946; }
+
+.history-entry-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.history-case {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.5);
+  min-width: 24px;
+}
+
+.history-result-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.history-result-dot.completed { background: #2DC653; }
+.history-result-dot.refused   { background: #E63946; }
+
+.history-entry-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.history-player {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.82rem;
+}
+
+.history-challenge {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-entry-right { flex-shrink: 0; }
+
+.history-pts {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  color: var(--or-etoile-light);
+}
+
+.history-refused {
+  font-size: 0.9rem;
+  color: rgba(230, 57, 70, 0.7);
+}
+
+/* ── Actions ── */
 .endgame-actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.endgame-actions .btn-ghost {
-  color: rgba(255,255,255,0.7);
-  border-color: rgba(255,255,255,0.3);
+.endgame-ghost {
+  color: rgba(255, 255, 255, 0.7) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Desktop */
+/* ── Desktop ── */
 @media (min-width: 1024px) {
-  .endgame-content { max-width: 600px; padding: 48px 40px; }
-  .endgame-title { font-size: 5rem; }
+  .endgame {
+    align-items: center;
+    padding: 40px 24px;
+  }
+
+  .endgame-content {
+    max-width: 560px;
+    padding: 40px 36px;
+    gap: 24px;
+  }
+
+  .endgame-title { font-size: 4.5rem; }
 }
