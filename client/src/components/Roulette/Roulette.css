@@ -14,51 +14,45 @@
   width: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
-  box-shadow:
-    0 8px 40px rgba(0, 87, 168, 0.4),
-    0 0 0 4px rgba(255, 255, 255, 0.15),
-    inset 0 0 0 2px rgba(0, 0, 0, 0.1);
   will-change: transform;
-  transition: box-shadow 0.4s ease;
+  /* Ombre portée boule de pétanque au repos */
+  filter: drop-shadow(0 10px 28px rgba(0,0,0,0.55))
+          drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  transition: filter 0.4s ease;
 }
 
-/* ── Pendant le spin : glow intense ── */
+/* Pendant le spin : intensification des ombres + lueur dorée */
 .roulette-wrapper.is-spinning .roulette-disc {
-  box-shadow:
-    0 8px 60px rgba(0, 87, 168, 0.7),
-    0 0 0 4px rgba(201, 168, 76, 0.5),
-    0 0 80px rgba(201, 168, 76, 0.25),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.2);
-  animation: disc-pulse 0.6s ease-in-out infinite alternate;
+  filter:
+    drop-shadow(0 12px 40px rgba(0,0,0,0.7))
+    drop-shadow(0 0 30px rgba(201,168,76,0.45))
+    drop-shadow(0 0 60px rgba(201,168,76,0.2));
+  animation: boule-pulse 0.55s ease-in-out infinite alternate;
 }
 
-@keyframes disc-pulse {
+@keyframes boule-pulse {
   from {
-    box-shadow:
-      0 8px 60px rgba(0, 87, 168, 0.7),
-      0 0 0 4px rgba(201, 168, 76, 0.5),
-      0 0 80px rgba(201, 168, 76, 0.2);
+    filter:
+      drop-shadow(0 12px 40px rgba(0,0,0,0.7))
+      drop-shadow(0 0 30px rgba(201,168,76,0.4));
   }
   to {
-    box-shadow:
-      0 12px 80px rgba(0, 87, 168, 0.9),
-      0 0 0 6px rgba(201, 168, 76, 0.8),
-      0 0 120px rgba(201, 168, 76, 0.4);
+    filter:
+      drop-shadow(0 14px 55px rgba(0,0,0,0.8))
+      drop-shadow(0 0 55px rgba(201,168,76,0.7))
+      drop-shadow(0 0 90px rgba(61,96,128,0.35));
   }
 }
 
-/* ── Atterrissage : flash doré ── */
+/* Atterrissage : flash doré */
 .roulette-wrapper.has-landed .roulette-disc {
-  box-shadow:
-    0 8px 60px rgba(201, 168, 76, 0.8),
-    0 0 0 5px rgba(201, 168, 76, 0.9),
-    0 0 100px rgba(201, 168, 76, 0.5);
-  animation: landing-flash 0.5s ease-out forwards;
+  animation: boule-land 0.6s ease-out forwards;
 }
 
-@keyframes landing-flash {
-  0%   { box-shadow: 0 0 0 8px rgba(201, 168, 76, 1), 0 0 120px rgba(201, 168, 76, 0.8); }
-  100% { box-shadow: 0 8px 40px rgba(0, 87, 168, 0.4), 0 0 0 4px rgba(255,255,255,0.15); }
+@keyframes boule-land {
+  0%   { filter: drop-shadow(0 0 0 14px rgba(201,168,76,1)) drop-shadow(0 0 80px rgba(201,168,76,0.9)); }
+  60%  { filter: drop-shadow(0 10px 35px rgba(0,0,0,0.6)) drop-shadow(0 0 20px rgba(201,168,76,0.4)); }
+  100% { filter: drop-shadow(0 10px 28px rgba(0,0,0,0.55)) drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
 }
 
 /* ── SVG ── */
@@ -66,57 +60,57 @@
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 50%;
 }
 
-/* ── Anneau de lueur externe pendant le spin ── */
+/* ── Anneau de lueur externe — piste de pétanque ── */
 .roulette-glow-ring {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: calc(100% + 32px);
-  height: calc(100% + 32px);
+  width: calc(100% + 28px);
+  height: calc(100% + 28px);
   border-radius: 50%;
-  border: 3px solid rgba(201, 168, 76, 0.6);
-  animation: glow-ring-pulse 0.8s ease-in-out infinite alternate;
+  border: 2px solid rgba(201,168,76,0.5);
+  box-shadow: 0 0 20px rgba(201,168,76,0.3), inset 0 0 20px rgba(201,168,76,0.1);
+  animation: piste-ring 0.75s ease-in-out infinite alternate;
   pointer-events: none;
   z-index: -1;
 }
 
-@keyframes glow-ring-pulse {
-  from { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
-  to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.04); }
+@keyframes piste-ring {
+  from { opacity: 0.45; transform: translate(-50%, -50%) scale(1); }
+  to   { opacity: 1;    transform: translate(-50%, -50%) scale(1.05); }
 }
 
-/* ── Aiguille ── */
-.roulette-needle {
+/* ── Aiguille — cochonnet chromé ── */
+.roulette-needle-wrap {
   position: absolute;
-  top: -18px;
+  top: -22px;
   left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 11px solid transparent;
-  border-right: 11px solid transparent;
-  border-top: 30px solid #E63946;
+  /* Centrage sans transform pour libérer la propriété transform pour la vibration */
+  margin-left: -12px;
   z-index: 10;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.5));
-  transform-origin: center top;
-  transition: filter 0.3s ease;
+  transform-origin: 12px 40px; /* pivot = pointe basse de l'aiguille */
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7));
 }
 
-/* Aiguille qui vibre pendant le spin */
-.roulette-needle.vibrating {
-  animation: needle-vibrate 0.08s ease-in-out infinite;
-  filter: drop-shadow(0 3px 10px rgba(230, 57, 70, 0.8));
+.roulette-needle-svg {
+  display: block;
 }
 
-@keyframes needle-vibrate {
-  0%   { transform: translateX(calc(-50% - 2px)) rotate(-3deg); }
-  25%  { transform: translateX(calc(-50% + 2px)) rotate(3deg); }
-  50%  { transform: translateX(calc(-50% - 1.5px)) rotate(-2deg); }
-  75%  { transform: translateX(calc(-50% + 1.5px)) rotate(2deg); }
-  100% { transform: translateX(-50%) rotate(0deg); }
+/* Vibration de l'aiguille pendant le spin */
+.roulette-needle-wrap.vibrating {
+  animation: aiguille-vibre 0.09s ease-in-out infinite;
+}
+
+@keyframes aiguille-vibre {
+  0%   { transform: rotate(-3.5deg); }
+  25%  { transform: rotate(3.5deg); }
+  50%  { transform: rotate(-2deg); }
+  75%  { transform: rotate(2deg); }
+  100% { transform: rotate(0deg); }
 }
 
 /* ── Badge résultat ── */
@@ -126,21 +120,17 @@
   color: #1a1a2e;
   font-family: var(--font-titre);
   font-size: 1.3rem;
-  letter-spacing: 0.06em;
-  padding: 7px 24px;
+  letter-spacing: 0.08em;
+  padding: 7px 26px;
   border-radius: var(--radius-pill);
-  box-shadow: var(--shadow-or);
+  box-shadow: 0 4px 20px rgba(201,168,76,0.5), 0 2px 6px rgba(0,0,0,0.3);
 }
 
 /* ── Desktop ── */
 @media (min-width: 1024px) {
-  .roulette-wrapper {
-    max-width: 460px;
-  }
+  .roulette-wrapper { max-width: 460px; }
 }
 
 @media (min-width: 1440px) {
-  .roulette-wrapper {
-    max-width: 540px;
-  }
+  .roulette-wrapper { max-width: 540px; }
 }
