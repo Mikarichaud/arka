@@ -29,10 +29,13 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
       rotate: finalAngle,
       transition: {
         duration: 4,
-        ease: [0.08, 0.6, 0.12, 1.0], // forte accélération → décélération brutale
+        ease: [0.08, 0.6, 0.12, 1.0],
       },
     }).then(() => {
-      currentRotation.current = finalAngle % 360;
+      // Garder la valeur absolue — PAS de modulo — sinon Framer Motion
+      // repart d'une position différente de sa valeur interne et le spin
+      // suivant ne fait plus que quelques degrés au lieu de 6 tours.
+      currentRotation.current = finalAngle;
       setLanded(true);
       onSpinEnd?.();
     });
