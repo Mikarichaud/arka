@@ -31,7 +31,10 @@ export default function Auth() {
 
   return (
     <Layout className="auth-page">
-      <button className="auth-back btn-back" onClick={() => navigate(-1)}>
+      <button
+        className="auth-back btn-back"
+        onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+      >
         ← Retour
       </button>
 

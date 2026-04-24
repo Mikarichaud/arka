@@ -13,13 +13,16 @@ const INTENSITIES = [
   { level: 3, label: 'Hard',  color: '#E63946' },
 ];
 
+const MIN_CHALLENGES = 8;
+const MAX_CHALLENGES = 24;
+
 const emptyChallenge = () => ({ text: '', intensity: INTENSITIES[0] });
 
 export default function Editor() {
   const navigate = useNavigate();
   const { user } = useAuthStore();
   const [packName, setPackName] = useState('');
-  const [challenges, setChallenges] = useState(Array.from({ length: 8 }, emptyChallenge));
+  const [challenges, setChallenges] = useState(Array.from({ length: MIN_CHALLENGES }, emptyChallenge));
   const [saving, setSaving] = useState(false);
   const [savedPack, setSavedPack] = useState(null);
   const [error, setError] = useState('');
@@ -38,6 +41,14 @@ export default function Editor() {
       next[i] = { ...next[i], intensity };
       return next;
     });
+  };
+
+  const addChallenge = () => {
+    setChallenges((prev) => (prev.length < MAX_CHALLENGES ? [...prev, emptyChallenge()] : prev));
+  };
+
+  const removeChallenge = (i) => {
+    setChallenges((prev) => (prev.length > MIN_CHALLENGES ? prev.filter((_, idx) => idx !== i) : prev));
   };
 
   const handleSave = async () => {
@@ -107,7 +118,7 @@ export default function Editor() {
             <button className="btn btn-gold" onClick={() => navigate('/session/setup')}>
               Jouer avec ce pack
             </button>
-            <button className="btn btn-ghost" onClick={() => { setSavedPack(null); setPackName(''); setChallenges(Array.from({ length: 8 }, emptyChallenge)); }}>
+            <button className="btn btn-ghost" onClick={() => { setSavedPack(null); setPackName(''); setChallenges(Array.from({ length: MIN_CHALLENGES }, emptyChallenge)); }}>
               Créer un autre pack
             </button>
           </div>
@@ -121,7 +132,7 @@ export default function Editor() {
       <div className="editor-header">
         <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
         <h1 className="editor-title">Créer un Pack</h1>
-        <p className="editor-subtitle">8 défis, ton style, tes règles</p>
+        <p className="editor-subtitle">8 à 24 défis, ton style, tes règles</p>
       </div>
 
       <div className="editor-pack-name">
@@ -164,6 +175,23 @@ export default function Editor() {
                   </button>
                 ))}
               </div>
+              {challenges.length > MIN_CHALLENGES && (
+                <button
+                  type="button"
+                  onClick={() => removeChallenge(i)}
+                  aria-label="Supprimer ce défi"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '1.2rem',
+                    color: 'var(--rouge-defi)',
+                    padding: '4px 8px',
+                  }}
+                >
+                  ✕
+                </button>
+              )}
             </div>
             <textarea
               className="input editor-textarea"
@@ -176,6 +204,17 @@ export default function Editor() {
             <span className="editor-char-count">{c.text.length}/200</span>
           </motion.div>
         ))}
+
+        {challenges.length < MAX_CHALLENGES && (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={addChallenge}
+            style={{ width: '100%', marginTop: 8 }}
+          >
+            + Ajouter un défi ({challenges.length}/{MAX_CHALLENGES})
+          </button>
+        )}
       </div>
 
       {error && <p className="editor-error">{error}</p>}

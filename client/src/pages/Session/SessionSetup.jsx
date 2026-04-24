@@ -52,7 +52,10 @@ export default function SessionSetup() {
   return (
     <Layout className="setup-page">
       <div className="setup-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          className="btn-back"
+          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+        >← Retour</button>
         <h1 className="setup-title">Les Joueurs</h1>
         <p className="setup-subtitle">Qui joue aujourd'hui ?</p>
       </div>

@@ -213,7 +213,7 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
   isOfficial: Boolean,
   isPremium: Boolean,                  // contenu réservé aux Premium / acheteurs
   author: ObjectId → User,
-  challenges: [ObjectId → Challenge],  // exactement 8
+  challenges: [ObjectId → Challenge],  // 8 à 24 (validation serveur dans POST /packs)
   shareCode: String (nanoid),
   isPublic: Boolean,
   createdAt: Date

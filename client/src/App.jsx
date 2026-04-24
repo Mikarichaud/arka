@@ -69,7 +69,7 @@ function AnimatedRoutes() {
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
             <Route path="/premium" element={<Premium />} />
             <Route path="/premium/success" element={<PremiumSuccess />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
           </Routes>
         </motion.div>
       </AnimatePresence>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
@@ -24,6 +24,7 @@ function StatCard({ icon, value, label }) {
 
 export default function Profile() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, setUser } = useAuthStore();
   const [sub, setSub] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -62,7 +63,10 @@ export default function Profile() {
     <Layout className="profile-page">
 
       <div className="profile-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          className="btn-back"
+          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+        >← Retour</button>
         <h1 className="profile-title">Mon Profil</h1>
       </div>
 

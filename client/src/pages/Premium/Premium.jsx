@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Icon from '../../components/Icon/Icon';
 import useAuthStore from '../../store/authStore';
@@ -11,7 +11,7 @@ const FEATURES = [
   { icon: 'camera',  label: 'Photos & vidéos de soirée',     free: false,            premium: true },
   { icon: 'photo',   label: 'Galerie partageable (QR code)', free: false,            premium: true },
   { icon: 'trophy',  label: 'Historique des parties',        free: false,            premium: true },
-  { icon: 'pencil',  label: 'Packs personnalisés',           free: '1 pack / 8 défis', premium: 'Illimité / 8–24 défis' },
+  { icon: 'pencil',  label: 'Packs personnalisés',           free: '1 pack / 8 défis', premium: 'Illimité / jusqu’à 24 défis (8 tirés par partie)' },
   { icon: 'wave',    label: 'Joueurs par partie',            free: '2 – 6',          premium: '2 – 10' },
   { icon: 'star',    label: 'Nouveaux packs chaque mois',    free: false,            premium: true },
   { icon: 'wheel',   label: 'Roulettes custom (cosmétiques)',free: false,            premium: 'Achat séparé' },
@@ -27,6 +27,7 @@ const PACKS_COMING = [
 
 export default function Premium() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthStore();
   const [billing, setBilling] = useState('annual');
   const [loading, setLoading] = useState(false);
@@ -57,7 +58,10 @@ export default function Premium() {
 
       {/* ── Nav ── */}
       <div className="premium-nav">
-        <button className="premium-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          className="premium-back"
+          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+        >← Retour</button>
         {user && <span className="premium-user">{user.username}</span>}
       </div>
 

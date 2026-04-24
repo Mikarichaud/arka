@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
@@ -13,6 +13,7 @@ const THEMES = ['tous', 'marseillais', 'amis', 'sportif', 'couple', 'enfants'];
 
 export default function PackLibrary() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [packs, setPacks] = useState([]);
   const [filter, setFilter] = useState('tous');
   const [loading, setLoading] = useState(true);
@@ -26,7 +27,10 @@ export default function PackLibrary() {
   useEffect(() => {
     const url = filter === 'tous' ? '/packs' : `/packs?theme=${filter}`;
     setLoading(true);
-    api.get(url).then(({ data }) => { setPacks(data.packs); setLoading(false); });
+    api.get(url)
+      .then(({ data }) => setPacks(data.packs))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, [filter]);
 
   const handleImport = async () => {
@@ -52,29 +56,31 @@ export default function PackLibrary() {
       setExpanded(null);
       return;
     }
-    if (pack.isPremium) {
-      // Charger le teaser depuis le serveur
-      if (!expandedData[pack._id]) {
-        try {
-          const { data } = await api.get(`/packs/${pack._id}`);
-          setExpandedData((prev) => ({ ...prev, [pack._id]: data }));
-        } catch {
-          setExpandedData((prev) => ({ ...prev, [pack._id]: { pack, locked: true } }));
-        }
+    // Le serveur renvoie soit le pack complet, soit le teaser si pas d'accès.
+    // La liste `/packs` utilise `.select('-challenges')`, donc on doit fetcher
+    // le détail pour tous les packs (pas seulement les premium).
+    if (!expandedData[pack._id]) {
+      try {
+        const { data } = await api.get(`/packs/${pack._id}`);
+        setExpandedData((prev) => ({ ...prev, [pack._id]: data }));
+      } catch {
+        setExpandedData((prev) => ({ ...prev, [pack._id]: { pack, locked: !pack.accessible } }));
       }
     }
     setExpanded(pack._id);
   };
 
   const getPackDetail = (pack) => {
-    if (!pack.isPremium) return { pack, locked: false };
-    return expandedData[pack._id] || { pack, locked: true };
+    return expandedData[pack._id] || { pack, locked: !pack.accessible };
   };
 
   return (
     <Layout className="library-page">
       <div className="library-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          className="btn-back"
+          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+        >← Retour</button>
         <h1 className="library-title">Les Packs</h1>
       </div>
 

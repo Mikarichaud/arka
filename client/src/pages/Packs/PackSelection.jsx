@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
@@ -20,6 +20,7 @@ const THEME_ICONS = {
 
 export default function PackSelection() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { selectedPackId, setSelectedPackId, playerNames } = useSessionStore();
   const { setSession, setPack } = useGameStore();
   const [packs, setPacks] = useState([]);
@@ -28,14 +29,14 @@ export default function PackSelection() {
   const [paywallPack, setPaywallPack] = useState(null);
 
   useEffect(() => {
-    api.get('/packs').then(({ data }) => {
-      setPacks(data.packs);
-      setLoading(false);
-    });
+    api.get('/packs')
+      .then(({ data }) => setPacks(data.packs))
+      .catch(() => {})
+      .finally(() => setLoading(false));
   }, []);
 
   const handlePackClick = (pack) => {
-    if (pack.isPremium) {
+    if (pack.isPremium && !pack.accessible) {
       setPaywallPack(pack);
       return;
     }
@@ -70,7 +71,10 @@ export default function PackSelection() {
   return (
     <Layout className="packs-page">
       <div className="packs-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button
+          className="btn-back"
+          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+        >← Retour</button>
         <h1 className="packs-title">Choix du Pack</h1>
         <p className="packs-subtitle">Quel ambiance on se fait ?</p>
       </div>
@@ -82,7 +86,7 @@ export default function PackSelection() {
           {packs.map((pack, i) => (
             <motion.div
               key={pack._id}
-              className={`pack-card ${selectedPackId === pack._id ? 'pack-card--selected' : ''} ${pack.isPremium ? 'pack-card--premium' : ''}`}
+              className={`pack-card ${selectedPackId === pack._id ? 'pack-card--selected' : ''} ${pack.isPremium && !pack.accessible ? 'pack-card--premium' : ''}`}
               onClick={() => handlePackClick(pack)}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -94,7 +98,7 @@ export default function PackSelection() {
                 <span className="pack-name">{pack.name}</span>
                 <span className="pack-desc">{pack.description}</span>
               </div>
-              {pack.isPremium ? (
+              {pack.isPremium && !pack.accessible ? (
                 <span className="pack-premium-badge"><Icon name="lock" size={16} /></span>
               ) : selectedPackId === pack._id ? (
                 <span className="pack-check"><Icon name="check" size={16} /></span>

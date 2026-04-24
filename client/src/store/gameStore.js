@@ -29,7 +29,16 @@ const useGameStore = create((set, get) => ({
   gameHistory: [], // { playerName, challengeText, result, points }
 
   setSession: (session) => set({ session }),
-  setPack: (pack) => set({ pack }),
+  setPack: (pack) => {
+    // Packs 8-24 défis : la roulette a 8 cases, donc on tire aléatoirement 8 défis
+    // parmi les N du pack. Rejouer le même pack donne un nouveau tirage.
+    if (pack?.challenges?.length > 8) {
+      const shuffled = [...pack.challenges].sort(() => Math.random() - 0.5).slice(0, 8);
+      set({ pack: { ...pack, challenges: shuffled } });
+    } else {
+      set({ pack });
+    }
+  },
   setSoundEnabled: (v) => {
     localStorage.setItem('roulade-sound', v);
     set({ soundEnabled: v });

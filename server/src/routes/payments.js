@@ -132,6 +132,11 @@ function toDate(timestamp) {
   return isNaN(d.getTime()) ? null : d;
 }
 
+// Depuis Stripe API 2025-08 (basil), current_period_end vit sur l'item, plus sur la subscription
+function getPeriodEnd(sub) {
+  return sub?.items?.data?.[0]?.current_period_end ?? null;
+}
+
 async function activateSubscription(subscriptionId, customerId) {
   const sub = await stripe.subscriptions.retrieve(subscriptionId);
   await User.findOneAndUpdate(
@@ -140,20 +145,26 @@ async function activateSubscription(subscriptionId, customerId) {
       tier: 'premium',
       'subscription.stripeSubscriptionId': sub.id,
       'subscription.status': sub.status,
-      'subscription.currentPeriodEnd': toDate(sub.current_period_end),
+      'subscription.currentPeriodEnd': toDate(getPeriodEnd(sub)),
     }
   );
 }
 
 async function syncSubscription(sub) {
-  const isActive = sub.status === 'active' || sub.status === 'trialing';
+  // past_due et unpaid = fenêtre de retry Stripe, on garde le tier premium.
+  // Seuls canceled / incomplete_expired / incomplete démotent vers free.
+  const keepsPremium =
+    sub.status === 'active' ||
+    sub.status === 'trialing' ||
+    sub.status === 'past_due' ||
+    sub.status === 'unpaid';
   await User.findOneAndUpdate(
     { 'subscription.stripeCustomerId': sub.customer },
     {
-      tier: isActive ? 'premium' : 'free',
+      tier: keepsPremium ? 'premium' : 'free',
       'subscription.stripeSubscriptionId': sub.id,
       'subscription.status': sub.status,
-      'subscription.currentPeriodEnd': toDate(sub.current_period_end),
+      'subscription.currentPeriodEnd': toDate(getPeriodEnd(sub)),
     }
   );
 }

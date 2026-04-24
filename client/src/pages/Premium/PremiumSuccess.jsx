@@ -11,20 +11,35 @@ export default function PremiumSuccess() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    // Rafraîchit le user pour refléter le nouveau tier premium
-    const refresh = async () => {
+    // Poll jusqu'à ce que le webhook Stripe ait flippé le tier côté serveur,
+    // puis refresh le store. Évite la race entre redirect et webhook delivery.
+    let cancelled = false;
+    const maxAttempts = 15;
+    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+
+    const run = async () => {
+      for (let i = 0; i < maxAttempts && !cancelled; i++) {
+        try {
+          const { data } = await api.get('/payments/subscription');
+          if (data?.isPremiumActive) break;
+        } catch {
+          // on continue à poll
+        }
+        await delay(1000);
+      }
+      if (cancelled) return;
       try {
         const { data } = await api.get('/auth/me');
         setUser(data.user);
       } catch {
         // silencieux
       } finally {
-        setReady(true);
+        if (!cancelled) setReady(true);
       }
     };
-    // Petit délai pour laisser le webhook Stripe arriver
-    const t = setTimeout(refresh, 2000);
-    return () => clearTimeout(t);
+
+    run();
+    return () => { cancelled = true; };
   }, [setUser]);
 
   return (
