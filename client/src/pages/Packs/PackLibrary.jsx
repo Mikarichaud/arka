@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
+import PaywallModal from '../../components/PaywallModal/PaywallModal';
 import api from '../../services/api';
 import './PackLibrary.css';
 
@@ -16,12 +17,15 @@ export default function PackLibrary() {
   const [filter, setFilter] = useState('tous');
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
+  const [expandedData, setExpandedData] = useState({});
   const [importCode, setImportCode] = useState('');
   const [importError, setImportError] = useState('');
   const [importing, setImporting] = useState(false);
+  const [paywallPack, setPaywallPack] = useState(null);
 
   useEffect(() => {
     const url = filter === 'tous' ? '/packs' : `/packs?theme=${filter}`;
+    setLoading(true);
     api.get(url).then(({ data }) => { setPacks(data.packs); setLoading(false); });
   }, [filter]);
 
@@ -31,7 +35,11 @@ export default function PackLibrary() {
     setImportError('');
     try {
       const { data } = await api.get(`/packs/share/${importCode.trim().toUpperCase()}`);
-      navigate('/session/setup', { state: { preselectedPackId: data.pack._id } });
+      if (data.locked) {
+        setPaywallPack(data.pack);
+      } else {
+        navigate('/session/setup', { state: { preselectedPackId: data.pack._id } });
+      }
     } catch {
       setImportError('Code introuvable, té !');
     } finally {
@@ -39,10 +47,34 @@ export default function PackLibrary() {
     }
   };
 
+  const handleExpand = async (pack) => {
+    if (expanded === pack._id) {
+      setExpanded(null);
+      return;
+    }
+    if (pack.isPremium) {
+      // Charger le teaser depuis le serveur
+      if (!expandedData[pack._id]) {
+        try {
+          const { data } = await api.get(`/packs/${pack._id}`);
+          setExpandedData((prev) => ({ ...prev, [pack._id]: data }));
+        } catch {
+          setExpandedData((prev) => ({ ...prev, [pack._id]: { pack, locked: true } }));
+        }
+      }
+    }
+    setExpanded(pack._id);
+  };
+
+  const getPackDetail = (pack) => {
+    if (!pack.isPremium) return { pack, locked: false };
+    return expandedData[pack._id] || { pack, locked: true };
+  };
+
   return (
     <Layout className="library-page">
       <div className="library-header">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/')}>← Retour</button>
+        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
         <h1 className="library-title">Les Packs</h1>
       </div>
 
@@ -83,49 +115,78 @@ export default function PackLibrary() {
         <p className="library-loading">Chargement...</p>
       ) : (
         <div className="library-grid">
-          {packs.map((pack, i) => (
-            <motion.div
-              key={pack._id}
-              className="library-pack-card"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-            >
-              <div className="library-pack-top" onClick={() => setExpanded(expanded === pack._id ? null : pack._id)}>
-                <span className="library-pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={22} /></span>
-                <div className="library-pack-info">
-                  <span className="library-pack-name">{pack.name}</span>
-                  <span className="library-pack-desc">{pack.description}</span>
-                </div>
-                <span className="library-pack-chevron">{expanded === pack._id ? '▲' : '▼'}</span>
-              </div>
+          {packs.map((pack, i) => {
+            const detail = getPackDetail(pack);
+            const isExpanded = expanded === pack._id;
+            // accessible vient du serveur (tient compte du tier + purchasedPacks)
+            const isLocked = isExpanded ? detail.locked : !pack.accessible;
 
-              {expanded === pack._id && (
-                <motion.div
-                  className="library-pack-challenges"
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                >
-                  {pack.challenges?.map((c, j) => (
-                    <div key={j} className="library-challenge-item">
-                      <span
-                        className="library-challenge-dot"
-                        style={{ background: c.intensity?.color || '#2DC653' }}
-                      />
-                      <span>{c.text}</span>
-                    </div>
-                  ))}
-                  <button
-                    className="btn btn-gold btn-sm"
-                    style={{ width: '100%', marginTop: 12 }}
-                    onClick={() => navigate('/session/setup', { state: { preselectedPackId: pack._id } })}
+            return (
+              <motion.div
+                key={pack._id}
+                className={`library-pack-card ${pack.isPremium ? 'library-pack-card--premium' : ''}`}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.06 }}
+              >
+                <div className="library-pack-top" onClick={() => handleExpand(pack)}>
+                  <span className="library-pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={22} /></span>
+                  <div className="library-pack-info">
+                    <span className="library-pack-name">
+                      {pack.name}
+                      {pack.isPremium && <span className="library-premium-tag">Premium</span>}
+                    </span>
+                    <span className="library-pack-desc">{pack.description}</span>
+                  </div>
+                  {isLocked && !isExpanded
+                    ? <Icon name="lock" size={18} />
+                    : <span className="library-pack-chevron">{isExpanded ? '▲' : '▼'}</span>
+                  }
+                </div>
+
+                {isExpanded && (
+                  <motion.div
+                    className="library-pack-challenges"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
                   >
-                    Jouer avec ce pack
-                  </button>
-                </motion.div>
-              )}
-            </motion.div>
-          ))}
+                    {detail.pack?.challenges?.map((c, j) => (
+                      <div key={j} className={`library-challenge-item ${isLocked && j > 0 ? 'library-challenge-item--blurred' : ''}`}>
+                        <span
+                          className="library-challenge-dot"
+                          style={{ background: c.intensity?.color || '#2DC653' }}
+                        />
+                        <span>{isLocked && j > 0 ? '████████████████' : c.text}</span>
+                      </div>
+                    ))}
+
+                    {isLocked ? (
+                      <div className="library-locked-cta">
+                        <p className="library-locked-msg">
+                          + {(detail.pack?.totalChallenges || 8) - 1} défis accessibles en Premium
+                        </p>
+                        <button
+                          className="btn btn-gold btn-sm"
+                          style={{ width: '100%' }}
+                          onClick={() => setPaywallPack(detail.pack)}
+                        >
+                          Débloquer ce pack
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="btn btn-gold btn-sm"
+                        style={{ width: '100%', marginTop: 12 }}
+                        onClick={() => navigate('/session/setup', { state: { preselectedPackId: pack._id } })}
+                      >
+                        Jouer avec ce pack
+                      </button>
+                    )}
+                  </motion.div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       )}
 
@@ -137,6 +198,8 @@ export default function PackLibrary() {
       >
         + Créer mon propre pack
       </button>
+
+      <PaywallModal pack={paywallPack} onClose={() => setPaywallPack(null)} />
     </Layout>
   );
 }

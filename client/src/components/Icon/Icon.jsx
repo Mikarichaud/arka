@@ -377,6 +377,36 @@ const icons = {
     </svg>
   ),
 
+  /* ── Accès / abonnement ───────────────────────────────────── */
+
+  lock: (id) => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FCD34D"/>
+          <stop offset="100%" stopColor="#C9A84C"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="11" width="18" height="12" rx="3" fill={`url(#${id}-g)`}/>
+      <path d="M7 11 V7 a5 5 0 0 1 10 0 V11" stroke="#C9A84C" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+      <circle cx="12" cy="17" r="2.5" fill="#0057A8"/>
+      <line x1="12" y1="17" x2="12" y2="20" stroke="#0057A8" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  ),
+
+  star: (id) => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FCD34D"/>
+          <stop offset="100%" stopColor="#C9A84C"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2 L14.9 8.6 L22 9.3 L17 14 L18.6 21 L12 17.5 L5.4 21 L7 14 L2 9.3 L9.1 8.6 Z"
+        fill={`url(#${id}-g)`} stroke="#F59E0B" strokeWidth="0.5"/>
+    </svg>
+  ),
+
   /* ── Photo / galerie ───────────────────────────────────────── */
 
   photo: (id) => (

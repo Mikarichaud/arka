@@ -58,6 +58,20 @@
   font-weight: 800;
 }
 
+.pack-card--premium {
+  opacity: 0.82;
+}
+
+.pack-card--premium .pack-name {
+  color: var(--gris-doux);
+}
+
+.pack-premium-badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
 .packs-loading {
   text-align: center;
   color: var(--gris-doux);

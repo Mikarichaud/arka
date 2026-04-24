@@ -10,6 +10,7 @@ const packSchema = new mongoose.Schema({
     default: 'custom',
   },
   isOfficial: { type: Boolean, default: false },
+  isPremium: { type: Boolean, default: false },
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   challenges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' }],
   shareCode: { type: String, unique: true, sparse: true },

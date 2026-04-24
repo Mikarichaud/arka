@@ -88,6 +88,25 @@
   background: rgba(255, 255, 255, 0.15) !important;
 }
 
+/* ── Premium CTA ── */
+.home-premium-cta {
+  border-color: rgba(201, 168, 76, 0.45) !important;
+  color: #e0c070 !important;
+  background: rgba(201, 168, 76, 0.1) !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.home-premium-cta:hover {
+  background: rgba(201, 168, 76, 0.2) !important;
+}
+
+.home-premium-btn {
+  border-color: rgba(201, 168, 76, 0.4) !important;
+  color: #e0c070 !important;
+  background: rgba(201, 168, 76, 0.08) !important;
+}
+
 /* ── User bar ── */
 .home-user-bar {
   display: flex;
@@ -106,6 +125,16 @@
   display: flex;
   align-items: center;
 }
+
+.home-username-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  transition: opacity var(--transition-fast);
+}
+.home-username-btn:hover { opacity: 0.8; }
 
 /* ── Toggles ── */
 .home-footer {

@@ -9,6 +9,7 @@ const userRoutes = require('./routes/users');
 const packRoutes = require('./routes/packs');
 const sessionRoutes = require('./routes/sessions');
 const mediaRoutes = require('./routes/media');
+const paymentRoutes = require('./routes/payments');
 
 const app = express();
 
@@ -20,7 +21,16 @@ const corsOptions = process.env.NODE_ENV === 'production'
 
 app.use(cors(corsOptions));
 app.use(morgan('dev'));
-app.use(express.json());
+
+// Webhook Stripe : body brut obligatoire pour la vérification de signature
+// Toutes les autres routes : JSON parsé
+app.use((req, res, next) => {
+  if (req.originalUrl === '/api/payments/webhook') {
+    express.raw({ type: 'application/json' })(req, res, next);
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
@@ -28,6 +38,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/packs', packRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/media', mediaRoutes);
+app.use('/api/payments', paymentRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

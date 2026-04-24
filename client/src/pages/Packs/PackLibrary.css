@@ -114,6 +114,43 @@
 
 .library-loading { text-align: center; color: var(--gris-doux); padding: 40px; }
 
+/* Premium */
+.library-pack-card--premium .library-pack-name { color: var(--gris-doux); }
+
+.library-premium-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #C9A84C, #e0c070);
+  color: white;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.library-challenge-item--blurred {
+  filter: blur(3px);
+  user-select: none;
+  color: #c4c9d8;
+}
+
+.library-locked-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.library-locked-msg {
+  font-size: 0.82rem;
+  color: var(--gris-doux);
+  text-align: center;
+  margin: 0;
+}
+
 /* Desktop */
 @media (min-width: 1024px) {
   .library-grid {

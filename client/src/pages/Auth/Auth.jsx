@@ -8,7 +8,7 @@ import './Auth.css';
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || '/';
+  const from = location.state?.redirect || location.state?.from || '/';
   const { login, register, isLoading } = useAuthStore();
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({ username: '', login: '', email: '', password: '' });
@@ -31,7 +31,7 @@ export default function Auth() {
 
   return (
     <Layout className="auth-page">
-      <button className="auth-back btn btn-ghost btn-sm" onClick={() => navigate('/')}>
+      <button className="auth-back btn-back" onClick={() => navigate(-1)}>
         ← Retour
       </button>
 

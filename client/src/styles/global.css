@@ -17,6 +17,7 @@ body {
   color: var(--text-primary);
   min-height: 100dvh;
   overscroll-behavior: none;
+  overflow-x: hidden; /* nécessaire pour la vague de la Corniche */
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -105,6 +106,22 @@ h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }
 }
 
 .btn-sm { padding: 8px 16px; font-size: 0.875rem; }
+
+.btn-back {
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-family: var(--font-corps);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+.btn-back:hover { color: var(--text-primary); gap: 6px; }
 
 /* ── Animation Carreau — validation snap satisfaisant ── */
 @keyframes carreau {

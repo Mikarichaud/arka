@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
+import PaywallModal from '../../components/PaywallModal/PaywallModal';
 import useSessionStore from '../../store/sessionStore';
 import useGameStore from '../../store/gameStore';
 import api from '../../services/api';
@@ -24,6 +25,7 @@ export default function PackSelection() {
   const [packs, setPacks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [paywallPack, setPaywallPack] = useState(null);
 
   useEffect(() => {
     api.get('/packs').then(({ data }) => {
@@ -32,11 +34,24 @@ export default function PackSelection() {
     });
   }, []);
 
+  const handlePackClick = (pack) => {
+    if (pack.isPremium) {
+      setPaywallPack(pack);
+      return;
+    }
+    setSelectedPackId(pack._id);
+  };
+
   const handleStart = async () => {
     if (!selectedPackId) return;
     setStarting(true);
     try {
       const { data } = await api.get(`/packs/${selectedPackId}`);
+      if (data.locked) {
+        setPaywallPack(data.pack);
+        setStarting(false);
+        return;
+      }
       const pack = data.pack;
       const session = {
         players: playerNames.map((name) => ({ name, score: 0 })),
@@ -55,7 +70,7 @@ export default function PackSelection() {
   return (
     <Layout className="packs-page">
       <div className="packs-header">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/session/setup')}>← Retour</button>
+        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
         <h1 className="packs-title">Choix du Pack</h1>
         <p className="packs-subtitle">Quel ambiance on se fait ?</p>
       </div>
@@ -67,8 +82,8 @@ export default function PackSelection() {
           {packs.map((pack, i) => (
             <motion.div
               key={pack._id}
-              className={`pack-card ${selectedPackId === pack._id ? 'pack-card--selected' : ''}`}
-              onClick={() => setSelectedPackId(pack._id)}
+              className={`pack-card ${selectedPackId === pack._id ? 'pack-card--selected' : ''} ${pack.isPremium ? 'pack-card--premium' : ''}`}
+              onClick={() => handlePackClick(pack)}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
@@ -79,9 +94,11 @@ export default function PackSelection() {
                 <span className="pack-name">{pack.name}</span>
                 <span className="pack-desc">{pack.description}</span>
               </div>
-              {selectedPackId === pack._id && (
+              {pack.isPremium ? (
+                <span className="pack-premium-badge"><Icon name="lock" size={16} /></span>
+              ) : selectedPackId === pack._id ? (
                 <span className="pack-check"><Icon name="check" size={16} /></span>
-              )}
+              ) : null}
             </motion.div>
           ))}
         </div>
@@ -95,6 +112,8 @@ export default function PackSelection() {
       >
         {starting ? 'Préparation...' : 'Lancer la Roulade !'}
       </button>
+
+      <PaywallModal pack={paywallPack} onClose={() => setPaywallPack(null)} />
     </Layout>
   );
 }

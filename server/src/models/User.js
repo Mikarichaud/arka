@@ -6,6 +6,15 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
   avatar: { type: String, default: null },
+  tier: { type: String, enum: ['free', 'premium'], default: 'free' },
+  subscription: {
+    stripeCustomerId: { type: String, default: null },
+    stripeSubscriptionId: { type: String, default: null },
+    status: { type: String, enum: ['active', 'canceled', 'past_due', null], default: null },
+    currentPeriodEnd: { type: Date, default: null },
+  },
+  purchasedPacks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Pack' }],
+  purchasedSkins: [{ type: String }],
   stats: {
     totalGames: { type: Number, default: 0 },
     totalChallengesCompleted: { type: Number, default: 0 },
@@ -21,6 +30,12 @@ userSchema.pre('save', async function () {
 
 userSchema.methods.comparePassword = function (candidate) {
   return bcrypt.compare(candidate, this.password);
+};
+
+userSchema.methods.isPremiumActive = function () {
+  if (this.tier !== 'premium') return false;
+  if (!this.subscription?.currentPeriodEnd) return false;
+  return new Date() < new Date(this.subscription.currentPeriodEnd);
 };
 
 userSchema.methods.toJSON = function () {

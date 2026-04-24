@@ -4,11 +4,14 @@ const Pack = require('../models/Pack');
 const Challenge = require('../models/Challenge');
 const connectDB = require('../config/db');
 
+// isPremium: true → contenu protégé (teaser 1 défi pour les non-abonnés)
+// isPremium: false → packs gratuits accessibles à tous
 const PACKS_DATA = [
   {
     name: 'Soirée entre amis',
     description: 'Les classiques pour une bonne soirée',
     theme: 'amis',
+    isPremium: true,
     challenges: [
       { text: 'Imite la voix de quelqu\'un dans le groupe pendant 1 minute', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
       { text: 'Dis un secret que tu n\'as jamais dit à personne ici', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
@@ -24,6 +27,7 @@ const PACKS_DATA = [
     name: 'Défis sportifs',
     description: 'Pour les athlètes et les faux sportifs',
     theme: 'sportif',
+    isPremium: true,
     challenges: [
       { text: 'Fais 20 pompes maintenant', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
       { text: 'Jongle avec n\'importe quel objet rond pendant 10 secondes', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
@@ -39,6 +43,7 @@ const PACKS_DATA = [
     name: 'Couple',
     description: 'Pour pimenter la soirée à deux ou en groupe',
     theme: 'couple',
+    isPremium: true,
     challenges: [
       { text: 'Dis 3 choses que tu adores chez la personne à ta gauche', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
       { text: 'Imite ton/ta partenaire, il/elle doit se reconnaître', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
@@ -54,6 +59,7 @@ const PACKS_DATA = [
     name: 'Enfants',
     description: 'Des défis fun pour les petits',
     theme: 'enfants',
+    isPremium: true,
     challenges: [
       { text: 'Imite ton animal préféré pendant 30 secondes', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
       { text: 'Chante une chanson avec la bouche fermée, les autres doivent deviner', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
@@ -69,6 +75,7 @@ const PACKS_DATA = [
     name: 'Pack Mireille',
     description: 'Les défis de daronne marseillaise',
     theme: 'marseillais',
+    isPremium: false,
     challenges: [
       { text: 'Raconte une embrouille de 10 min pour un truc qui a duré 2 secondes', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
       { text: 'Imite ta mère qui appelle quelqu\'un qui est à 3 mètres de toi', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
@@ -84,6 +91,7 @@ const PACKS_DATA = [
     name: 'Virage Sud',
     description: 'Les défis de supporters de l\'OM',
     theme: 'marseillais',
+    isPremium: false,
     challenges: [
       { text: 'Chante l\'hymne de l\'OM sans perdre la voix, sinon tu payes ta tournée', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
       { text: 'Décris le plus beau but que t\'as vu de ta vie (réel ou imaginaire)', intensity: { level: 1, label: 'Facile', color: '#2DC653' } },
@@ -99,6 +107,7 @@ const PACKS_DATA = [
     name: 'Mouloud le Pêcheur',
     description: 'Les défis d\'exagération marseillaise',
     theme: 'marseillais',
+    isPremium: false,
     challenges: [
       { text: 'Décris la taille de la sardine qui a bouché le port, les mains écartées à plus de 2 mètres', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
       { text: 'Raconte le poisson que t\'as pêché (il doit grossir à chaque phrase)', intensity: { level: 2, label: 'Moyen', color: '#C9A84C' } },
@@ -129,6 +138,7 @@ async function seed() {
       theme: packData.theme,
       isOfficial: true,
       isPublic: true,
+      isPremium: packData.isPremium ?? false,
     });
 
     const challenges = await Challenge.insertMany(

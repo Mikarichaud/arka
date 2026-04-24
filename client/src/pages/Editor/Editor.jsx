@@ -119,7 +119,7 @@ export default function Editor() {
   return (
     <Layout className="editor-page">
       <div className="editor-header">
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>← Retour</button>
+        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
         <h1 className="editor-title">Créer un Pack</h1>
         <p className="editor-subtitle">8 défis, ton style, tes règles</p>
       </div>

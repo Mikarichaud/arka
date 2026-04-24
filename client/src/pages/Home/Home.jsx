@@ -49,19 +49,40 @@ export default function Home() {
           </button>
           {user ? (
             <div className="home-user-bar">
-              <span className="home-username">
+              <button
+                className="home-username home-username-btn"
+                onClick={() => navigate('/profile')}
+              >
                 <Icon name="wave" size={16} style={{ marginRight: 6 }} />
                 {user.username}
-              </span>
-              <button className="btn btn-ghost btn-sm home-ghost-btn" onClick={logout}>
-                Déconnexion
+                {user.tier === 'premium' && (
+                  <Icon name="star" size={14} style={{ marginLeft: 6 }} />
+                )}
               </button>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {user.tier !== 'premium' && (
+                  <button className="btn btn-ghost btn-sm home-premium-btn"
+                    onClick={() => navigate('/premium')}>
+                    Premium
+                  </button>
+                )}
+                <button className="btn btn-ghost btn-sm home-ghost-btn" onClick={logout}>
+                  Déconnexion
+                </button>
+              </div>
             </div>
           ) : (
-            <button className="btn btn-ghost home-ghost-btn"
-              onClick={() => navigate('/login')}>
-              Se connecter
-            </button>
+            <>
+              <button className="btn btn-ghost home-ghost-btn"
+                onClick={() => navigate('/login')}>
+                Se connecter
+              </button>
+              <button className="btn btn-ghost home-ghost-btn home-premium-cta"
+                onClick={() => navigate('/premium')}>
+                <Icon name="star" size={16} style={{ marginRight: 6 }} />
+                Découvrir Premium
+              </button>
+            </>
           )}
         </motion.div>
       </div>
