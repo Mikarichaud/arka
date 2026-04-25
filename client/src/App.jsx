@@ -64,6 +64,7 @@ function AnimatedRoutes() {
             <Route path="/session/pack" element={<PackSelection />} />
             <Route path="/packs" element={<PackLibrary />} />
             <Route path="/editor" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
+            <Route path="/editor/:id" element={<ProtectedRoute><Editor /></ProtectedRoute>} />
             <Route path="/game" element={<Game />} />
             <Route path="/gallery/:shareLink" element={<Gallery />} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />

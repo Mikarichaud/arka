@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { fumigenesVariants } from '../../styles/motion';
 import './VotePanel.css';
 
 const EXCUSES = [
@@ -9,19 +10,6 @@ const EXCUSES = [
   "Le soleil il m'aveuglait, té !",
   "Je suis pas en forme aujourd'hui, demain c'est sûr",
 ];
-
-// Variants fumigène — apparition depuis la fumée
-const fumigenesVariants = {
-  initial: { opacity: 0, scale: 0.88, filter: 'blur(8px)', y: 20 },
-  animate: {
-    opacity: 1, scale: 1, filter: 'blur(0px)', y: 0,
-    transition: { type: 'spring', stiffness: 280, damping: 22 },
-  },
-  exit: {
-    opacity: 0, scale: 0.92, filter: 'blur(6px)', y: -10,
-    transition: { duration: 0.2 },
-  },
-};
 
 export default function VotePanel({ players, activePlayerName, onVote, onSkip }) {
   const [votes, setVotes] = useState({});

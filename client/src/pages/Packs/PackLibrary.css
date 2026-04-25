@@ -61,6 +61,203 @@
   gap: 10px;
 }
 
+.library-create-cta {
+  width: 100%;
+  padding: 14px;
+  font-size: 1rem;
+}
+
+.library-section-title {
+  font-family: var(--font-titre);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+.library-section-title:first-child { margin-top: 0; }
+
+.library-mine-tag {
+  display: inline-block;
+  background: var(--vert-valide);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.05em;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+.library-pack-card--mine { border-left: 3px solid var(--vert-valide); }
+
+.library-pack-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.library-pack-actions-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* Boutons compacts (Modifier / Supprimer / Partager) sous "Jouer" */
+.library-pack-actions .btn-sm {
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+
+.library-delete-btn {
+  background: transparent;
+  border: 1.5px solid rgba(230, 57, 70, 0.5);
+  color: var(--rouge-defi);
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex: 1;
+}
+.library-delete-btn:hover {
+  background: rgba(230, 57, 70, 0.1);
+  border-color: var(--rouge-defi);
+}
+
+/* Modale de confirmation suppression */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.confirm-modal {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 340px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.confirm-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(230, 57, 70, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.confirm-title {
+  font-family: var(--font-titre);
+  font-size: 1.4rem;
+  color: var(--text-primary);
+}
+
+.confirm-pack-name {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--bleu-azur);
+}
+
+.confirm-desc {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Modale de partage */
+.share-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.share-modal {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  max-width: 360px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.share-title {
+  font-family: var(--font-titre);
+  font-size: 1.5rem;
+  color: var(--bleu-azur);
+}
+
+.share-pack-name {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.share-qr {
+  background: white;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.share-code-row {
+  background: var(--surface-input);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  width: 100%;
+}
+
+.share-code {
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--bleu-azur);
+  letter-spacing: 0.1em;
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
 .library-pack-card {
   background: white;
   border-radius: var(--radius-md);

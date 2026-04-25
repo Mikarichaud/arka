@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="32%" r="78%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="60%" stop-color="#F5F5F0"/>
+      <stop offset="100%" stop-color="#e3dfce"/>
+    </radialGradient>
+    <radialGradient id="chrome" cx="50%" cy="50%" r="50%">
+      <stop offset="86%" stop-color="#141422"/>
+      <stop offset="91%" stop-color="#5a5a7a"/>
+      <stop offset="95%" stop-color="#c0c0d8"/>
+      <stop offset="98%" stop-color="#e8e8f8"/>
+      <stop offset="100%" stop-color="#3a3a5a"/>
+    </radialGradient>
+    <radialGradient id="sheen" cx="180" cy="130" r="260" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.32)"/>
+      <stop offset="45%" stop-color="rgba(255,255,255,0.03)"/>
+      <stop offset="100%" stop-color="rgba(0,0,0,0.45)"/>
+    </radialGradient>
+    <radialGradient id="cochonnet" cx="40%" cy="30%" r="72%">
+      <stop offset="0%" stop-color="#fff8d0"/>
+      <stop offset="25%" stop-color="#f0d060"/>
+      <stop offset="55%" stop-color="#C9A84C"/>
+      <stop offset="85%" stop-color="#9a7020"/>
+      <stop offset="100%" stop-color="#5a3c08"/>
+    </radialGradient>
+    <filter id="engrave">
+      <feDropShadow dx="1.6" dy="2" stdDeviation="0.8" flood-color="#000" flood-opacity="0.85"/>
+      <feDropShadow dx="-0.8" dy="-0.8" stdDeviation="0.4" flood-color="#fff" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <rect x="4" y="4" width="504" height="504" rx="92" fill="none" stroke="#C9A84C" stroke-width="4" opacity="0.55"/>
+
+  <g transform="translate(256 256)">
+    <circle r="226" fill="#0057A8" opacity="0.08"/>
+    <circle r="220" fill="url(#chrome)"/>
+
+    <g>
+      <path d="M0,0 L0,-200 A200,200 0 0,1 141.42,-141.42 Z" fill="#3d6080"/>
+      <path d="M0,0 L141.42,-141.42 A200,200 0 0,1 200,0 Z" fill="#8a5f20"/>
+      <path d="M0,0 L200,0 A200,200 0 0,1 141.42,141.42 Z" fill="#1a3a5c"/>
+      <path d="M0,0 L141.42,141.42 A200,200 0 0,1 0,200 Z" fill="#8a6810"/>
+      <path d="M0,0 L0,200 A200,200 0 0,1 -141.42,141.42 Z" fill="#2d4d68"/>
+      <path d="M0,0 L-141.42,141.42 A200,200 0 0,1 -200,0 Z" fill="#6a3d10"/>
+      <path d="M0,0 L-200,0 A200,200 0 0,1 -141.42,-141.42 Z" fill="#0e2840"/>
+      <path d="M0,0 L-141.42,-141.42 A200,200 0 0,1 0,-200 Z" fill="#9a7015"/>
+    </g>
+
+    <circle r="200" fill="url(#sheen)" opacity="0.85"/>
+
+    <g stroke="rgba(0,0,0,0.75)" stroke-width="3">
+      <line x1="0" y1="0" x2="0" y2="-200"/>
+      <line x1="0" y1="0" x2="141.42" y2="-141.42"/>
+      <line x1="0" y1="0" x2="200" y2="0"/>
+      <line x1="0" y1="0" x2="141.42" y2="141.42"/>
+      <line x1="0" y1="0" x2="0" y2="200"/>
+      <line x1="0" y1="0" x2="-141.42" y2="141.42"/>
+      <line x1="0" y1="0" x2="-200" y2="0"/>
+      <line x1="0" y1="0" x2="-141.42" y2="-141.42"/>
+    </g>
+
+    <circle r="200" fill="none" stroke="rgba(0,0,0,0.7)" stroke-width="4"/>
+    <circle r="196" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.5"/>
+
+    <circle r="85" fill="#0d0d1e" stroke="rgba(0,0,0,0.9)" stroke-width="5"/>
+    <circle r="78" fill="url(#cochonnet)"/>
+    <ellipse cx="-22" cy="-28" rx="22" ry="14" fill="rgba(255,255,255,0.38)"/>
+  </g>
+</svg>

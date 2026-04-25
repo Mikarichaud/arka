@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { nanoid } = require('nanoid');
 
 const packSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true },
@@ -14,13 +13,11 @@ const packSchema = new mongoose.Schema({
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   challenges: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Challenge' }],
   shareCode: { type: String, unique: true, sparse: true },
+  coverImage: { type: String, default: null },
   isPublic: { type: Boolean, default: false },
 }, { timestamps: true });
 
-packSchema.pre('save', async function () {
-  if (!this.shareCode) {
-    this.shareCode = nanoid(8).toUpperCase();
-  }
-});
+// shareCode n'est plus généré automatiquement : la route POST /packs décide
+// de le créer selon le tier de l'auteur.
 
 module.exports = mongoose.model('Pack', packSchema);

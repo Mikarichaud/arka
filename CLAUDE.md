@@ -173,7 +173,13 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
 - **Mongoose 9** : hooks pre-save avec `async function()` sans paramètre `next`.
 - **Stripe webhook** : nécessite le body brut → middleware conditionnel dans `app.js` qui applique `express.raw()` uniquement sur `/api/payments/webhook`, sinon `express.json()`.
 - **Freemium gating** : `Pack.isPremium` + `User.tier` + `User.purchasedPacks`. La méthode `User.isPremiumActive()` vérifie `tier === 'premium'` ET `subscription.currentPeriodEnd` non expirée. Un pack acheté individuellement (`purchasedPacks`) reste accessible même après expiration de l'abonnement.
-- **Routes packs protégées** : `GET /packs` retourne `accessible: true/false` par pack via `optionalAuth`. `GET /packs/:id` et `GET /packs/share/:code` retournent un `teaser` (1 défi visible, reste masqué) si pas d'accès.
+- **Routes packs protégées** : `GET /packs` retourne `accessible: true/false` + `isMine: true/false` par pack via `optionalAuth` (officiels + packs persos de l'user connecté). `GET /packs/:id` et `GET /packs/share/:code` retournent un `teaser` (1 défi visible, reste masqué) si pas d'accès.
+- **Création de packs persos — règles par tier** (enforced server-side dans `POST /packs` et `PUT /packs/:id`) :
+  - **Free** : 1 pack max (`PACK_LIMIT_REACHED`), exactement 8 défis, thème forcé à `custom`, **pas de shareCode** (pas de partage), **pas de coverImage**.
+  - **Premium** : packs illimités, 8 à 24 défis, tous les thèmes, `shareCode` `nanoid(8)` + QR partageable, `coverImage` Cloudinary.
+  - Si un Free passe Premium et édite un de ses packs existants, un `shareCode` lui est généré au prochain `PUT`.
+  - Un Premium qui expire perd la capacité d'éditer/créer du contenu Premium ; ses packs existants restent en l'état.
+- **shareCode** : non auto-généré en pre-save, contrôlé explicitement par les routes selon le tier. Champ `unique + sparse` côté Mongo pour autoriser plusieurs packs sans shareCode.
 - **Navigation arrière** : tous les boutons "← Retour" utilisent `navigate(-1)` pour déclencher le bon sens d'animation (POP).
 
 ---
@@ -211,10 +217,11 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
   description: String,
   theme: 'marseillais' | 'amis' | 'sportif' | 'couple' | 'enfants' | 'custom',
   isOfficial: Boolean,
-  isPremium: Boolean,                  // contenu réservé aux Premium / acheteurs
+  isPremium: Boolean,                  // contenu réservé aux Premium / acheteurs (uniquement sur les packs officiels)
   author: ObjectId → User,
-  challenges: [ObjectId → Challenge],  // 8 à 24 (validation serveur dans POST /packs)
-  shareCode: String (nanoid),
+  challenges: [ObjectId → Challenge],  // Free=8 exact, Premium=8 à 24 (validation serveur dans POST/PUT /packs)
+  shareCode: String (nanoid 8),        // null pour les packs Free, généré pour les Premium
+  coverImage: String (URL Cloudinary), // null pour les Free, optionnel pour les Premium
   isPublic: Boolean,
   createdAt: Date
 }
@@ -273,13 +280,14 @@ GET    /api/users/:id/history
 
 ### Packs
 ```
-GET    /api/packs             # tous les packs officiels (optionalAuth → accessible:bool par pack)
+GET    /api/packs             # officiels + packs persos de l'user (optionalAuth → flags accessible + isMine)
+GET    /api/packs/me/count    # nombre de packs persos de l'user (protect, pour gater le free)
 GET    /api/packs/:id         # pack complet OU teaser (1 défi) si pas d'accès
-POST   /api/packs             # créer un pack perso (protect)
-PUT    /api/packs/:id
-DELETE /api/packs/:id
+POST   /api/packs             # créer un pack perso (protect, validation Free/Premium)
+PUT    /api/packs/:id         # éditer un pack perso (protect, ownership + validation tier)
+DELETE /api/packs/:id         # supprime aussi les Challenge orphelins (protect, ownership)
 GET    /api/packs/share/:shareCode   # même logique teaser/full selon accès
-POST   /api/packs/:id/duplicate
+POST   /api/packs/:id/duplicate      # prévu, non implémenté
 ```
 
 ### Sessions
@@ -338,12 +346,15 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 
 ### Phase 3 — Contenu ✅
 - [x] Seed MongoDB : 7 packs officiels (56 défis)
-- [x] Routes GET /api/packs
-- [x] Page Bibliothèque de packs
+- [x] Routes GET /api/packs (officiels + persos de l'user via $or)
+- [x] Page Bibliothèque de packs (sections "Mes packs" + "Packs officiels")
 - [x] Éditeur de listes perso (protégé)
-- [x] Route POST /api/packs (création pack custom)
-- [x] shareCode unique par pack (nanoid)
-- [ ] QR code (qrcode.react) + lien de partage — prévu mais non implémenté
+- [x] Route POST /api/packs (création pack custom avec règles Free/Premium)
+- [x] Route PUT /api/packs/:id (édition + remplacement complet des Challenge)
+- [x] Route DELETE /api/packs/:id (cascade Challenge)
+- [x] shareCode unique par pack (nanoid 8) — généré uniquement pour les Premium
+- [x] QR code (qrcode.react) + modale partage (PackLibrary + écran succès Editor)
+- [x] Modale de confirmation de suppression (fumigène)
 - [ ] Duplication d'un pack officiel
 
 ### Phase 4 — Gameplay ✅
@@ -365,33 +376,41 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 - [x] Page Historique /history (protégée)
 - [x] Session sauvegardée avec history + media + shareLink
 
-### Phase 6 — Polish (Design, Sons, PWA) 🔄 EN COURS
+### Phase 6 — Polish (Design, Sons, PWA) ✅
 - [x] Dark mode "Nuit sur les Goudes" (toggle + localStorage)
-- [x] Hook useSound + toggle global `soundEnabled` (gameStore)
+- [x] Hook useSound + toggle global `soundEnabled` (gameStore) — synthèse Web Audio (sons .mp3 optionnels, non bloquants pour V1)
 - [x] Transitions "Vague de la Corniche" (slide directionnel selon `useNavigationType`)
 - [x] Texture pierre overlay CSS (body::before fractalNoise)
 - [x] Bouton "← Retour" léger (`.btn-back` minimaliste)
-- [ ] Sons réels (fichiers .mp3 à placer dans `client/public/sounds/`)
-- [ ] Animation "carreau" sur validations
-- [ ] Animations fumigènes sur popups
-- [ ] Setup PWA (vite-plugin-pwa) : manifest, service worker, offline
-- [ ] Responsive final check
+- [x] Animation "carreau" sur validations (auto sur `.btn-primary`, `.btn-gold`, `.btn-danger`, `.btn-end-game`)
+- [x] Animations fumigènes sur popups (`styles/motion.js` — VotePanel, PaywallModal, Radar modal, commentaires roulette)
+- [x] Setup PWA (vite-plugin-pwa) : manifest complet (icônes 64/192/512 + maskable), service worker en prod (`registerSW` dans main.jsx), offline cache (API + Cloudinary)
+- [x] Responsive final check (media queries 768/1024/1440 sur toutes les pages)
 
 ### Phase 6.5 — Freemium & Paiements ✅
 - [x] Modèle User : `tier`, `subscription`, `purchasedPacks`, `purchasedSkins`
 - [x] Méthode `User.isPremiumActive()`
-- [x] Champ `Pack.isPremium`
+- [x] Champ `Pack.isPremium` (gating consommation des officiels)
+- [x] Champ `Pack.coverImage` (Premium uniquement, URL Cloudinary)
 - [x] Middlewares `optionalAuth` + `requirePremium`
 - [x] Routes packs avec gating serveur (teaser 1 défi pour non-premium)
-- [x] Liste `GET /packs` avec flag `accessible` par pack
+- [x] Liste `GET /packs` avec flags `accessible` + `isMine` par pack
 - [x] Page `/premium` (toggle mensuel/annuel + comparatif features)
-- [x] Page `/premium/success` (refresh user + animation trophée)
+- [x] Page `/premium/success` (refresh user + animation trophée + poll subscription)
 - [x] Page `/profile` (stats, abonnement, portail Stripe, raccourcis)
 - [x] Composant `PaywallModal` (clic sur pack verrouillé → teaser + CTA)
 - [x] Stripe Checkout (création session)
 - [x] Stripe Billing Portal (gestion / annulation)
-- [x] Webhook Stripe (signature + body brut conditionnel)
+- [x] Webhook Stripe (signature + body brut conditionnel, fallback robuste sur `current_period_end`)
 - [x] Persistance des packs achetés après expiration de l'abonnement
+- [x] **Création de packs perso — gating par tier** :
+  - Free : 1 pack max (gate paywall si limite atteinte), 8 défis exactement, thème custom forcé, pas de shareCode, pas de cover
+  - Premium : packs illimités, 8-24 défis, tous thèmes, shareCode + QR, cover Cloudinary
+- [x] Editor en mode édition (`/editor/:id`) avec chargement du pack existant
+- [x] Banner upsell Free dans l'Editor
+- [x] Modale de partage (QR + lien) accessible depuis chaque pack perso de l'user
+- [x] Modale de confirmation de suppression (fumigène)
+- [x] Script `server/scripts/fix-premium-period.js` pour resync `currentPeriodEnd` depuis Stripe
 
 ### Phase 7 — Déploiement OVH
 - [ ] Dockerfile client (Vite build + Nginx)

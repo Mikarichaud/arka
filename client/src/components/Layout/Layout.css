@@ -8,6 +8,13 @@
   width: 100%;
 }
 
+/* Home et Game ont un layout plein écran à toutes les tailles */
+.layout-page.home-page,
+.layout-page.game-page {
+  max-width: 100%;
+  padding: 0;
+}
+
 /* Tablet */
 @media (min-width: 768px) {
   .layout-page {
@@ -21,11 +28,5 @@
   .layout-page {
     max-width: 900px;
     padding: 0 32px;
-  }
-
-  .layout-page.game-page,
-  .layout-page.home-page {
-    max-width: 100%;
-    padding: 0;
   }
 }

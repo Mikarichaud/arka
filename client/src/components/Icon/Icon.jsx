@@ -367,6 +367,35 @@ const icons = {
     </svg>
   ),
 
+  /* ── Mélanger / shuffle — deux boules qui se croisent ────── */
+
+  shuffle: (id) => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id={`${id}-b`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#0057A8"/>
+          <stop offset="100%" stopColor="#1a7fd4"/>
+        </linearGradient>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#C9A84C"/>
+          <stop offset="100%" stopColor="#E0C070"/>
+        </linearGradient>
+      </defs>
+      {/* Chemin bleu : va en haut, plonge, ressort en bas */}
+      <path d="M3 6 H7 Q12 6 12 12 Q12 18 17 18 H20"
+        stroke={`url(#${id}-b)`} strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      {/* Chemin or : va en bas, remonte, sort en haut */}
+      <path d="M3 18 H7 Q12 18 12 12 Q12 6 17 6 H20"
+        stroke={`url(#${id}-g)`} strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+      {/* Flèches de sortie */}
+      <polyline points="18 4 20 6 18 8" stroke={`url(#${id}-g)`} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      <polyline points="18 16 20 18 18 20" stroke={`url(#${id}-b)`} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+      {/* Petites boules pétanque au point de croisement */}
+      <circle cx="12" cy="12" r="1.6" fill="#E63946"/>
+      <circle cx="11.5" cy="11.5" r="0.5" fill="#fff" opacity="0.7"/>
+    </svg>
+  ),
+
   /* ── Points d'attente (trois couleurs OM) ──────────────────── */
 
   dots: (id) => (

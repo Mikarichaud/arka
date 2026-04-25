@@ -140,6 +140,179 @@
   width: 100%;
 }
 
+/* Banner tier Free */
+.editor-tier-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.35);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.editor-tier-link {
+  background: none;
+  border: none;
+  color: var(--or-etoile);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+}
+
+/* Sections Premium */
+.editor-section { display: flex; flex-direction: column; gap: 8px; }
+
+.editor-section-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.editor-theme-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.editor-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface-card);
+  border: 2px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.editor-theme-btn:hover { border-color: var(--bleu-azur); color: var(--bleu-azur); }
+.editor-theme-btn.active {
+  border-color: var(--bleu-azur);
+  background: var(--bleu-azur);
+  color: white;
+}
+
+/* Cover upload */
+.editor-cover-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  align-self: flex-start;
+}
+.editor-cover-upload:hover { border-color: var(--bleu-azur); color: var(--bleu-azur); }
+
+.editor-cover-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.editor-cover-preview img {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+}
+
+/* Bouton remove défi */
+.editor-remove-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: var(--rouge-defi);
+  padding: 4px 8px;
+}
+
+/* "Ajouter défi" verrouillé pour les Free */
+.editor-locked-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  background: transparent;
+  border: 2px dashed var(--surface-border);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.editor-locked-add:hover {
+  border-color: var(--or-etoile);
+  color: var(--or-etoile);
+}
+
+/* Paywall (gate 1 pack max Free) */
+.editor-paywall {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 32px 24px;
+  margin-top: 24px;
+}
+.editor-paywall-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--or-etoile), var(--or-etoile-light));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-or);
+}
+.editor-paywall-title {
+  font-family: var(--font-titre);
+  font-size: 1.8rem;
+  color: var(--bleu-azur);
+}
+.editor-paywall-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  max-width: 360px;
+}
+
+/* Upsell sur l'écran de succès Free */
+.editor-upsell-card {
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px dashed rgba(201, 168, 76, 0.4);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+}
+.editor-upsell-title { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; }
+.editor-upsell-desc { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; }
+
 /* Desktop */
 @media (min-width: 1024px) {
   .editor-challenges {

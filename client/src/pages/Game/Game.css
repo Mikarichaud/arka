@@ -6,6 +6,33 @@
   background: linear-gradient(180deg, #f0f4ff 0%, var(--blanc-velodrome) 100%);
 }
 
+/* Mode compact mobile : phase défi/vote/result — défi + vote plus ramassés pour éviter le scroll */
+@media (max-width: 1023px) {
+  .game-page--compact { gap: 10px; }
+  .game-page--compact .game-active-player { margin-bottom: 10px; }
+  .game-page--compact .game-challenge-area { gap: 10px; }
+
+  /* Challenge card compact */
+  .game-page--compact .challenge-card { padding: 14px 16px; border-left-width: 4px; }
+  .game-page--compact .challenge-header { margin-bottom: 6px; }
+  .game-page--compact .challenge-case { font-size: 0.95rem; }
+  .game-page--compact .challenge-player { margin-bottom: 4px; font-size: 0.85rem; }
+  .game-page--compact .challenge-text { font-size: 0.98rem; line-height: 1.35; }
+
+  /* Timer row */
+  .game-page--compact .game-timer-row { padding: 8px 12px; }
+
+  /* Vote panel compact */
+  .game-page--compact .vote-panel { padding: 16px; }
+  .game-page--compact .vote-title { font-size: 1.2rem; }
+  .game-page--compact .vote-subtitle { margin-bottom: 10px; font-size: 0.85rem; }
+  .game-page--compact .vote-list { gap: 6px; }
+  .game-page--compact .vote-row { padding: 6px 12px; }
+  .game-page--compact .vote-player-name { font-size: 0.9rem; }
+  .game-page--compact .vote-btn { padding: 5px 14px; font-size: 0.82rem; }
+  .game-page--compact .vote-excuse-btn { margin-top: 6px; font-size: 0.75rem; }
+}
+
 .game-scores {
   display: flex;
   gap: 8px;
@@ -58,6 +85,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  margin-bottom: 18px;
 }
 
 .game-turn-label {
@@ -194,7 +222,7 @@
   transform: translateY(-1px);
 }
 
-.btn-end-game:active { transform: scale(0.96); }
+.btn-end-game:active { animation: carreau 0.22s var(--ease-carreau) forwards; }
 
 /* ── Phase 4 elements ── */
 .game-idle {

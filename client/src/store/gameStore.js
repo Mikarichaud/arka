@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 const COMMENTS = [
   "Oh, c'est cadeau ça !",
@@ -17,17 +18,21 @@ const randomComment = () => COMMENTS[Math.floor(Math.random() * COMMENTS.length)
 
 const TIMER_DURATION = { 1: 45, 2: 30, 3: 20 };
 
-const useGameStore = create((set, get) => ({
+const useGameStore = create(
+  persist(
+    (set, get) => ({
   session: null,
   pack: null,
+  phase: 'idle', // idle | spinning | challenge | vote | result | endgame
   isSpinning: false,
   spinResult: null,
   currentChallenge: null,
   currentComment: randomComment(),
   exagerateurMode: false,
-  soundEnabled: localStorage.getItem('roulade-sound') !== 'false',
+  soundEnabled: true,
   gameHistory: [], // { playerName, challengeText, result, points }
 
+  setPhase: (phase) => set({ phase }),
   setSession: (session) => set({ session }),
   setPack: (pack) => {
     // Packs 8-24 défis : la roulette a 8 cases, donc on tire aléatoirement 8 défis
@@ -39,16 +44,8 @@ const useGameStore = create((set, get) => ({
       set({ pack });
     }
   },
-  setSoundEnabled: (v) => {
-    localStorage.setItem('roulade-sound', v);
-    set({ soundEnabled: v });
-  },
-  toggleSound: () =>
-    set((state) => {
-      const next = !state.soundEnabled;
-      localStorage.setItem('roulade-sound', next);
-      return { soundEnabled: next };
-    }),
+  setSoundEnabled: (v) => set({ soundEnabled: v }),
+  toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
   toggleExagerateur: () => set((s) => ({ exagerateurMode: !s.exagerateurMode })),
 
   spin: async () => {
@@ -77,6 +74,7 @@ const useGameStore = create((set, get) => ({
         session: { ...state.session, currentPlayerIndex: next },
         spinResult: null,
         currentChallenge: null,
+        phase: 'idle',
       };
     });
   },
@@ -132,12 +130,43 @@ const useGameStore = create((set, get) => ({
   resetGame: () => set({
     session: null,
     pack: null,
+    phase: 'idle',
     spinResult: null,
     currentChallenge: null,
     currentComment: randomComment(),
     exagerateurMode: false,
     gameHistory: [],
   }),
-}));
+    }),
+    {
+      name: 'roulade-game',
+      partialize: (s) => ({
+        session: s.session,
+        pack: s.pack,
+        phase: s.phase,
+        spinResult: s.spinResult,
+        currentChallenge: s.currentChallenge,
+        gameHistory: s.gameHistory,
+        exagerateurMode: s.exagerateurMode,
+        soundEnabled: s.soundEnabled,
+      }),
+      merge: (persisted, current) => {
+        const p = persisted || {};
+        // Si on était en plein spin d'animation, on ne peut pas reprendre :
+        // on retombe en idle en préservant le défi déjà résolu si dispo.
+        const safePhase = p.phase === 'spinning'
+          ? (p.currentChallenge ? 'challenge' : 'idle')
+          : (p.phase || 'idle');
+        return {
+          ...current,
+          ...p,
+          phase: safePhase,
+          isSpinning: false,
+          currentComment: randomComment(),
+        };
+      },
+    }
+  )
+);
 
 export default useGameStore;

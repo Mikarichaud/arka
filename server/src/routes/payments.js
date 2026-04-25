@@ -132,9 +132,15 @@ function toDate(timestamp) {
   return isNaN(d.getTime()) ? null : d;
 }
 
-// Depuis Stripe API 2025-08 (basil), current_period_end vit sur l'item, plus sur la subscription
+// Depuis Stripe API 2025-08 (basil), current_period_end vit sur l'item.
+// On garde fallbacks sur l'ancienne position + trial_end pour robustesse.
 function getPeriodEnd(sub) {
-  return sub?.items?.data?.[0]?.current_period_end ?? null;
+  return (
+    sub?.items?.data?.[0]?.current_period_end ??
+    sub?.current_period_end ??
+    sub?.trial_end ??
+    null
+  );
 }
 
 async function activateSubscription(subscriptionId, customerId) {

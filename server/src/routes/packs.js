@@ -1,8 +1,15 @@
 const express = require('express');
+const { nanoid } = require('nanoid');
 const router = express.Router();
 const { protect, optionalAuth } = require('../middlewares/auth');
 const Pack = require('../models/Pack');
 const Challenge = require('../models/Challenge');
+
+const FREE_PACK_LIMIT = 1;
+const FREE_CHALLENGES_COUNT = 8;
+const PREMIUM_CHALLENGES_MIN = 8;
+const PREMIUM_CHALLENGES_MAX = 24;
+const PREMIUM_THEMES = ['marseillais', 'amis', 'sportif', 'couple', 'enfants', 'custom'];
 
 function hasPackAccess(user, pack) {
   if (!pack.isPremium) return true;
@@ -22,16 +29,21 @@ function toTeaser(pack) {
   return obj;
 }
 
-// Packs officiels (liste) — ne retourne jamais les challenges en mode liste
-// Ajoute accessible:true/false si l'utilisateur est identifié
+// Liste des packs : officiels + packs persos de l'user connecté
+// Ne retourne jamais les challenges, ajoute accessible:true/false par pack.
 router.get('/', optionalAuth, async (req, res, next) => {
   try {
     const { theme } = req.query;
-    const filter = theme ? { isOfficial: true, theme } : { isOfficial: true };
-    const packs = await Pack.find(filter).select('-challenges');
+    const orClauses = [{ isOfficial: true }];
+    if (req.user) orClauses.push({ author: req.user._id });
+    const filter = { $or: orClauses };
+    if (theme) filter.theme = theme;
+
+    const packs = await Pack.find(filter).select('-challenges').sort({ isOfficial: -1, createdAt: -1 });
     const result = packs.map((p) => {
       const obj = p.toObject();
       obj.accessible = hasPackAccess(req.user, p);
+      obj.isMine = req.user ? p.author?.toString() === req.user._id.toString() : false;
       return obj;
     });
     res.json({ packs: result });
@@ -62,14 +74,69 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Créer un pack custom
+// Compteur des packs persos d'un user (pour gater la création côté client)
+router.get('/me/count', protect, async (req, res, next) => {
+  try {
+    const count = await Pack.countDocuments({ author: req.user._id });
+    res.json({ count });
+  } catch (err) { next(err); }
+});
+
+// Créer un pack custom — règles selon le tier de l'auteur
 router.post('/', protect, async (req, res, next) => {
   try {
-    const { challenges: challengesData, ...packData } = req.body;
-    if (!challengesData || challengesData.length < 8 || challengesData.length > 24) {
-      return res.status(400).json({ message: 'Un pack doit contenir entre 8 et 24 défis.' });
+    const user = req.user;
+    const isPremium = user.isPremiumActive();
+    const { challenges: challengesData, name, description, theme, coverImage } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ message: 'Il faut un nom au pack, té !' });
     }
-    const pack = await Pack.create({ ...packData, author: req.user._id, isOfficial: false, isPremium: false });
+
+    if (!Array.isArray(challengesData)) {
+      return res.status(400).json({ message: 'Défis manquants.' });
+    }
+
+    if (isPremium) {
+      if (challengesData.length < PREMIUM_CHALLENGES_MIN || challengesData.length > PREMIUM_CHALLENGES_MAX) {
+        return res.status(400).json({
+          message: `Un pack doit contenir entre ${PREMIUM_CHALLENGES_MIN} et ${PREMIUM_CHALLENGES_MAX} défis.`,
+        });
+      }
+    } else {
+      const existing = await Pack.countDocuments({ author: user._id });
+      if (existing >= FREE_PACK_LIMIT) {
+        return res.status(403).json({
+          message: `Le tier Free est limité à ${FREE_PACK_LIMIT} pack perso. Passe en Premium pour en créer plus.`,
+          code: 'PACK_LIMIT_REACHED',
+        });
+      }
+      if (challengesData.length !== FREE_CHALLENGES_COUNT) {
+        return res.status(400).json({
+          message: `Un pack Free doit contenir exactement ${FREE_CHALLENGES_COUNT} défis.`,
+        });
+      }
+    }
+
+    // Thème : Premium choisit, Free est forcé à "custom"
+    const finalTheme = isPremium && PREMIUM_THEMES.includes(theme) ? theme : 'custom';
+
+    // ShareCode + coverImage : Premium uniquement
+    const packDoc = {
+      name: name.trim(),
+      description: description?.trim() || '',
+      theme: finalTheme,
+      author: user._id,
+      isOfficial: false,
+      isPremium: false,
+      isPublic: false,
+    };
+    if (isPremium) {
+      packDoc.shareCode = nanoid(8).toUpperCase();
+      if (coverImage) packDoc.coverImage = coverImage;
+    }
+
+    const pack = await Pack.create(packDoc);
     const challenges = await Challenge.insertMany(
       challengesData.map((c) => ({ ...c, pack: pack._id }))
     );
@@ -82,13 +149,58 @@ router.post('/', protect, async (req, res, next) => {
 
 router.put('/:id', protect, async (req, res, next) => {
   try {
+    const user = req.user;
+    const isPremium = user.isPremiumActive();
     const pack = await Pack.findById(req.params.id);
     if (!pack) return res.status(404).json({ message: 'Pack introuvable.' });
-    if (pack.author?.toString() !== req.user._id.toString()) {
+    if (pack.author?.toString() !== user._id.toString()) {
       return res.status(403).json({ message: 'C\'est pas ton pack ça !' });
     }
-    const updated = await Pack.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ pack: updated });
+
+    const { challenges: challengesData, name, description, theme, coverImage } = req.body;
+
+    if (name !== undefined) {
+      if (!name.trim()) return res.status(400).json({ message: 'Il faut un nom au pack, té !' });
+      pack.name = name.trim();
+    }
+    if (description !== undefined) pack.description = description?.trim() || '';
+
+    if (theme !== undefined) {
+      pack.theme = isPremium && PREMIUM_THEMES.includes(theme) ? theme : 'custom';
+    }
+
+    if (coverImage !== undefined) {
+      pack.coverImage = isPremium ? (coverImage || null) : null;
+    }
+
+    // Si on reçoit de nouveaux défis, on remplace l'ensemble
+    if (Array.isArray(challengesData)) {
+      if (isPremium) {
+        if (challengesData.length < PREMIUM_CHALLENGES_MIN || challengesData.length > PREMIUM_CHALLENGES_MAX) {
+          return res.status(400).json({
+            message: `Un pack doit contenir entre ${PREMIUM_CHALLENGES_MIN} et ${PREMIUM_CHALLENGES_MAX} défis.`,
+          });
+        }
+      } else if (challengesData.length !== FREE_CHALLENGES_COUNT) {
+        return res.status(400).json({
+          message: `Un pack Free doit contenir exactement ${FREE_CHALLENGES_COUNT} défis.`,
+        });
+      }
+      await Challenge.deleteMany({ pack: pack._id });
+      const challenges = await Challenge.insertMany(
+        challengesData.map((c) => ({ ...c, pack: pack._id }))
+      );
+      pack.challenges = challenges.map((c) => c._id);
+    }
+
+    // Premium fraîchement obtenu → générer un shareCode si absent
+    if (isPremium && !pack.shareCode) {
+      pack.shareCode = nanoid(8).toUpperCase();
+    }
+
+    await pack.save();
+    await pack.populate('challenges');
+    res.json({ pack });
   } catch (err) { next(err); }
 });
 
@@ -99,6 +211,7 @@ router.delete('/:id', protect, async (req, res, next) => {
     if (pack.author?.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'C\'est pas ton pack ça !' });
     }
+    await Challenge.deleteMany({ pack: pack._id });
     await pack.deleteOne();
     res.json({ message: 'Pack supprimé.' });
   } catch (err) { next(err); }

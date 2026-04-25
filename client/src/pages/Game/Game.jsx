@@ -13,6 +13,7 @@ import Icon from '../../components/Icon/Icon';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import { useSound } from '../../hooks/useSound';
+import { fumigenesVariants, fumigenesSoft } from '../../styles/motion';
 import api from '../../services/api';
 import './Game.css';
 
@@ -25,16 +26,15 @@ const RADAR_RESULTS = [
 export default function Game() {
   const navigate = useNavigate();
   const {
-    session, pack, isSpinning, spinResult, currentChallenge,
+    session, pack, phase, isSpinning, spinResult, currentChallenge,
     currentComment, exagerateurMode, soundEnabled, toggleSound,
     gameHistory,
-    spin, nextPlayer, updatePlayerScore, addHistoryEntry,
+    setPhase, spin, nextPlayer, updatePlayerScore, addHistoryEntry,
     addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
   } = useGameStore();
   const { user } = useAuthStore();
   const { play } = useSound();
 
-  const [phase, setPhase] = useState('idle'); // idle | spinning | challenge | vote | result | endgame
   const [timerRunning, setTimerRunning] = useState(false);
   const [lastPoints, setLastPoints] = useState(null);
   const [shareLink, setShareLink] = useState(null);
@@ -132,8 +132,10 @@ export default function Game() {
     );
   }
 
+  const isCompact = phase === 'challenge' || phase === 'vote' || phase === 'result';
+
   return (
-    <Layout className="game-page">
+    <Layout className={`game-page ${isCompact ? 'game-page--compact' : ''}`}>
       {/* Header scores */}
       <div className="game-scores">
         {session.players.map((p) => (
@@ -174,7 +176,13 @@ export default function Game() {
         />
 
         {phase === 'challenge' && !isSpinning && (
-          <motion.p className="game-comment" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+          <motion.p
+            className="game-comment"
+            variants={fumigenesSoft}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: 0.3 }}
+          >
             {currentComment}
           </motion.p>
         )}
@@ -216,10 +224,13 @@ export default function Game() {
               >
                 <Icon name="dots" size={40} />
               </motion.div>
-              <p className="game-spinning-text">La roulade est lancée…</p>
+              <p className="game-spinning-text">Les jeux sont faits, rien ne va plus…</p>
               <motion.p
                 className="game-spinning-comment"
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+                variants={fumigenesSoft}
+                initial="initial"
+                animate="animate"
+                transition={{ delay: 0.5 }}
               >
                 {currentComment}
               </motion.p>
@@ -299,8 +310,13 @@ export default function Game() {
           <motion.div className="radar-overlay"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => !radarScanning && setRadarVisible(false)}>
-            <motion.div className="radar-modal"
-              initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
+            <motion.div
+              className="radar-modal"
+              variants={fumigenesVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
               <h3 className="radar-title"><Icon name="radar" size={22} style={{ marginRight: 8 }} />Radar à Parisiens</h3>
               {radarScanning ? (
                 <div className="radar-scanning">

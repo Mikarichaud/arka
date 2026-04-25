@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import Icon from '../../components/Icon/Icon';
 import useSessionStore from '../../store/sessionStore';
 import './SessionSetup.css';
 
@@ -95,7 +96,8 @@ export default function SessionSetup() {
           </button>
         )}
         <button className="btn btn-ghost btn-sm" onClick={shufflePlayers} style={{ alignSelf: 'center' }}>
-          🔀 Mélanger l'ordre
+          <Icon name="shuffle" size={18} style={{ marginRight: 6 }} />
+          Mélanger l'ordre
         </button>
       </div>
 

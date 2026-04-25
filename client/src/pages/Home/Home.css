@@ -43,6 +43,19 @@
   gap: 10px;
 }
 
+/* Sur mobile et tablette (<1024px) le background est plein écran mais
+   le contenu reste centré et borné à 640px de large pour la lisibilité. */
+@media (max-width: 1023px) {
+  .home-brand,
+  .home-roulette-area,
+  .home-actions {
+    width: 100%;
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 /* ── Typographie ── */
 .home-by {
   font-family: var(--font-titre);
