@@ -13,7 +13,6 @@
     "@fontsource/bebas-neue": "^5.2.7",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/pacifico": "^5.2.7",
-    "@rolldown/binding-darwin-arm64": "^1.0.0-rc.15",
     "axios": "^1.15.0",
     "framer-motion": "^12.38.0",
     "qrcode.react": "^4.2.0",
