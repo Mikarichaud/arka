@@ -127,6 +127,7 @@ mongosh "mongodb://roulade:MOT_DE_PASSE@127.0.0.1:27017/roulade-marseillaise?aut
 ```bash
 sudo mkdir -p /var/backups/mongo
 sudo chown debian:debian /var/backups/mongo
+sudo chown mika:mika /var/backups/mongo  
 
 # Script de backup
 sudo nano /usr/local/bin/mongo-backup.sh
@@ -147,6 +148,7 @@ ls -t $DEST/roulade-*.gz | tail -n +8 | xargs -r rm
 ```bash
 sudo chmod +x /usr/local/bin/mongo-backup.sh
 
+
 # Cron quotidien à 03:30
 sudo crontab -e
 ```
@@ -155,7 +157,10 @@ Ajouter :
 ```
 30 3 * * * /usr/local/bin/mongo-backup.sh >/dev/null 2>&1
 ```
-
+# Test manuel pour vérifier que ça marche                                                      
+sudo /usr/local/bin/mongo-backup.sh
+ls -la /var/backups/mongo/                                                                     
+         
 ---
 
 ## 6. Cloner le repo et préparer .env.production
