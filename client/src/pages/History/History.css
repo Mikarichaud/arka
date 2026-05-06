@@ -1,7 +1,6 @@
 .history-page {
   background: linear-gradient(160deg, #f0f4ff 0%, var(--blanc-velodrome) 100%);
-  padding-top: 24px;
-  padding-bottom: 40px;
+  padding: 24px 16px 40px;
   gap: 20px;
 }
 
@@ -44,8 +43,8 @@
 }
 
 .history-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -130,10 +129,24 @@
 }
 
 @media (min-width: 768px) {
-  .history-list { display: grid; grid-template-columns: repeat(2, 1fr); }
+  /* Grid auto-fill : autant de colonnes que la largeur le permet, cartes mini 280px */
+  .history-list {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+  .history-page { padding: 36px 56px 56px; }
 }
 
 @media (min-width: 1024px) {
-  .history-page { max-width: 900px; margin: 0 auto; }
   .history-title { font-size: 3rem; }
+  .history-page { padding: 56px 96px 72px; }
+  .history-list { gap: 24px; }
+}
+
+@media (min-width: 1440px) {
+  .history-page { padding: 64px 144px 88px; }
+}
+
+@media (min-width: 1800px) {
+  .history-page { padding: 72px 192px 96px; }
 }

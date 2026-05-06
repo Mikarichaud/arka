@@ -247,7 +247,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
               {history.length === 0 ? (
                 <p className="history-empty">Aucun tour enregistré.</p>
               ) : (
-                <div className="history-list">
+                <div className="endgame-history-list">
                   {history.map((entry, i) => (
                     <motion.div
                       key={i}

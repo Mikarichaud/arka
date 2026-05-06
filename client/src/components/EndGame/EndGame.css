@@ -338,7 +338,7 @@
   padding: 24px 0;
 }
 
-.history-list {
+.endgame-history-list {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -347,9 +347,9 @@
   padding-right: 4px;
 }
 
-.history-list::-webkit-scrollbar { width: 3px; }
-.history-list::-webkit-scrollbar-track { background: transparent; }
-.history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+.endgame-history-list::-webkit-scrollbar { width: 3px; }
+.endgame-history-list::-webkit-scrollbar-track { background: transparent; }
+.endgame-history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
 
 .history-entry {
   display: flex;

@@ -180,7 +180,19 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
   - Si un Free passe Premium et édite un de ses packs existants, un `shareCode` lui est généré au prochain `PUT`.
   - Un Premium qui expire perd la capacité d'éditer/créer du contenu Premium ; ses packs existants restent en l'état.
 - **shareCode** : non auto-généré en pre-save, contrôlé explicitement par les routes selon le tier. Champ `unique + sparse` côté Mongo pour autoriser plusieurs packs sans shareCode.
+- **Rôle admin "gaté"** : `User.role: 'user' | 'gate'`, default `'user'`. Promotion manuelle en DB (`db.users.updateOne(..., { $set: { role: 'gate' } })`). Middleware `requireGate` + `ProtectedRoute gateOnly`. Donne accès aux espaces `/gate/packs` (CRUD packs officiels + catégories) et `/gate/cosmetics` (CRUD cosmétiques + Stripe sync).
+- **Catégories dynamiques** : `Category` model avec `slug`, `name`, `icon` (nom d'icône SVG du composant `Icon`), `order`. Remplace l'enum hardcodé `Pack.theme`. Validation server-side : un thème inconnu retombe sur `custom`. Cascade rename : si le slug d'une catégorie change, tous les `Pack.theme` qui l'utilisaient sont mis à jour. Suppression bloquée si la catégorie est utilisée. La catégorie `custom` est non supprimable.
+- **Brouillon / programmation des packs officiels** : `Pack.isActive` (default `true`) + `Pack.publishAt: Date | null`. Filtre `publishedFilter()` appliqué sur `GET /packs`, `/packs/:id`, `/packs/share/:code` pour les **packs officiels uniquement** (les packs persos sont toujours visibles à leur auteur). Les gatés voient tout, y compris brouillons et programmés. `$ne: false` pour matcher aussi les packs créés avant l'ajout du champ (compatibilité ascendante).
+- **Cosmétiques (shop)** : modèle `Cosmetic { slug, category, name, description, priceCents, stripeProductId, stripePriceId, asset, isActive, publishAt }`. Catégories : `roulette | needle | cochonnet | avatar-frame | badge | background | sound-pack | endgame-anim`. **Auto-création/sync Stripe** : à la création/édition d'un Cosmetic, le Product et le Price Stripe sont créés ou mis à jour automatiquement. Changement de prix = nouveau Price + désactivation de l'ancien (Stripe ne permet pas la modification). DELETE = soft-delete (set `isActive: false`) pour ne pas casser les utilisateurs qui possèdent déjà.
+- **Achat cosmétique** : Stripe Checkout `mode: 'payment'` (one-shot, pas subscription) avec `metadata: { userId, cosmeticSlug, kind: 'cosmetic' }`. Le webhook `checkout.session.completed` détecte le `kind` et `$addToSet` le slug dans `User.purchasedSkins`.
+- **Activation des cosmétiques** : `User.activeSkins` (Map `category → slug`). Route `PUT /api/users/me/active-skin` vérifie ownership avant d'activer. Un `slug: null` désactive (revient au default). Composants comme `Roulette` lisent `useActiveSkin('roulette')` pour résoudre le `Cosmetic` actif et appliquer son `asset.metals`.
+- **Page Packs unifiée** : `/packs` a deux onglets `?tab=packs` (par défaut) et `?tab=cosmetics`. La boutique est intégrée dans la même page que la bibliothèque pour éviter une page séparée. L'ancienne route `/shop` redirige automatiquement vers `/packs?tab=cosmetics`. Stripe success URL pointe vers `/packs?tab=cosmetics&purchased=<slug>`.
+- **Skip de PackSelection si pré-sélection** : quand un pack est pré-sélectionné depuis PackLibrary (`navigate('/session/setup', { state: { preselectedPackId } })`), SessionSetup affiche un bandeau "Pack pré-sélectionné" et lance directement la partie au clic sur "Lancer la Roulade !" (saute la page PackSelection intermédiaire).
+- **Avatar premium** : composant `Avatar` cliquable uniquement si `user.tier === 'premium'`. Upload via `/media/upload` Cloudinary puis `PUT /users/:id`. Initiales en fallback pour les Free.
+- **Annulation d'abonnement** : `User.subscription.cancelAtPeriodEnd` synchronisé depuis Stripe (`sub.cancel_at_period_end`). Affiche dans Profile une carte rouge clair avec date de fin + message marseillais ("C'est un sucre d'être Premium...").
 - **Navigation arrière** : tous les boutons "← Retour" utilisent `navigate(-1)` pour déclencher le bon sens d'animation (POP).
+- **Layout pleine largeur** : Home, Game, History sortent du `max-width` du Layout pour utiliser tout le viewport. History utilise un grid `auto-fill, minmax(280px, 1fr)` qui s'adapte automatiquement au nombre de colonnes selon l'écran.
+- **Pièges CSS connus** : pas de classes globales avec des noms génériques (`.history-list` était partagé entre EndGame.css et History.css → conflit). Préfixer par le composant (`.endgame-history-list`).
 
 ---
 
@@ -192,16 +204,19 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
   username: String (unique),
   email: String (unique),
   password: String (hashé bcrypt, select: false),
-  avatar: String (URL Cloudinary),
+  avatar: String (URL Cloudinary),               // upload Premium uniquement
   tier: 'free' | 'premium',
+  role: 'user' | 'gate',                         // 'gate' = admin, promotion manuelle DB
   subscription: {
     stripeCustomerId: String,
     stripeSubscriptionId: String,
-    status: 'active' | 'canceled' | 'past_due' | null,
+    status: 'active' | 'canceled' | 'past_due' | 'trialing' | 'unpaid' | 'incomplete' | 'incomplete_expired' | null,
     currentPeriodEnd: Date,
+    cancelAtPeriodEnd: Boolean,                  // true si l'user a annulé mais l'abo court encore
   },
-  purchasedPacks: [ObjectId → Pack],   // packs achetés individuellement (persistants)
-  purchasedSkins: [String],            // skins de roulette achetés
+  purchasedPacks: [ObjectId → Pack],             // packs achetés individuellement (persistants)
+  purchasedSkins: [String],                      // slugs de Cosmetic possédés (persistants)
+  activeSkins: Map<String, String>,              // category → slug du cosmétique actif
   stats: { totalGames, totalChallengesCompleted, totalChallengesRefused },
   customPacks: [ObjectId → Pack],
   createdAt: Date
@@ -215,7 +230,7 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
 {
   name: String,
   description: String,
-  theme: 'marseillais' | 'amis' | 'sportif' | 'couple' | 'enfants' | 'custom',
+  theme: String,                       // slug de Category (free string, validé contre Category côté route)
   isOfficial: Boolean,
   isPremium: Boolean,                  // contenu réservé aux Premium / acheteurs (uniquement sur les packs officiels)
   author: ObjectId → User,
@@ -223,6 +238,38 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
   shareCode: String (nanoid 8),        // null pour les packs Free, généré pour les Premium
   coverImage: String (URL Cloudinary), // null pour les Free, optionnel pour les Premium
   isPublic: Boolean,
+  isActive: Boolean,                   // brouillon ou non (officiels uniquement). default true
+  publishAt: Date | null,              // programmation : caché côté public tant que la date n'est pas passée
+  createdAt: Date
+}
+```
+
+### Category
+```js
+{
+  name: String,                        // ex: "Marseillais"
+  slug: String (unique),               // ex: "marseillais" (auto-slugify si absent)
+  icon: String,                        // nom d'icône du composant Icon (ex: "anchor")
+  order: Number,                       // ordre d'affichage
+  createdAt: Date
+}
+```
+
+### Cosmetic
+```js
+{
+  slug: String (unique),                                    // ex: "roulette-velodrome"
+  category: 'roulette' | 'needle' | 'cochonnet'
+         | 'avatar-frame' | 'badge' | 'background'
+         | 'sound-pack' | 'endgame-anim',
+  name: String,
+  description: String,
+  priceCents: Number,                                       // ex: 299 = 2,99 €
+  stripeProductId: String,                                  // créé/sync auto
+  stripePriceId: String,                                    // créé/sync auto, nouveau Price si prix change
+  asset: Mixed,                                             // pour 'roulette' : { metals: [{hi,base,lo}×8] }
+  isActive: Boolean,                                        // visible dans le shop. soft-delete via false
+  publishAt: Date | null,
   createdAt: Date
 }
 ```
@@ -274,20 +321,51 @@ GET    /api/auth/me
 ### Users
 ```
 GET    /api/users/:id
-PUT    /api/users/:id
+PUT    /api/users/:id                    # update profile (username, avatar)
+PUT    /api/users/me/active-skin         # body: { category, slug | null } - active/désactive cosmétique (protect, ownership)
 GET    /api/users/:id/history
 ```
 
 ### Packs
 ```
-GET    /api/packs             # officiels + packs persos de l'user (optionalAuth → flags accessible + isMine)
+GET    /api/packs             # officiels (filtrés isActive + publishAt) + packs persos de l'user (flags accessible + isMine)
 GET    /api/packs/me/count    # nombre de packs persos de l'user (protect, pour gater le free)
-GET    /api/packs/:id         # pack complet OU teaser (1 défi) si pas d'accès
+GET    /api/packs/:id         # pack complet OU teaser (1 défi) si pas d'accès. 404 si brouillon/programmé pour les non-gatés.
 POST   /api/packs             # créer un pack perso (protect, validation Free/Premium)
 PUT    /api/packs/:id         # éditer un pack perso (protect, ownership + validation tier)
 DELETE /api/packs/:id         # supprime aussi les Challenge orphelins (protect, ownership)
 GET    /api/packs/share/:shareCode   # même logique teaser/full selon accès
 POST   /api/packs/:id/duplicate      # prévu, non implémenté
+```
+
+### Catégories
+```
+GET    /api/categories             # liste publique des catégories (pour Editor / PackLibrary / PackSelection)
+```
+
+### Cosmétiques
+```
+GET    /api/cosmetics                       # shop public (optionalAuth → flag owned: bool par cosmetic)
+POST   /api/cosmetics/:slug/checkout        # Stripe Checkout one-shot (protect)
+```
+
+### Espace Gaté (admin, requireGate)
+```
+GET    /api/gate/packs                # liste tous les packs officiels (y compris brouillons/programmés)
+GET    /api/gate/packs/:id            # détail avec challenges
+POST   /api/gate/packs                # créer un pack officiel
+PUT    /api/gate/packs/:id            # éditer (avec replace des Challenge)
+DELETE /api/gate/packs/:id            # supprime cascade Challenge
+
+GET    /api/gate/categories           # CRUD catégories
+POST   /api/gate/categories
+PUT    /api/gate/categories/:id       # cascade rename slug → tous les packs concernés
+DELETE /api/gate/categories/:id       # bloqué si utilisée (CATEGORY_IN_USE) ou si slug='custom'
+
+GET    /api/gate/cosmetics            # CRUD cosmétiques + auto-sync Stripe Product/Price
+POST   /api/gate/cosmetics
+PUT    /api/gate/cosmetics/:id        # changement de prix → nouveau Stripe Price
+DELETE /api/gate/cosmetics/:id        # soft-delete (isActive=false), Price/Product Stripe désactivés
 ```
 
 ### Sessions
@@ -313,9 +391,11 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 ```
 
 **Webhook events gérés** :
-- `checkout.session.completed` → active la subscription (tier='premium')
-- `customer.subscription.updated` → sync status + currentPeriodEnd
-- `customer.subscription.deleted` → tier='free', status='canceled' (purchasedPacks préservés)
+- `checkout.session.completed` :
+  - `mode: 'subscription'` → active la subscription (tier='premium', sync currentPeriodEnd + cancelAtPeriodEnd)
+  - `mode: 'payment'` + `metadata.kind === 'cosmetic'` → `$addToSet` du slug dans `User.purchasedSkins`
+- `customer.subscription.updated` → sync status + currentPeriodEnd + cancelAtPeriodEnd
+- `customer.subscription.deleted` → tier='free', status='canceled' (purchasedPacks et purchasedSkins préservés)
 - `invoice.payment_failed` → status='past_due'
 
 ---
@@ -411,16 +491,80 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 - [x] Modale de partage (QR + lien) accessible depuis chaque pack perso de l'user
 - [x] Modale de confirmation de suppression (fumigène)
 - [x] Script `server/scripts/fix-premium-period.js` pour resync `currentPeriodEnd` depuis Stripe
+- [x] Avatar uploadable Premium (clic sur l'avatar → file picker → Cloudinary → PUT user)
+- [x] `User.subscription.cancelAtPeriodEnd` synchronisé depuis Stripe
+- [x] Profile : carte rouge + message marseillais quand l'user a annulé son abonnement (date de fin + ref "sucre / monstre / poulet")
 
-### Phase 7 — Déploiement OVH
-- [ ] Dockerfile client (Vite build + Nginx)
-- [ ] Dockerfile server (Node.js)
-- [ ] docker-compose.prod.yml
-- [ ] Nginx config (reverse proxy, gzip, headers sécurité)
-- [ ] Certbot SSL
-- [ ] Variables d'environnement production
-- [ ] Script de déploiement
-- [ ] Monitoring basique
+### Phase 6.6 — Espace Gaté & Catégories dynamiques ✅
+- [x] `User.role: 'user' | 'gate'` + middleware `requireGate` (403 `GATE_REQUIRED` sinon)
+- [x] `ProtectedRoute` accepte `gateOnly` qui redirige `/` si pas gaté
+- [x] Page `/gate/packs` : CRUD complet des packs officiels avec section repliable "Catégories"
+- [x] Page `/gate/cosmetics` : CRUD cosmétiques avec éditeur de palette 8×3 inputs color HTML5 + preview live
+- [x] Lien "Espace Gaté" dans Profile visible uniquement si `user.role === 'gate'`
+- [x] Modèle `Category` (slug auto-generate, icon, order) + routes `GET /categories` (public) et `/gate/categories` (CRUD)
+- [x] `Pack.theme` : enum hardcodé retiré, devient string libre validé contre `Category.slug`
+- [x] Cascade rename : changement de slug d'une catégorie met à jour tous les packs concernés
+- [x] `Pack.isActive` (default `true`) + `Pack.publishAt: Date | null` pour brouillons et programmation
+- [x] Filtre `publishedFilter()` server-side : packs officiels brouillons/programmés invisibles côté joueurs (mais visibles aux gatés)
+- [x] Hook client `useCategories` avec cache module-level + `invalidateCategories()`
+- [x] Editor + PackLibrary + PackSelection : fetch dynamique des catégories au lieu d'enum hardcodé
+- [x] Script `server/scripts/seed-categories.js` (6 catégories par défaut)
+
+### Phase 6.7 — Boutique de cosmétiques ✅
+- [x] Modèle `Cosmetic` avec `category`, `priceCents`, `stripeProductId`, `stripePriceId`, `asset`, `isActive`, `publishAt`
+- [x] `User.activeSkins: Map<category, slug>` (un skin actif par catégorie)
+- [x] Routes `/api/cosmetics` (publique avec flag `owned`) + `/api/cosmetics/:slug/checkout` (Stripe payment one-shot)
+- [x] Auto-création/sync Stripe Product+Price depuis l'Espace Gaté (changement de prix = nouveau Price + désactivation de l'ancien)
+- [x] Webhook étendu : `checkout.session.completed` mode `payment` + `kind=cosmetic` → `$addToSet purchasedSkins`
+- [x] Route `PUT /api/users/me/active-skin` (vérifie ownership)
+- [x] Hook client `useActiveSkin(category)` avec cache module-level
+- [x] `Roulette.jsx` accepte un prop `palette` dynamique (fallback sur `DEFAULT_METALS` pétanque)
+- [x] Composant `RoulettePreview` (mini-roulette statique sans animation) pour le shop et le profil
+- [x] Page Packs unifiée : 2 onglets `?tab=packs` / `?tab=cosmetics` (la boutique est intégrée à la page des packs, pas une page séparée)
+- [x] Profile : section "Mes cosmétiques" avec preview et toggle "Activer"
+- [x] Espace Gaté `/gate/cosmetics` : éditeur visuel de palette 8 tranches × 3 teintes
+- [x] Script `server/scripts/seed-cosmetics.js` : 3 skins de roulette (Vélodrome, Calanques, Bouillabaisse) à 2,99 €
+- [x] Skip de PackSelection si pré-sélection : SessionSetup lance directement la partie
+
+### Phase 7 — Déploiement OVH 🔄
+- [x] `client/Dockerfile` (multi-stage Vite build + Nginx alpine)
+- [x] `server/Dockerfile` (Node 22 alpine, `npm ci --omit=dev`)
+- [x] `docker-compose.prod.yml` (server + client + certbot, réseau bridge isolé)
+- [x] `client/nginx.conf` (reverse proxy `/api`, gzip, security headers, SSL, SPA fallback, cache assets)
+- [x] Certbot avec renouvellement auto (boucle 12h, `--deploy-hook` qui SIGHUP nginx)
+- [x] `.env.production.example` template
+- [x] `scripts/init-ssl.sh` (génération initiale SSL Let's Encrypt)
+- [x] `scripts/deploy.sh` (git pull + rebuild + restart)
+- [x] `scripts/setup-vps.md` (doc complète : install Mongo apt, UFW, users Mongo, backups cron, premier déploiement, Stripe live)
+- [x] **Architecture** : Mongo en service systemd sur le host Debian (bind 127.0.0.1 + 172.17.0.1), conteneurs accèdent via `host.docker.internal:host-gateway`. UFW protège tout sauf 22/80/443. Template OVH "Debian 12 - Docker" → Docker préinstallé.
+- [x] Domaine cible : **arka.michaelrichaud.fr**
+- [ ] Setup réel sur le VPS OVH (à faire en SSH)
+- [ ] Premier déploiement live + génération SSL
+- [ ] Stripe en mode live + webhook prod configuré
+- [ ] Création du compte gaté en prod et seeds initiaux
+
+### Phase 8 — SEO & Référencement 📋
+**Stratégie** : viser le long-tail à faible concurrence ("jeu de défis marseillais", "roulette de défis entre amis", "jeu apéro marseille") + nom de marque ("La Roulade Marseillaise", "ARKA roulade"). Cibler **"roulette"** ou **"roulade"** seuls n'est pas réaliste (concurrence casinos / cuisine).
+
+**Constat technique actuel** : SPA React = pas idéal SEO out-of-the-box. Mêmes meta tags partout, pas de pré-rendu, pas d'OG tags, pas de sitemap.
+
+**Phase 8.1 — SEO technique (1-2 jours dev)**
+- [ ] `react-helmet-async` : meta tags `title` + `description` par route (Home, Premium, Packs, Galerie publique)
+- [ ] Open Graph + Twitter Cards : image de partage, titre, description par page (preview correct sur WhatsApp / Insta / iMessage)
+- [ ] Pré-rendering des pages publiques (Home, Premium, Packs library) via `vite-plugin-prerender` ou similaire — HTML statique au build, SPA prend le relais après hydratation
+- [ ] `public/robots.txt` explicite (crawlable + sitemap)
+- [ ] `sitemap.xml` dynamique généré par le serveur (`/api/sitemap.xml`) listant : pages publiques fixes + chaque galerie partagée + chaque pack public
+- [ ] JSON-LD structured data type `WebApplication` / `Game` sur la Home
+- [ ] Canonical URLs (gérer les duplicates `?tab=cosmetics`, etc.)
+- [ ] Section "À propos / règles du jeu" sur la Home avec du vrai texte indexable (~300-500 mots)
+- [ ] Vérification Search Console + Bing Webmaster
+
+**Phase 8.2 — Contenu & backlinks (continu, plusieurs mois)**
+- [ ] Blog / page "Inspirations soirées" avec du contenu marseillais
+- [ ] Galeries publiques bien titrées (chaque galerie = page indexable, fort potentiel de partage)
+- [ ] Backlinks : Product Hunt, sites de jeux d'apéro, blogs marseillais, presse régionale (La Provence, Made In Marseille)
+- [ ] Présence Insta / TikTok avec lien retour
+- [ ] Reviews ou citation par influenceurs marseillais
 
 ---
 

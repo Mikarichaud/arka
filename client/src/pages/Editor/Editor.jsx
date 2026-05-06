@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import useAuthStore from '../../store/authStore';
+import { useCategories } from '../../hooks/useCategories';
 import api from '../../services/api';
 import './Editor.css';
 
@@ -12,15 +13,6 @@ const INTENSITIES = [
   { level: 1, label: 'Facile', color: '#2DC653' },
   { level: 2, label: 'Moyen', color: '#C9A84C' },
   { level: 3, label: 'Hard',  color: '#E63946' },
-];
-
-const THEMES = [
-  { value: 'custom', label: 'Perso', icon: 'pencil' },
-  { value: 'marseillais', label: 'Marseillais', icon: 'anchor' },
-  { value: 'amis', label: 'Amis', icon: 'party' },
-  { value: 'sportif', label: 'Sport', icon: 'football' },
-  { value: 'couple', label: 'Couple', icon: 'heart' },
-  { value: 'enfants', label: 'Enfants', icon: 'balloon' },
 ];
 
 const FREE_CHALLENGES = 8;
@@ -34,6 +26,7 @@ export default function Editor() {
   const navigate = useNavigate();
   const { id: editingId } = useParams();
   const { user } = useAuthStore();
+  const { categories } = useCategories();
   const isPremium = user?.tier === 'premium';
   const isEditMode = Boolean(editingId);
   const minChallenges = isPremium ? PREMIUM_MIN : FREE_CHALLENGES;
@@ -306,15 +299,15 @@ export default function Editor() {
           <div className="editor-section">
             <label className="editor-section-label">Thème</label>
             <div className="editor-theme-picker">
-              {THEMES.map((t) => (
+              {categories.map((c) => (
                 <button
-                  key={t.value}
+                  key={c.slug}
                   type="button"
-                  className={`editor-theme-btn ${theme === t.value ? 'active' : ''}`}
-                  onClick={() => setTheme(t.value)}
+                  className={`editor-theme-btn ${theme === c.slug ? 'active' : ''}`}
+                  onClick={() => setTheme(c.slug)}
                 >
-                  <Icon name={t.icon} size={18} />
-                  <span>{t.label}</span>
+                  <Icon name={c.icon} size={18} />
+                  <span>{c.name}</span>
                 </button>
               ))}
             </div>

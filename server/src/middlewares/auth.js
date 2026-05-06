@@ -43,4 +43,14 @@ const requirePremium = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, optionalAuth, requirePremium };
+const requireGate = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Hé bé, tu t\'es pas connecté !' });
+  }
+  if (req.user.role !== 'gate') {
+    return res.status(403).json({ message: 'Espace réservé aux Gatés du site.', code: 'GATE_REQUIRED' });
+  }
+  next();
+};
+
+module.exports = { protect, optionalAuth, requirePremium, requireGate };

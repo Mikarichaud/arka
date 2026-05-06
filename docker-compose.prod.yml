@@ -1,0 +1,58 @@
+# Stack de production pour la Roulade Marseillaise.
+# MongoDB tourne sur l'hôte (Debian apt), accessible via host.docker.internal.
+
+services:
+  server:
+    build:
+      context: ./server
+    container_name: roulade-server
+    restart: unless-stopped
+    expose:
+      - "5003"
+    env_file:
+      - .env.production
+    extra_hosts:
+      # Permet au conteneur d'atteindre les services bindés sur 127.0.0.1 du host
+      - "host.docker.internal:host-gateway"
+    networks:
+      - roulade-net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5003/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  client:
+    build:
+      context: ./client
+    container_name: roulade-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - certbot-certs:/etc/letsencrypt:ro
+      - certbot-www:/var/www/certbot
+    networks:
+      - roulade-net
+
+  certbot:
+    image: certbot/certbot:latest
+    container_name: roulade-certbot
+    volumes:
+      - certbot-certs:/etc/letsencrypt
+      - certbot-www:/var/www/certbot
+    # Boucle infinie : tente un renew toutes les 12h. Certbot n'agit que si <30j restants.
+    entrypoint: /bin/sh -c "trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot --quiet --deploy-hook 'docker kill -s HUP roulade-client'; sleep 12h & wait $${!}; done;"
+    networks:
+      - roulade-net
+
+volumes:
+  certbot-certs:
+  certbot-www:
+
+networks:
+  roulade-net:
+    driver: bridge

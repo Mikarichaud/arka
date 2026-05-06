@@ -1,21 +1,41 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import PaywallModal from '../../components/PaywallModal/PaywallModal';
+import RoulettePreview from '../../components/RoulettePreview/RoulettePreview';
+import { useCategories } from '../../hooks/useCategories';
+import { invalidateCosmetics } from '../../hooks/useActiveSkin';
+import useAuthStore from '../../store/authStore';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
 import './PackLibrary.css';
 
-const THEME_ICONS = { marseillais: 'anchor', amis: 'party', sportif: 'football', couple: 'heart', enfants: 'balloon', custom: 'pencil' };
-const THEME_LABELS = { marseillais: 'Marseillais', amis: 'Amis', sportif: 'Sport', couple: 'Couple', enfants: 'Enfants', custom: 'Perso' };
-const THEMES = ['tous', 'marseillais', 'amis', 'sportif', 'couple', 'enfants'];
+const COSMETIC_CAT_LABELS = {
+  roulette: 'Skins de roulette',
+  needle: 'Aiguilles',
+  cochonnet: 'Cochonnets',
+  'avatar-frame': 'Cadres avatar',
+  badge: 'Badges',
+  background: 'Fonds d\'app',
+  'sound-pack': 'Packs sonores',
+  'endgame-anim': 'Animations EndGame',
+};
+
+function formatPrice(cents) {
+  return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
+}
 
 export default function PackLibrary() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [params, setParams] = useSearchParams();
+  const { user, setUser } = useAuthStore();
+  const initialTab = params.get('tab') === 'cosmetics' ? 'cosmetics' : 'packs';
+  const [tab, setTab] = useState(initialTab);
+
   const [packs, setPacks] = useState([]);
   const [filter, setFilter] = useState('tous');
   const [loading, setLoading] = useState(true);
@@ -29,6 +49,35 @@ export default function PackLibrary() {
   const [copied, setCopied] = useState(false);
   const [deletePack, setDeletePack] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const { categories } = useCategories();
+
+  // Cosmetics state
+  const [cosmetics, setCosmetics] = useState([]);
+  const [cosmeticsLoading, setCosmeticsLoading] = useState(false);
+  const [buying, setBuying] = useState(null);
+  const [purchasedFlash, setPurchasedFlash] = useState(null);
+  const [cosmeticsError, setCosmeticsError] = useState('');
+  const purchasedParam = params.get('purchased');
+
+  const switchTab = (newTab) => {
+    setTab(newTab);
+    const next = new URLSearchParams(params);
+    if (newTab === 'cosmetics') next.set('tab', 'cosmetics');
+    else next.delete('tab');
+    next.delete('purchased');
+    setParams(next, { replace: true });
+  };
+
+  // Map slug → catégorie pour lookup rapide ; on exclut "custom" du picker.
+  const catBySlug = useMemo(() => {
+    const m = {};
+    for (const c of categories) m[c.slug] = c;
+    return m;
+  }, [categories]);
+  const filterableCategories = useMemo(
+    () => categories.filter((c) => c.slug !== 'custom'),
+    [categories]
+  );
 
   useEffect(() => {
     const url = filter === 'tous' ? '/packs' : `/packs?theme=${filter}`;
@@ -38,6 +87,52 @@ export default function PackLibrary() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [filter]);
+
+  // Charge les cosmétiques quand on entre dans l'onglet
+  useEffect(() => {
+    if (tab !== 'cosmetics' || cosmetics.length > 0) return;
+    setCosmeticsLoading(true);
+    api.get('/cosmetics')
+      .then(({ data }) => setCosmetics(data.cosmetics || []))
+      .catch(() => setCosmeticsError("Impossible de charger la boutique."))
+      .finally(() => setCosmeticsLoading(false));
+  }, [tab]);
+
+  // Refresh user après retour de Stripe
+  useEffect(() => {
+    if (!purchasedParam) return;
+    invalidateCosmetics();
+    api.get('/auth/me').then(({ data }) => {
+      setUser(data.user);
+      if (data.user.purchasedSkins?.includes(purchasedParam)) {
+        setPurchasedFlash(purchasedParam);
+        setTimeout(() => setPurchasedFlash(null), 4000);
+      }
+    }).catch(() => {});
+    api.get('/cosmetics').then(({ data }) => setCosmetics(data.cosmetics || [])).catch(() => {});
+  }, [purchasedParam]);
+
+  const handleBuyCosmetic = async (cosmetic) => {
+    if (!user) { navigate('/login'); return; }
+    setBuying(cosmetic.slug);
+    setCosmeticsError('');
+    try {
+      const { data } = await api.post(`/cosmetics/${cosmetic.slug}/checkout`);
+      window.location.href = data.url;
+    } catch (err) {
+      setCosmeticsError(err.response?.data?.message || 'Erreur de paiement.');
+      setBuying(null);
+    }
+  };
+
+  const groupedCosmetics = useMemo(() => {
+    const map = {};
+    for (const c of cosmetics) {
+      if (!map[c.category]) map[c.category] = [];
+      map[c.category].push(c);
+    }
+    return map;
+  }, [cosmetics]);
 
   const handleImport = async () => {
     if (!importCode.trim()) return;
@@ -106,52 +201,94 @@ export default function PackLibrary() {
           className="btn-back"
           onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
         >← Retour</button>
-        <h1 className="library-title">Les Packs</h1>
+        <h1 className="library-title">{tab === 'cosmetics' ? 'La Boutique' : 'Les Packs'}</h1>
       </div>
 
-      {/* CTA créer un pack — accès rapide en haut */}
-      <button
-        className="btn btn-gold library-create-cta"
-        onClick={() => navigate('/editor')}
-      >
-        <Icon name="pencil" size={18} style={{ marginRight: 8 }} />
-        Créer mon pack perso
-      </button>
-
-      {/* Import par code */}
-      <div className="library-import card">
-        <p className="library-import-label">Tu as un code de partage ?</p>
-        <div className="library-import-row">
-          <input
-            className="input"
-            placeholder="Code (ex: AB12CD34)"
-            value={importCode}
-            onChange={(e) => setImportCode(e.target.value.toUpperCase())}
-            maxLength={8}
-            style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}
-          />
-          <button className="btn btn-primary btn-sm" onClick={handleImport} disabled={importing}>
-            {importing ? '...' : 'Go'}
-          </button>
-        </div>
-        {importError && <p className="library-import-error">{importError}</p>}
+      {/* Onglets Packs / Cosmétiques */}
+      <div className="library-tabs">
+        <button
+          className={`library-tab ${tab === 'packs' ? 'active' : ''}`}
+          onClick={() => switchTab('packs')}
+        >
+          <Icon name="wheel" size={16} style={{ marginRight: 6 }} />
+          Packs de défis
+        </button>
+        <button
+          className={`library-tab ${tab === 'cosmetics' ? 'active' : ''}`}
+          onClick={() => switchTab('cosmetics')}
+        >
+          <Icon name="star" size={16} style={{ marginRight: 6 }} />
+          Cosmétiques
+        </button>
       </div>
 
-      {/* Filtres par thème */}
-      <div className="library-filters">
-        {THEMES.map((t) => (
+      {tab === 'packs' && (
+        <>
+          {/* CTA créer un pack — accès rapide en haut */}
           <button
-            key={t}
-            className={`filter-btn ${filter === t ? 'active' : ''}`}
-            onClick={() => setFilter(t)}
+            className="btn btn-gold library-create-cta"
+            onClick={() => navigate('/editor')}
           >
-            {t === 'tous' ? <><Icon name="wheel" size={16} style={{ marginRight: 4 }} />Tous</> : <><Icon name={THEME_ICONS[t]} size={16} style={{ marginRight: 4 }} />{THEME_LABELS[t]}</>}
+            <Icon name="pencil" size={18} style={{ marginRight: 8 }} />
+            Créer mon pack perso
           </button>
-        ))}
-      </div>
+
+          {/* Import par code */}
+          <div className="library-import card">
+            <p className="library-import-label">Tu as un code de partage ?</p>
+            <div className="library-import-row">
+              <input
+                className="input"
+                placeholder="Code (ex: AB12CD34)"
+                value={importCode}
+                onChange={(e) => setImportCode(e.target.value.toUpperCase())}
+                maxLength={8}
+                style={{ letterSpacing: '0.15em', textTransform: 'uppercase' }}
+              />
+              <button className="btn btn-primary btn-sm" onClick={handleImport} disabled={importing}>
+                {importing ? '...' : 'Go'}
+              </button>
+            </div>
+            {importError && <p className="library-import-error">{importError}</p>}
+          </div>
+
+          {/* Filtres par thème */}
+          <div className="library-filters">
+            <button
+              className={`filter-btn ${filter === 'tous' ? 'active' : ''}`}
+              onClick={() => setFilter('tous')}
+            >
+              <Icon name="wheel" size={16} style={{ marginRight: 4 }} />
+              Tous
+            </button>
+            {filterableCategories.map((c) => (
+              <button
+                key={c.slug}
+                className={`filter-btn ${filter === c.slug ? 'active' : ''}`}
+                onClick={() => setFilter(c.slug)}
+              >
+                <Icon name={c.icon} size={16} style={{ marginRight: 4 }} />
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {tab === 'cosmetics' && (
+        <CosmeticsView
+          cosmetics={cosmetics}
+          grouped={groupedCosmetics}
+          loading={cosmeticsLoading}
+          buying={buying}
+          error={cosmeticsError}
+          purchasedFlash={purchasedFlash}
+          onBuy={handleBuyCosmetic}
+        />
+      )}
 
       {/* Liste des packs */}
-      {loading ? (
+      {tab === 'packs' && (loading ? (
         <p className="library-loading">Chargement...</p>
       ) : (() => {
         const myPacks = packs.filter((p) => p.isMine);
@@ -171,7 +308,7 @@ export default function PackLibrary() {
                 transition={{ delay: i * 0.06 }}
               >
                 <div className="library-pack-top" onClick={() => handleExpand(pack)}>
-                  <span className="library-pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={22} /></span>
+                  <span className="library-pack-icon"><Icon name={catBySlug[pack.theme]?.icon || 'wheel'} size={22} /></span>
                   <div className="library-pack-info">
                     <span className="library-pack-name">
                       {pack.name}
@@ -277,7 +414,7 @@ export default function PackLibrary() {
             )}
           </div>
         );
-      })()}
+      })())}
 
       <PaywallModal pack={paywallPack} onClose={() => setPaywallPack(null)} />
 
@@ -380,5 +517,74 @@ export default function PackLibrary() {
         )}
       </AnimatePresence>
     </Layout>
+  );
+}
+
+function CosmeticsView({ cosmetics, grouped, loading, buying, error, purchasedFlash, onBuy }) {
+  return (
+    <>
+      <AnimatePresence>
+        {purchasedFlash && (
+          <motion.div
+            className="library-purchased-flash"
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+          >
+            <Icon name="check" size={18} />
+            <span>Cosmétique débloqué ! Active-le depuis ton profil.</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {error && <p className="library-cos-error">{error}</p>}
+
+      {loading ? (
+        <p className="library-loading">Chargement...</p>
+      ) : cosmetics.length === 0 ? (
+        <p className="library-loading">Aucun cosmétique en vente pour l'instant.</p>
+      ) : (
+        Object.keys(grouped).map((cat) => (
+          <section key={cat} className="library-cos-section">
+            <h2 className="library-section-title">{COSMETIC_CAT_LABELS[cat] || cat}</h2>
+            <div className="library-cos-grid">
+              {grouped[cat].map((c, i) => (
+                <motion.div
+                  key={c._id}
+                  className={`library-cos-card ${c.owned ? 'owned' : ''}`}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  {c.category === 'roulette' && c.asset?.metals && (
+                    <div className="library-cos-preview">
+                      <RoulettePreview palette={c.asset.metals} size={130} />
+                    </div>
+                  )}
+                  <div className="library-cos-info">
+                    <span className="library-cos-name">{c.name}</span>
+                    {c.description && <p className="library-cos-desc">{c.description}</p>}
+                    <span className="library-cos-price">{formatPrice(c.priceCents)}</span>
+                  </div>
+                  {c.owned ? (
+                    <span className="library-cos-owned">
+                      <Icon name="check" size={14} /> Possédé
+                    </span>
+                  ) : (
+                    <button
+                      className="btn btn-gold btn-sm library-cos-buy"
+                      onClick={() => onBuy(c)}
+                      disabled={buying === c.slug}
+                    >
+                      {buying === c.slug ? '...' : `Acheter ${formatPrice(c.priceCents)}`}
+                    </button>
+                  )}
+                </motion.div>
+              ))}
+            </div>
+          </section>
+        ))
+      )}
+    </>
   );
 }

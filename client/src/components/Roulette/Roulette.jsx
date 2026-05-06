@@ -5,8 +5,8 @@ import './Roulette.css';
 const SLICE_COUNT = 8;
 const SLICE_ANGLE = 360 / SLICE_COUNT;
 
-// Palette pétanque : 8 métaux distincts alternés acier/bronze
-const METALS = [
+// Palette pétanque par défaut : 8 métaux distincts alternés acier/bronze
+export const DEFAULT_METALS = [
   { hi: '#6898c8', base: '#3d6080', lo: '#1c3a52' }, // Acier azur
   { hi: '#c89038', base: '#8a5f20', lo: '#4a2c08' }, // Bronze
   { hi: '#2a5a8a', base: '#1a3a5c', lo: '#0a1e30' }, // Marine profond
@@ -29,10 +29,11 @@ function arcPath(cx, cy, r, startDeg, endDeg) {
   return `M${cx},${cy} L${x1.toFixed(3)},${y1.toFixed(3)} A${r},${r} 0 0,1 ${x2.toFixed(3)},${y2.toFixed(3)} Z`;
 }
 
-export default function Roulette({ challenges = [], targetIndex, isSpinning, onSpinEnd }) {
+export default function Roulette({ challenges = [], targetIndex, isSpinning, onSpinEnd, palette }) {
   const controls = useAnimation();
   const currentRotation = useRef(0);
   const [landed, setLanded] = useState(false);
+  const METALS = (Array.isArray(palette) && palette.length === SLICE_COUNT) ? palette : DEFAULT_METALS;
 
   useEffect(() => {
     if (!isSpinning || targetIndex === null || targetIndex === undefined) return;

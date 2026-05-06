@@ -70,6 +70,7 @@ router.get('/subscription', protect, async (req, res) => {
     tier: user.tier,
     status: user.subscription?.status || null,
     currentPeriodEnd: user.subscription?.currentPeriodEnd || null,
+    cancelAtPeriodEnd: Boolean(user.subscription?.cancelAtPeriodEnd),
     isPremiumActive: user.isPremiumActive(),
   });
 });
@@ -93,6 +94,8 @@ router.post('/webhook', async (req, res) => {
         const session = event.data.object;
         if (session.mode === 'subscription') {
           await activateSubscription(session.subscription, session.customer);
+        } else if (session.mode === 'payment' && session.metadata?.kind === 'cosmetic') {
+          await grantCosmetic(session.metadata.userId, session.metadata.cosmeticSlug);
         }
         break;
       }
@@ -152,6 +155,7 @@ async function activateSubscription(subscriptionId, customerId) {
       'subscription.stripeSubscriptionId': sub.id,
       'subscription.status': sub.status,
       'subscription.currentPeriodEnd': toDate(getPeriodEnd(sub)),
+      'subscription.cancelAtPeriodEnd': Boolean(sub.cancel_at_period_end),
     }
   );
 }
@@ -171,7 +175,16 @@ async function syncSubscription(sub) {
       'subscription.stripeSubscriptionId': sub.id,
       'subscription.status': sub.status,
       'subscription.currentPeriodEnd': toDate(getPeriodEnd(sub)),
+      'subscription.cancelAtPeriodEnd': Boolean(sub.cancel_at_period_end),
     }
+  );
+}
+
+async function grantCosmetic(userId, slug) {
+  if (!userId || !slug) return;
+  await User.updateOne(
+    { _id: userId },
+    { $addToSet: { purchasedSkins: slug } }
   );
 }
 
@@ -183,6 +196,7 @@ async function cancelSubscription(customerId) {
       'subscription.status': 'canceled',
       'subscription.stripeSubscriptionId': null,
       'subscription.currentPeriodEnd': null,
+      'subscription.cancelAtPeriodEnd': false,
     }
   );
 }

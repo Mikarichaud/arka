@@ -402,14 +402,15 @@
     padding: 0;
     gap: 0;
     background: linear-gradient(135deg, #0d1b3e 0%, #0057A8 50%, #003d7a 100%);
-    min-height: 100dvh;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   /* Barre de scores en haut full width */
   .game-scores {
     grid-area: header;
     background: rgba(0, 0, 0, 0.3);
-    padding: 16px 32px;
+    padding: 10px 24px;
     gap: 12px;
     overflow-x: visible;
     flex-wrap: wrap;
@@ -435,54 +436,60 @@
   .score-name { color: rgba(255,255,255,0.8); max-width: 100px; }
   .score-pts { color: var(--or-etoile-light); font-size: 1.4rem; }
 
-  /* Colonne gauche : roulette */
+  /* Colonne gauche : roulette — fit dans la colonne, taille auto-ajustée */
   .game-roulette-area {
     grid-area: left;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
-    gap: 24px;
+    padding: 16px 24px;
+    gap: 12px;
     border-right: 1px solid rgba(255,255,255,0.1);
+    overflow: hidden;
+    min-height: 0;
   }
 
   .game-roulette-area .roulette-wrapper {
-    max-width: 460px;
+    /* Cap à la largeur de colonne ET à la hauteur dispo (moins le titre + commentaire ~140px) */
+    max-width: min(380px, calc(100dvh - 220px));
     width: 100%;
   }
 
   .game-active-player {
     order: -1;
+    margin-bottom: 4px;
   }
 
   .game-turn-label {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     color: rgba(255,255,255,0.6);
   }
 
   .game-turn-name {
-    font-size: 3rem;
+    font-size: 2.2rem;
     color: white;
     text-shadow: 0 2px 20px rgba(201,168,76,0.4);
   }
 
   .game-comment {
     color: rgba(255,255,255,0.7);
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
-  /* Colonne droite : contenu */
+  /* Colonne droite : contenu — scrolle en interne si nécessaire */
   .game-content {
     grid-area: right;
-    padding: 32px;
+    padding: 24px 32px;
     justify-content: center;
     background: rgba(255,255,255,0.03);
+    overflow-y: auto;
+    min-height: 0;
   }
 
   .game-spin-btn {
-    font-size: 1.8rem;
-    padding: 28px;
+    font-size: 1.5rem;
+    padding: 22px;
   }
 
   .game-spinning-text {

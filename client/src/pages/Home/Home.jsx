@@ -45,7 +45,7 @@ export default function Home() {
           </button>
           <button className="btn btn-ghost home-ghost-btn"
             onClick={() => navigate('/packs')}>
-            Les packs de défis
+            Packs & cosmétiques
           </button>
           {user ? (
             <div className="home-user-bar">

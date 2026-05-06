@@ -1,22 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import PaywallModal from '../../components/PaywallModal/PaywallModal';
+import { useCategories } from '../../hooks/useCategories';
 import useSessionStore from '../../store/sessionStore';
 import useGameStore from '../../store/gameStore';
 import api from '../../services/api';
 import './PackSelection.css';
-
-const THEME_ICONS = {
-  marseillais: 'anchor',
-  amis: 'party',
-  sportif: 'football',
-  couple: 'heart',
-  enfants: 'balloon',
-  custom: 'pencil',
-};
 
 export default function PackSelection() {
   const navigate = useNavigate();
@@ -27,6 +19,12 @@ export default function PackSelection() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [paywallPack, setPaywallPack] = useState(null);
+  const { categories } = useCategories();
+  const catBySlug = useMemo(() => {
+    const m = {};
+    for (const c of categories) m[c.slug] = c;
+    return m;
+  }, [categories]);
 
   useEffect(() => {
     api.get('/packs')
@@ -93,7 +91,7 @@ export default function PackSelection() {
               transition={{ delay: i * 0.08 }}
               whileTap={{ scale: 0.97 }}
             >
-              <span className="pack-icon"><Icon name={THEME_ICONS[pack.theme] || 'wheel'} size={24} /></span>
+              <span className="pack-icon"><Icon name={catBySlug[pack.theme]?.icon || 'wheel'} size={24} /></span>
               <div className="pack-info">
                 <span className="pack-name">{pack.name}</span>
                 <span className="pack-desc">{pack.description}</span>

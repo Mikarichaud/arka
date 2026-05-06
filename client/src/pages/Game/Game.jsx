@@ -13,6 +13,7 @@ import Icon from '../../components/Icon/Icon';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import { useSound } from '../../hooks/useSound';
+import { useActiveSkin } from '../../hooks/useActiveSkin';
 import { fumigenesVariants, fumigenesSoft } from '../../styles/motion';
 import api from '../../services/api';
 import './Game.css';
@@ -34,6 +35,8 @@ export default function Game() {
   } = useGameStore();
   const { user } = useAuthStore();
   const { play } = useSound();
+  const rouletteSkin = useActiveSkin('roulette');
+  const roulettePalette = rouletteSkin?.asset?.metals;
 
   const [timerRunning, setTimerRunning] = useState(false);
   const [lastPoints, setLastPoints] = useState(null);
@@ -173,6 +176,7 @@ export default function Game() {
           targetIndex={spinResult}
           isSpinning={isSpinning}
           onSpinEnd={() => {}}
+          palette={roulettePalette}
         />
 
         {phase === 'challenge' && !isSpinning && (

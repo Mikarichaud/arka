@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import { BrowserRouter, Routes, Route, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Home from './pages/Home/Home';
 import Auth from './pages/Auth/Auth';
@@ -13,6 +13,8 @@ import History from './pages/History/History';
 import Premium from './pages/Premium/Premium';
 import PremiumSuccess from './pages/Premium/PremiumSuccess';
 import Profile from './pages/Profile/Profile';
+import GatePacks from './pages/Gate/GatePacks';
+import GateCosmetics from './pages/Gate/GateCosmetics';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const NavDirectionContext = createContext(1);
@@ -71,6 +73,9 @@ function AnimatedRoutes() {
             <Route path="/premium" element={<Premium />} />
             <Route path="/premium/success" element={<PremiumSuccess />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
+            <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />
+            <Route path="/shop" element={<Navigate to="/packs?tab=cosmetics" replace />} />
           </Routes>
         </motion.div>
       </AnimatePresence>

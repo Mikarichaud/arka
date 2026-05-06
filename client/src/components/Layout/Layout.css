@@ -8,11 +8,19 @@
   width: 100%;
 }
 
-/* Home et Game ont un layout plein écran à toutes les tailles */
+/* Home, Game et History ont un layout plein écran à toutes les tailles */
 .layout-page.home-page,
-.layout-page.game-page {
+.layout-page.game-page,
+.layout-page.history-page {
   max-width: 100%;
   padding: 0;
+}
+
+/* Library garde un peu plus de marge sur desktop */
+@media (min-width: 1024px) {
+  .layout-page.library-page {
+    max-width: 1200px;
+  }
 }
 
 /* Tablet */

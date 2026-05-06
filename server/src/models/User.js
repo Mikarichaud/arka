@@ -7,14 +7,17 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, minlength: 6 },
   avatar: { type: String, default: null },
   tier: { type: String, enum: ['free', 'premium'], default: 'free' },
+  role: { type: String, enum: ['user', 'gate'], default: 'user' },
   subscription: {
     stripeCustomerId: { type: String, default: null },
     stripeSubscriptionId: { type: String, default: null },
-    status: { type: String, enum: ['active', 'canceled', 'past_due', null], default: null },
+    status: { type: String, enum: ['active', 'canceled', 'past_due', 'trialing', 'unpaid', 'incomplete', 'incomplete_expired', null], default: null },
     currentPeriodEnd: { type: Date, default: null },
+    cancelAtPeriodEnd: { type: Boolean, default: false },
   },
   purchasedPacks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Pack' }],
-  purchasedSkins: [{ type: String }],
+  purchasedSkins: [{ type: String }], // slugs de Cosmetic possédés
+  activeSkins: { type: Map, of: String, default: {} }, // category -> slug actif
   stats: {
     totalGames: { type: Number, default: 0 },
     totalChallengesCompleted: { type: Number, default: 0 },

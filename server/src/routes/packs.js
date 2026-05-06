@@ -5,11 +5,30 @@ const { protect, optionalAuth } = require('../middlewares/auth');
 const Pack = require('../models/Pack');
 const Challenge = require('../models/Challenge');
 
+const Category = require('../models/Category');
+
 const FREE_PACK_LIMIT = 1;
 const FREE_CHALLENGES_COUNT = 8;
 const PREMIUM_CHALLENGES_MIN = 8;
 const PREMIUM_CHALLENGES_MAX = 24;
-const PREMIUM_THEMES = ['marseillais', 'amis', 'sportif', 'couple', 'enfants', 'custom'];
+
+async function resolveTheme(theme) {
+  if (!theme) return 'custom';
+  const cat = await Category.findOne({ slug: theme });
+  return cat ? cat.slug : 'custom';
+}
+
+// Filtre Mongo : un pack officiel est visible publiquement s'il est actif ET (sans date de publication OU date passée).
+// $ne: false matche aussi les documents où le champ est absent (packs créés avant ces nouveaux champs).
+function publishedFilter() {
+  const now = new Date();
+  return {
+    $and: [
+      { $or: [{ isOfficial: false }, { isActive: { $ne: false } }] },
+      { $or: [{ isOfficial: false }, { publishAt: null }, { publishAt: { $lte: now } }] },
+    ],
+  };
+}
 
 function hasPackAccess(user, pack) {
   if (!pack.isPremium) return true;
@@ -36,8 +55,8 @@ router.get('/', optionalAuth, async (req, res, next) => {
     const { theme } = req.query;
     const orClauses = [{ isOfficial: true }];
     if (req.user) orClauses.push({ author: req.user._id });
-    const filter = { $or: orClauses };
-    if (theme) filter.theme = theme;
+    const filter = { $and: [{ $or: orClauses }, publishedFilter()] };
+    if (theme) filter.$and.push({ theme });
 
     const packs = await Pack.find(filter).select('-challenges').sort({ isOfficial: -1, createdAt: -1 });
     const result = packs.map((p) => {
@@ -55,6 +74,9 @@ router.get('/share/:shareCode', optionalAuth, async (req, res, next) => {
   try {
     const pack = await Pack.findOne({ shareCode: req.params.shareCode }).populate('challenges');
     if (!pack) return res.status(404).json({ message: 'Pack introuvable avec ce code.' });
+    if (pack.isOfficial && (pack.isActive === false || (pack.publishAt && pack.publishAt > new Date()))) {
+      return res.status(404).json({ message: 'Pack introuvable avec ce code.' });
+    }
     if (hasPackAccess(req.user, pack)) {
       return res.json({ pack });
     }
@@ -67,6 +89,11 @@ router.get('/:id', optionalAuth, async (req, res, next) => {
   try {
     const pack = await Pack.findById(req.params.id).populate('challenges');
     if (!pack) return res.status(404).json({ message: 'Pack introuvable.' });
+    // Brouillon ou programmé : invisible pour les non-gatés (sauf l'auteur)
+    if (pack.isOfficial && (pack.isActive === false || (pack.publishAt && pack.publishAt > new Date()))) {
+      const isGate = req.user?.role === 'gate';
+      if (!isGate) return res.status(404).json({ message: 'Pack introuvable.' });
+    }
     if (hasPackAccess(req.user, pack)) {
       return res.json({ pack });
     }
@@ -118,8 +145,8 @@ router.post('/', protect, async (req, res, next) => {
       }
     }
 
-    // Thème : Premium choisit, Free est forcé à "custom"
-    const finalTheme = isPremium && PREMIUM_THEMES.includes(theme) ? theme : 'custom';
+    // Thème : Premium choisit (validé contre Category), Free est forcé à "custom"
+    const finalTheme = isPremium ? await resolveTheme(theme) : 'custom';
 
     // ShareCode + coverImage : Premium uniquement
     const packDoc = {
@@ -166,7 +193,7 @@ router.put('/:id', protect, async (req, res, next) => {
     if (description !== undefined) pack.description = description?.trim() || '';
 
     if (theme !== undefined) {
-      pack.theme = isPremium && PREMIUM_THEMES.includes(theme) ? theme : 'custom';
+      pack.theme = isPremium ? await resolveTheme(theme) : 'custom';
     }
 
     if (coverImage !== undefined) {

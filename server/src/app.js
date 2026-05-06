@@ -10,6 +10,9 @@ const packRoutes = require('./routes/packs');
 const sessionRoutes = require('./routes/sessions');
 const mediaRoutes = require('./routes/media');
 const paymentRoutes = require('./routes/payments');
+const gateRoutes = require('./routes/gate');
+const categoryRoutes = require('./routes/categories');
+const cosmeticRoutes = require('./routes/cosmetics');
 
 const app = express();
 
@@ -39,6 +42,9 @@ app.use('/api/packs', packRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/media', mediaRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/gate', gateRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/cosmetics', cosmeticRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

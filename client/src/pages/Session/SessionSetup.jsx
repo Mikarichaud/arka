@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import useSessionStore from '../../store/sessionStore';
+import useGameStore from '../../store/gameStore';
+import api from '../../services/api';
 import './SessionSetup.css';
 
 export default function SessionSetup() {
@@ -11,8 +13,20 @@ export default function SessionSetup() {
   const location = useLocation();
   const preselectedPackId = location.state?.preselectedPackId || null;
   const { setPlayerNames, setSelectedPackId } = useSessionStore();
+  const { setSession, setPack } = useGameStore();
   const [players, setPlayers] = useState(['', '']);
   const [error, setError] = useState('');
+  const [starting, setStarting] = useState(false);
+  const [preselectedPackName, setPreselectedPackName] = useState(null);
+
+  useEffect(() => {
+    if (!preselectedPackId) return;
+    api.get(`/packs/${preselectedPackId}`)
+      .then(({ data }) => {
+        if (!data.locked) setPreselectedPackName(data.pack.name);
+      })
+      .catch(() => {});
+  }, [preselectedPackId]);
 
   const addPlayer = () => {
     if (players.length >= 10) return;
@@ -34,7 +48,7 @@ export default function SessionSetup() {
     setPlayers([...players].sort(() => Math.random() - 0.5));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const names = players.map((p) => p.trim()).filter(Boolean);
     if (names.length < 2) {
       setError('Il faut au moins 2 joueurs, oh fada !');
@@ -46,7 +60,34 @@ export default function SessionSetup() {
       return;
     }
     setPlayerNames(names);
-    if (preselectedPackId) setSelectedPackId(preselectedPackId);
+
+    // Pack pré-sélectionné depuis la PackLibrary → on saute la PackSelection.
+    if (preselectedPackId) {
+      setStarting(true);
+      try {
+        const { data } = await api.get(`/packs/${preselectedPackId}`);
+        if (data.locked) {
+          // Pack verrouillé entre temps → on retombe sur la sélection avec paywall
+          setSelectedPackId(preselectedPackId);
+          navigate('/session/pack');
+          return;
+        }
+        const pack = data.pack;
+        const session = {
+          players: names.map((name) => ({ name, score: 0 })),
+          currentPlayerIndex: 0,
+          pack: pack._id,
+        };
+        setSession(session);
+        setPack(pack);
+        navigate('/game');
+      } catch {
+        setError("Impossible de lancer la partie, réessaie.");
+        setStarting(false);
+      }
+      return;
+    }
+
     navigate('/session/pack');
   };
 
@@ -60,6 +101,17 @@ export default function SessionSetup() {
         <h1 className="setup-title">Les Joueurs</h1>
         <p className="setup-subtitle">Qui joue aujourd'hui ?</p>
       </div>
+
+      {preselectedPackName && (
+        <motion.div
+          className="setup-preselected"
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <Icon name="check" size={16} />
+          <span>Pack pré-sélectionné : <strong>{preselectedPackName}</strong></span>
+        </motion.div>
+      )}
 
       <div className="setup-players">
         <AnimatePresence>
@@ -107,8 +159,13 @@ export default function SessionSetup() {
         className="btn btn-gold"
         style={{ width: '100%', marginTop: 'auto', padding: '18px', fontSize: '1.1rem' }}
         onClick={handleNext}
+        disabled={starting}
       >
-        Choisir le pack →
+        {starting
+          ? 'Préparation...'
+          : preselectedPackId
+            ? 'Lancer la Roulade !'
+            : 'Choisir le pack →'}
       </button>
     </Layout>
   );
