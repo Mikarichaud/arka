@@ -15,10 +15,12 @@ router.get('/', optionalAuth, async (req, res, next) => {
       $or: [{ publishAt: null }, { publishAt: { $lte: now } }],
     };
     const cosmetics = await Cosmetic.find(filter).sort({ category: 1, priceCents: 1 });
+    const isGate = req.user?.role === 'gate';
     const owned = new Set(req.user?.purchasedSkins || []);
     const result = cosmetics.map((c) => {
       const obj = c.toObject();
-      obj.owned = owned.has(c.slug);
+      // Les gatés possèdent automatiquement tous les cosmétiques
+      obj.owned = isGate || owned.has(c.slug);
       return obj;
     });
     res.json({ cosmetics: result });
@@ -37,7 +39,7 @@ router.post('/:slug/checkout', protect, async (req, res, next) => {
       return res.status(400).json({ message: 'Ce cosmétique n\'est pas en vente.' });
     }
 
-    if (req.user.purchasedSkins?.includes(cosmetic.slug)) {
+    if (req.user.role === 'gate' || req.user.purchasedSkins?.includes(cosmetic.slug)) {
       return res.status(400).json({ message: 'Tu as déjà ce cosmétique.', code: 'ALREADY_OWNED' });
     }
 

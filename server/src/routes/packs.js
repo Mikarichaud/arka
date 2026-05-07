@@ -31,6 +31,8 @@ function publishedFilter() {
 }
 
 function hasPackAccess(user, pack) {
+  // Les gatés (admin) ont accès à tout, sans achat ni abonnement
+  if (user?.role === 'gate') return true;
   if (!pack.isPremium) return true;
   if (!user) return false;
   if (user.isPremiumActive()) return true;

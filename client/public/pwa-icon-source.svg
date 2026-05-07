@@ -22,7 +22,7 @@
   </defs>
 
   <!-- Fond plein bord-à-bord, aucun arrondi : iOS / Android appliquent leur propre masque -->
-  <rect width="512" height="512" fill="#0d1b3e"/>
+  <rect width="512" height="512" fill="#F5F5F0"/>
 
   <!-- Roulette centrée, scale 0.78 pour laisser la safe-zone des masques maskable Android -->
   <g transform="translate(256 256) scale(0.78)">
