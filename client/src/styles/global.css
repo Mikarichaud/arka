@@ -9,7 +9,30 @@
 html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
+  /* Couleur visible dans les safe-areas iOS (encoche, barre du bas) et lors d'overscroll.
+     Default = bleu nuit, adapté ensuite par page via :has() pour matcher le bg de chaque écran. */
+  background-color: #0d1b3e;
+  transition: background-color 0.2s ease;
 }
+
+/* Pages claires (crème) : le bg du html matche pour que l'overscroll soit fluide */
+html:has(.auth-page),
+html:has(.editor-page),
+html:has(.profile-page),
+html:has(.packs-page),
+html:has(.library-page),
+html:has(.setup-page),
+html:has(.gate-page),
+html:has(.history-page) {
+  background-color: var(--surface-bg);
+}
+
+/* Game (mobile) : haut du gradient en bleu très pâle */
+html:has(.game-page) {
+  background-color: #f0f4ff;
+}
+
+/* Pages bleu nuit : Home, Gallery, Premium gardent #0d1b3e par défaut (rien à override) */
 
 body {
   font-family: var(--font-corps);

@@ -4,7 +4,11 @@
   flex-direction: column;
   max-width: 480px;
   margin: 0 auto;
-  padding: 0 16px;
+  /* Le padding latéral inclut la safe-area (encoche en mode paysage) */
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  /* Pas de padding vertical par défaut — chaque page le pose elle-même via padding-top/bottom
+     pour pouvoir intégrer env(safe-area-inset-top/bottom) avec leur design propre */
   width: 100%;
 }
 

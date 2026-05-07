@@ -208,12 +208,30 @@ Vérifie : https://arka.michaelrichaud.fr → la page Home doit s'afficher.
 
 ## 8. Seeds initiaux
 
+Trois scripts à lancer dans l'ordre. Ils sont **idempotents** (`= déjà présent` si relancés).
+
 ```bash
-# Catégories par défaut (marseillais, amis, sportif, etc.)
+# 1. Catégories (Marseillais, Amis, Sport, Couple, Enfants, Custom)
 docker exec roulade-server node scripts/seed-categories.js
 
-# (les packs officiels et cosmétiques se créent depuis l'Espace Gaté en UI)
+# 2. Packs officiels initiaux (Mireille + Virage Sud Free, Mouloud Premium)
+docker exec roulade-server node scripts/seed-packs.js
+
+# 3. Cosmétiques initiaux (3 skins de roulette : Vélodrome, Calanques, Bouillabaisse)
+#    ⚠️ Crée des Stripe Products+Prices selon la clé STRIPE_SECRET_KEY :
+#       - sk_test_... → Products en mode test
+#       - sk_live_... → Products en mode LIVE (vrais paiements)
+#    Lance ce script après avoir basculé Stripe en live (section 10) si tu veux des Prices live.
+docker exec roulade-server node scripts/seed-cosmetics.js
 ```
+
+> Si tu ajoutes de nouveaux scripts dans `server/scripts/` après le premier déploiement, **rebuild** le conteneur server pour qu'ils soient pris en compte :
+> ```bash
+> docker compose -f docker-compose.prod.yml build server
+> docker compose -f docker-compose.prod.yml up -d server
+> ```
+
+Ensuite, pour ajouter d'autres packs officiels (catalogue prévu dans `BUSINESS.md` : EVJF, Soirée Filles, Pack 18+, Noël en Famille, etc.) ou d'autres cosmétiques, passe par l'**Espace Gaté** une fois ton compte promu (section 9).
 
 ---
 
