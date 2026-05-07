@@ -18,94 +18,103 @@ export default function Home() {
   return (
     <Layout className="home-page">
 
-      {/* ── Colonne gauche : brand + actions (desktop) ─────────────
-          Sur mobile : display:contents → brand et actions deviennent
-          des enfants directs du flex, avec order CSS                */}
+      {/* ── Header : zone safe-area + toggles, dans le flow (jamais de fixed qui chevauche) ── */}
+      <header className="home-header">
+        <div className="home-header-toggles">
+          <button className="theme-toggle" onClick={toggleSound} aria-label="Sons">
+            <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={18} />
+          </button>
+          <button className="theme-toggle" onClick={toggleTheme} aria-label="Mode sombre">
+            <Icon name={theme === 'light' ? 'moon' : 'sun'} size={18} />
+          </button>
+        </div>
+      </header>
+
+      {/* ── Colonne gauche desktop / flux mobile ── */}
       <div className="home-left">
-        <motion.div
+        <motion.section
           className="home-brand"
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45 }}
         >
-          <p className="home-by">by ARKA</p>
+          <span className="home-by">by ARKA</span>
           <h1 className="home-title">La Roulade<br />Marseillaise</h1>
           <p className="home-tagline">Le jeu qui claque comme un carreau sur la place du village</p>
-        </motion.div>
+        </motion.section>
 
-        <motion.div
+        <motion.section
           className="home-actions"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, delay: 0.18 }}
         >
-          <button className="btn btn-gold home-btn-play"
-            onClick={() => navigate('/session/setup')}>
+          <button
+            className="btn btn-gold home-btn-play"
+            onClick={() => navigate('/session/setup')}
+          >
             Lancer une partie
           </button>
-          <button className="btn btn-ghost home-ghost-btn"
-            onClick={() => navigate('/packs')}>
+          <button
+            className="btn btn-ghost home-ghost-btn"
+            onClick={() => navigate('/packs')}
+          >
             Packs & cosmétiques
           </button>
+
           {user ? (
             <div className="home-user-bar">
               <button
-                className="home-username home-username-btn"
+                className="home-user-info"
                 onClick={() => navigate('/profile')}
               >
-                <Icon name="wave" size={16} style={{ marginRight: 6 }} />
-                {user.username}
-                {user.tier === 'premium' && (
-                  <Icon name="star" size={14} style={{ marginLeft: 6 }} />
-                )}
+                <Icon name="wave" size={14} />
+                <span className="home-user-name">{user.username}</span>
+                {user.tier === 'premium' && <Icon name="star" size={13} />}
               </button>
-              <div style={{ display: 'flex', gap: 6 }}>
+              <div className="home-user-actions">
                 {user.tier !== 'premium' && (
-                  <button className="btn btn-ghost btn-sm home-premium-btn"
-                    onClick={() => navigate('/premium')}>
+                  <button
+                    className="home-user-btn home-user-btn--gold"
+                    onClick={() => navigate('/premium')}
+                  >
                     Premium
                   </button>
                 )}
-                <button className="btn btn-ghost btn-sm home-ghost-btn" onClick={logout}>
+                <button className="home-user-btn" onClick={logout}>
                   Déconnexion
                 </button>
               </div>
             </div>
           ) : (
             <>
-              <button className="btn btn-ghost home-ghost-btn"
-                onClick={() => navigate('/login')}>
+              <button
+                className="btn btn-ghost home-ghost-btn"
+                onClick={() => navigate('/login')}
+              >
                 Se connecter
               </button>
-              <button className="btn btn-ghost home-ghost-btn home-premium-cta"
-                onClick={() => navigate('/premium')}>
+              <button
+                className="btn btn-ghost home-ghost-btn home-premium-cta"
+                onClick={() => navigate('/premium')}
+              >
                 <Icon name="star" size={16} style={{ marginRight: 6 }} />
                 Découvrir Premium
               </button>
             </>
           )}
-        </motion.div>
+        </motion.section>
       </div>
 
       {/* ── Roulette ── */}
-      <motion.div
+      <motion.section
         className="home-roulette-area"
         initial={{ opacity: 0, scale: 0.88 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', stiffness: 160, damping: 20, delay: 0.1 }}
       >
         <HomeRoulette onClick={() => navigate('/session/setup')} />
-      </motion.div>
-
-      {/* Toggles fixés */}
-      <div className="home-footer">
-        <button className="theme-toggle" onClick={toggleSound} title="Sons">
-          <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={20} />
-        </button>
-        <button className="theme-toggle" onClick={toggleTheme} title="Nuit sur les Goudes">
-          <Icon name={theme === 'light' ? 'moon' : 'sun'} size={20} />
-        </button>
-      </div>
+      </motion.section>
 
     </Layout>
   );
