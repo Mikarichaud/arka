@@ -35,32 +35,40 @@ la-roulade-marseillaise/
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ChallengeCard/
-│   │   │   ├── EndGame/          # Écran fin de partie + confettis
-│   │   │   ├── HomeRoulette/     # Roulette d'accueil cliquable
+│   │   │   ├── CosmeticCard/         # Carte cosmétique unifiée (boutique + profil)
+│   │   │   ├── EmptyState/           # États vides homogènes (icône + titre + actions)
+│   │   │   ├── EndGame/              # Écran fin de partie + confettis
+│   │   │   ├── HomeRoulette/         # Roulette d'accueil cliquable
+│   │   │   ├── Icon/
 │   │   │   ├── Layout/
-│   │   │   ├── MediaUpload/      # Upload photo/vidéo Cloudinary
+│   │   │   ├── LoadingPlaceholder/   # Skeletons animés (shimmer GPU-friendly)
+│   │   │   ├── MediaUpload/          # Upload photo/vidéo Cloudinary (Premium only)
 │   │   │   ├── PastisTimer/
-│   │   │   ├── PaywallModal/     # Modale teaser pack premium
+│   │   │   ├── PaywallModal/         # Modale teaser pack premium
 │   │   │   ├── PlayerCard/
 │   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── RadarParisiens/       # Easter egg autonome (apparaît si suspect détecté)
 │   │   │   ├── Roulette/
+│   │   │   ├── RoulettePreview/      # Mini-roulette statique pour shop/profil
 │   │   │   └── VotePanel/
 │   │   ├── pages/
 │   │   │   ├── Auth/             # Login + Register (pseudo ou email)
 │   │   │   ├── Editor/           # Éditeur de packs perso (protégé)
 │   │   │   ├── Gallery/          # /gallery/:shareLink — public
 │   │   │   ├── Game/             # Écran de jeu principal
+│   │   │   ├── Gate/             # /gate/packs + /gate/cosmetics — admin (requireGate)
 │   │   │   ├── History/          # /history — protégé
 │   │   │   ├── Home/
-│   │   │   ├── Packs/            # PackSelection + PackLibrary
+│   │   │   ├── Packs/            # PackLibrary (PackSelection a fusionné dans SessionSetup wizard)
 │   │   │   ├── Premium/          # Premium (pricing) + PremiumSuccess
 │   │   │   ├── Profile/          # /profile — stats, abonnement, portail
-│   │   │   └── Session/          # SessionSetup
+│   │   │   └── Session/          # SessionSetup (wizard 2 étapes : joueurs → pack)
 │   │   ├── store/
 │   │   │   ├── authStore.js
-│   │   │   ├── gameStore.js      # session locale, roulette, history, media
-│   │   │   └── sessionStore.js
-│   │   ├── hooks/                # (à créer Phase 6 : useSound, useDarkMode)
+│   │   │   ├── gameStore.js        # state machine de gameplay (phase, spin, scoring, history)
+│   │   │   ├── sessionStore.js     # config de partie courante (playerNames, selectedPackId)
+│   │   │   └── settingsStore.js    # préférences user (theme, soundEnabled) — persistées localStorage
+│   │   ├── hooks/                # useSound, useActiveSkin, useCategories, useEscapeClose
 │   │   ├── services/
 │   │   │   └── api.js            # Axios, baseURL=/api (proxy Vite)
 │   │   ├── styles/
@@ -157,15 +165,15 @@ Nom : **"Nuit sur les Goudes"** — activable manuellement, fond `--nuit-goudes`
 | Timer qui expire | `sounds/dramatique.mp3` | ⏳ à ajouter |
 | Vote refus | `sounds/soupir.mp3` | ⏳ à ajouter |
 
-Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manquant. Toggle global `soundEnabled` dans `gameStore`.
+Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manquant. Toggle global `soundEnabled` dans `useSettingsStore` (persisté localStorage).
 
 ---
 
 ## Décisions architecturales importantes
 
-- **Le jeu est 100% client-side** : la session n'est PAS créée en DB au début. Elle est sauvegardée uniquement en fin de partie via `POST /api/sessions`.
-- **PackSelection** : fetche le pack via `GET /api/packs/:id` et construit la session localement, sans appel API.
-- **Upload média** : ne requiert pas d'auth (joueurs non connectés peuvent uploader).
+- **Le jeu est 100% client-side** : la session n'est PAS créée en DB au début. Elle est sauvegardée uniquement en fin de partie via `POST /api/sessions` (auth obligatoire ; non-connectés peuvent jouer mais pas sauvegarder).
+- **SessionSetup en wizard 2 étapes** (un seul composant, pas de route séparée) : étape 1 = pseudos des joueurs avec CTA primary "Choisir le pack →" ; étape 2 = grille des packs avec CTA gold "Lancer la Roulade !". Indicateur de progression (pastilles 1-2) dans le header. Le bouton "← Retour" en étape 2 ramène à l'étape 1, en étape 1 sort vers Home (`location.key !== 'default' ? navigate(-1) : navigate('/')`). Si `preselectedPackId` est fourni en `location.state` (depuis PackLibrary), le pack est pré-sélectionné et l'étape 1 lance directement la partie (skip étape 2). Les packs avec `isMine: true` sont triés en tête de la grille.
+- **Upload média (photos/vidéos)** : réservé aux Premium. Côté serveur `POST /api/media/upload` est gated par `protect + requirePremium`. Côté client, `<MediaUpload>` n'est rendu dans Game.jsx que si `user?.tier === 'premium'`, sinon un upsell discret pointe vers `/premium`.
 - **Port serveur** : `5003` (5000 réservé par macOS AirPlay).
 - **Port client** : `5177` avec `strictPort: true` (évite conflit avec autres projets locaux).
 - **CORS** : résolu via proxy Vite (`/api` → `http://localhost:5003`). `VITE_API_URL=/api`.
@@ -187,11 +195,16 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
 - **Achat cosmétique** : Stripe Checkout `mode: 'payment'` (one-shot, pas subscription) avec `metadata: { userId, cosmeticSlug, kind: 'cosmetic' }`. Le webhook `checkout.session.completed` détecte le `kind` et `$addToSet` le slug dans `User.purchasedSkins`.
 - **Activation des cosmétiques** : `User.activeSkins` (Map `category → slug`). Route `PUT /api/users/me/active-skin` vérifie ownership avant d'activer. Un `slug: null` désactive (revient au default). Composants comme `Roulette` lisent `useActiveSkin('roulette')` pour résoudre le `Cosmetic` actif et appliquer son `asset.metals`.
 - **Page Packs unifiée** : `/packs` a deux onglets `?tab=packs` (par défaut) et `?tab=cosmetics`. La boutique est intégrée dans la même page que la bibliothèque pour éviter une page séparée. L'ancienne route `/shop` redirige automatiquement vers `/packs?tab=cosmetics`. Stripe success URL pointe vers `/packs?tab=cosmetics&purchased=<slug>`.
-- **Skip de PackSelection si pré-sélection** : quand un pack est pré-sélectionné depuis PackLibrary (`navigate('/session/setup', { state: { preselectedPackId } })`), SessionSetup affiche un bandeau "Pack pré-sélectionné" et lance directement la partie au clic sur "Lancer la Roulade !" (saute la page PackSelection intermédiaire).
-- **Avatar premium** : composant `Avatar` cliquable uniquement si `user.tier === 'premium'`. Upload via `/media/upload` Cloudinary puis `PUT /users/:id`. Initiales en fallback pour les Free.
+- **Avatar premium** : composant `Avatar` cliquable uniquement si `user.tier === 'premium'`. Upload via `/media/upload` Cloudinary puis `PUT /users/:id`. Initiales en fallback pour les Free. Server-side, `PUT /users/:id` ne lit que `username` et `avatar` du body (whitelist stricte pour bloquer l'escalation `tier`/`role`), et `avatar` n'est accepté que si `req.user.isPremiumActive()`.
 - **Annulation d'abonnement** : `User.subscription.cancelAtPeriodEnd` synchronisé depuis Stripe (`sub.cancel_at_period_end`). Affiche dans Profile une carte rouge clair avec date de fin + message marseillais ("C'est un sucre d'être Premium...").
-- **Navigation arrière** : tous les boutons "← Retour" utilisent `navigate(-1)` pour déclencher le bon sens d'animation (POP).
-- **Layout pleine largeur** : Home, Game, History sortent du `max-width` du Layout pour utiliser tout le viewport. History utilise un grid `auto-fill, minmax(280px, 1fr)` qui s'adapte automatiquement au nombre de colonnes selon l'écran.
+- **Navigation arrière** : pattern unique `(location.key !== 'default' ? navigate(-1) : navigate('/'))` sur tous les boutons "← Retour" — déclenche le bon sens d'animation (POP) et garantit un fallback Home si on arrive par lien direct (galerie partagée, etc.).
+- **Préférences utilisateur** : store dédié `useSettingsStore` (`client/src/store/settingsStore.js`) pour `theme` + `soundEnabled`. Persistance directe via clés localStorage (`roulade-theme`, `roulade-sound`), pas de middleware persist Zustand (backwards-compat avec l'ancienne clé). `data-theme` appliqué sur `<html>` au module load → pas de flash. `gameStore` reste focalisé sur la state machine de gameplay, `sessionStore` sur la config de partie courante (playerNames, selectedPackId).
+- **Composants UI partagés** : `<CosmeticCard layout="vertical|horizontal">` unifie la carte cosmétique entre PackLibrary boutique et Profile section "Mes cosmétiques". `<LoadingPlaceholder variant="card|list|text|tall">` skeletons shimmer GPU-friendly pour tous les fetches. `<EmptyState icon title description>` pour les états vides homogènes. `<RadarParisiens players history>` composant autonome qui apparaît automatiquement quand un joueur match (prénoms composés / bourgeois / particules / faible taux de réussite).
+- **Hiérarchie des CTA** : règle stricte. `btn-gold` = action terminale jeu ou argent (Lancer, Rejouer, Tour suivant, Acheter, Payer, Débloquer). `btn-primary` = action secondaire (Sauvegarder, Modifier, Créer, Importer, Découvrir). `btn-ghost` = tertiaire (Annuler, Fermer, Retour léger). État `:disabled` géré globalement dans `global.css` (gris, `cursor: not-allowed`, no hover, no animation).
+- **Modales** : pattern unique. Clic sur overlay ferme + bouton "Fermer/Annuler" visible + touche **ESC** ferme via hook `useEscapeClose(isOpen, onClose)` (`client/src/hooks/useEscapeClose.js`). Guards éventuels sur états in-flight (ex: `!deleting`).
+- **Roulette GPU-friendly (compatibilité Safari iOS)** : interdiction des `feDropShadow` SVG et des `filter: drop-shadow` CSS sur les éléments tournants — WebKit ne peut pas les promouvoir en couche GPU et plante l'onglet sur iPhone. Les ombres utilisent `box-shadow` avec `border-radius: 50%`. Hints `will-change: transform`, `transform: translateZ(0)`, `backface-visibility: hidden` sur le disque. Les chiffres de la roulette utilisent un contour SVG léger (`stroke + paintOrder: stroke fill`) au lieu d'un filter pour simuler la gravure.
+- **Layout pleine largeur** : Home, Game, History sortent du `max-width` du Layout pour utiliser tout le viewport. History utilise un grid `auto-fill, minmax(280px, 1fr)` qui s'adapte automatiquement au nombre de colonnes selon l'écran. Le header de scores dans Game est séparé en `.game-scores-chips` (scroll horizontal pour les pseudos) + `.game-scores-actions` (sound + radar fixes à droite, jamais coupés sur mobile).
+- **Sécurité — rate limiting** : `express-rate-limit` configuré dans `app.js`. Global 300 req/min/IP (webhook Stripe exempté), login 10/15min, register 5/h, media upload 10/min. `app.set('trust proxy', 1)` pour que les IP X-Forwarded-For de Nginx soient correctement remontées.
 - **Pièges CSS connus** : pas de classes globales avec des noms génériques (`.history-list` était partagé entre EndGame.css et History.css → conflit). Préfixer par le composant (`.endgame-history-list`).
 
 ---
@@ -300,7 +313,7 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
     media: [String],             // URLs Cloudinary
     timestamp: Date
   }],
-  createdBy: ObjectId → User (optionnel),
+  createdBy: ObjectId → User (obligatoire — auth requise sur POST /sessions),
   shareLink: String (nanoid 10, unique),  // généré auto en pre-save
   createdAt: Date
 }
@@ -309,6 +322,13 @@ Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manqu
 ---
 
 ## Routes API
+
+### Rate limiting (`express-rate-limit`)
+- Global : 300 req/min/IP (skip `/api/payments/webhook` pour ne pas bloquer Stripe retries).
+- `POST /api/auth/login` : 10 tentatives / 15 min / IP.
+- `POST /api/auth/register` : 5 inscriptions / heure / IP.
+- `POST /api/media/upload` : 10 uploads / min / IP.
+- `app.set('trust proxy', 1)` actif pour reconnaître les vraies IP X-Forwarded-For via Nginx.
 
 ### Auth
 ```
@@ -320,10 +340,10 @@ GET    /api/auth/me
 
 ### Users
 ```
-GET    /api/users/:id
-PUT    /api/users/:id                    # update profile (username, avatar)
+GET    /api/users/:id                    # (protect)
+PUT    /api/users/:id                    # (protect) — whitelist stricte { username, avatar }, avatar uniquement si isPremiumActive()
 PUT    /api/users/me/active-skin         # body: { category, slug | null } - active/désactive cosmétique (protect, ownership)
-GET    /api/users/:id/history
+GET    /api/users/:id/history            # (protect) — vérifie req.user._id === req.params.id (anti-IDOR)
 ```
 
 ### Packs
@@ -339,7 +359,7 @@ GET    /api/packs/share/:shareCode   # même logique teaser/full selon accès
 
 ### Catégories
 ```
-GET    /api/categories             # liste publique des catégories (pour Editor / PackLibrary / PackSelection)
+GET    /api/categories             # liste publique des catégories (pour Editor / PackLibrary / SessionSetup)
 ```
 
 ### Cosmétiques
@@ -369,16 +389,14 @@ DELETE /api/gate/cosmetics/:id        # soft-delete (isActive=false), Price/Prod
 
 ### Sessions
 ```
-POST   /api/sessions          # sauvegarder une partie terminée (auth optionnelle)
-GET    /api/sessions/:id
-GET    /api/sessions/gallery/:shareLink   # galerie publique
-GET    /api/sessions/user/me              # historique de l'utilisateur connecté
+POST   /api/sessions          # (protect) sauvegarder une partie terminée — createdBy = req.user._id
+GET    /api/sessions/gallery/:shareLink   # galerie publique via shareLink
+GET    /api/sessions/user/me              # (protect) historique de l'utilisateur connecté
 ```
 
 ### Médias
 ```
-POST   /api/media/upload      # upload vers Cloudinary (sans auth requise)
-DELETE /api/media/:publicId   # (protect)
+POST   /api/media/upload      # (protect + requirePremium) upload vers Cloudinary, 50 Mo max, photo ou vidéo
 ```
 
 ### Paiements (Stripe)
@@ -522,7 +540,41 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 - [x] Profile : section "Mes cosmétiques" avec preview et toggle "Activer"
 - [x] Espace Gaté `/gate/cosmetics` : éditeur visuel de palette 8 tranches × 3 teintes
 - [x] Script `server/scripts/seed-cosmetics.js` : 3 skins de roulette (Vélodrome, Calanques, Bouillabaisse) à 2,99 €
-- [x] Skip de PackSelection si pré-sélection : SessionSetup lance directement la partie
+
+### Phase 6.8 — Polish UX, refactos & sécurité (post-V1 live) ✅
+**UX & simplifications**
+- [x] Fusion **puis re-séparation** de SessionSetup/PackSelection : version finale = wizard 2 étapes dans un seul composant (joueurs → pack), indicateur de progression, transitions slide, skip étape 2 si `preselectedPackId`. Route `/session/pack` supprimée (redirige vers `/session/setup`), composant `PackSelection.jsx` supprimé.
+- [x] Tri "Mes packs" en tête de la grille à l'étape 2.
+- [x] Page Profile allégée : raccourcis en grille 3 tuiles compactes (Historique / Packs / Créer un pack), liens gatés en 2 pills, suppression des doublons CTA (boutique).
+- [x] Filtres thématiques retirés de PackLibrary (bruit avec <30 packs).
+- [x] Header de scores Game refactoré pour iPhone SE : `.game-scores-chips` (scroll horizontal) + `.game-scores-actions` (sound/radar fixes).
+- [x] Audit mobile Editor : `.editor-challenge-header` wrap, picker d'intensité en propre ligne sur ≤480px.
+- [x] Hiérarchie CTA stricte appliquée partout (gold = jeu/argent, primary/ghost ailleurs) + état `:disabled` global désaturé.
+- [x] Composants partagés : `<CosmeticCard layout="vertical|horizontal">`, `<LoadingPlaceholder>`, `<EmptyState>`, `<RadarParisiens>`.
+- [x] Hook `useEscapeClose` branché sur toutes les modales (PaywallModal, RadarParisiens, share/delete packs, gate modals, Gallery lightbox).
+- [x] Pattern `navigate(-1)` standardisé avec fallback `navigate('/')` (Gallery, History, Editor).
+- [x] Upsell discret "photo Premium" en EndGame pour les Free (en remplacement de `<MediaUpload>`).
+
+**Refactos**
+- [x] `useSettingsStore` créé (`theme` + `soundEnabled`) — extraction depuis `sessionStore`/`gameStore` qui mélangeaient préférences user et état de partie. Persistance directe localStorage, backwards-compat sur l'ancienne clé `roulade-theme`.
+- [x] `RadarParisiens` extrait en composant autonome, déclenchement automatique : il pop quand au moins 1 joueur match (prénoms composés type "Jean-Édouard", prénoms bourgeois "Charles/Côme/Capucine", particule "de/du/de la", OU taux de réussite < 25% sur ≥4 défis). Modale liste les suspects avec leurs raisons en argot marseillais ("Prénom à rallonge", "Sent le 16ème", "Encore un plus de 10", "Plus mou qu'une panisse").
+- [x] Bug fix `User.toJSON` : `flattenMaps: true` ajouté pour que la Map `activeSkins` sérialise correctement en JSON (sinon vide côté client).
+- [x] `HomeRoulette` consomme le skin actif via `useActiveSkin('roulette')`.
+
+**Sécurité (audit complet + fixes)**
+- [x] **P0 escalation de privilèges** — `PUT /api/users/:id` whitelistait pas les champs → un user pouvait s'auto-promouvoir Premium/gate. Whitelist stricte `{ username, avatar }`, `avatar` réservé Premium.
+- [x] **MediaUpload Premium-only** : `POST /api/media/upload` passe en `protect + requirePremium`. Côté client, le composant `<MediaUpload>` n'est rendu que pour les Premium.
+- [x] **Sauvegarde session : auth obligatoire** — `POST /api/sessions` passe en `protect`. Plus de decode JWT manuel, `createdBy = req.user._id`.
+- [x] **IDOR fix** sur `GET /api/users/:id/history` : check ownership `req.user._id === req.params.id` → 403 sinon.
+- [x] **Routes mortes supprimées** : `GET /api/sessions/:id` (public), `PUT /api/sessions/:id` (mass assignment + IDOR), `DELETE /api/media/:publicId` (IDOR Cloudinary). Jamais appelées par le client.
+- [x] **Rate limiting** : `express-rate-limit` installé (global 300/min, login 10/15min, register 5/h, upload 10/min). `trust proxy` activé pour Nginx.
+- [x] `console.log('Cloudinary config:', ...)` retiré du flow d'upload.
+
+**Compatibilité Safari iOS (crash roulette)**
+- [x] Filtres SVG `feDropShadow` supprimés des deux roulettes (Roulette + HomeRoulette) — empêchaient la composition GPU sur WebKit, plantaient l'onglet iOS.
+- [x] Remplacement des `filter: drop-shadow` CSS par `box-shadow` sur les disques rotatifs (compatible GPU avec `border-radius: 50%`).
+- [x] Hints GPU : `will-change: transform`, `transform: translateZ(0)`, `backface-visibility: hidden` sur les éléments animés.
+- [x] Contour SVG léger (`stroke` + `paintOrder: stroke fill`) sur les chiffres pour conserver l'effet "gravure" sans coût GPU.
 
 ### Phase 7 — Déploiement OVH 🔄
 - [x] `client/Dockerfile` (multi-stage Vite build + Nginx alpine)
