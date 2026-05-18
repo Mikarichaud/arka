@@ -313,6 +313,39 @@
 .editor-upsell-title { font-weight: 700; color: var(--text-primary); font-size: 0.95rem; }
 .editor-upsell-desc { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.4; }
 
+/* ── Mobile ≤ 480px : compacter la rangée de défis ── */
+@media (max-width: 480px) {
+  .editor-title { font-size: 1.8rem; }
+
+  .editor-challenge-row { padding: 12px; }
+
+  .editor-challenge-header {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+  }
+
+  .editor-intensity-picker {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .intensity-btn {
+    padding: 5px 14px;
+    min-width: 64px;
+    text-align: center;
+  }
+
+  .editor-share-link {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .editor-paywall { padding: 24px 12px; }
+}
+
 /* Desktop */
 @media (min-width: 1024px) {
   .editor-challenges {

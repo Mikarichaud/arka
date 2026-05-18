@@ -4,8 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import RoulettePreview from '../../components/RoulettePreview/RoulettePreview';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import { fumigenesVariants } from '../../styles/motion';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import api from '../../services/api';
 import './GatePacks.css';
 import './GateCosmetics.css';
@@ -54,6 +57,8 @@ export default function GateCosmetics() {
   const [saving, setSaving] = useState(false);
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  useEscapeClose(Boolean(deleteItem) && !deleting, () => setDeleteItem(null));
 
   // Form
   const [name, setName] = useState('');
@@ -283,7 +288,7 @@ export default function GateCosmetics() {
         {error && <p className="gate-error">{error}</p>}
 
         <button
-          className="btn btn-gold"
+          className="btn btn-primary"
           style={{ width: '100%', padding: 18, fontSize: '1.1rem', marginTop: 'auto' }}
           onClick={handleSave}
           disabled={saving}
@@ -311,15 +316,19 @@ export default function GateCosmetics() {
         </button>
       </div>
 
-      <button className="btn btn-gold gate-new-cta" onClick={startNew}>
+      <button className="btn btn-primary gate-new-cta" onClick={startNew}>
         <Icon name="star" size={18} style={{ marginRight: 8 }} />
         Nouveau cosmétique
       </button>
 
       {loading ? (
-        <p className="gate-loading">Chargement...</p>
+        <LoadingPlaceholder variant="list" count={3} />
       ) : items.length === 0 ? (
-        <p className="gate-empty">Aucun cosmétique pour l'instant.</p>
+        <EmptyState
+          icon="star"
+          title="Aucun cosmétique"
+          description="Crée le premier cosmétique pour le proposer dans la boutique."
+        />
       ) : (
         <div className="gate-packs-list">
           {items.map((c, i) => {

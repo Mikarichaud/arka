@@ -5,9 +5,12 @@ import { QRCodeSVG } from 'qrcode.react';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import PaywallModal from '../../components/PaywallModal/PaywallModal';
-import RoulettePreview from '../../components/RoulettePreview/RoulettePreview';
+import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import { useCategories } from '../../hooks/useCategories';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import useAuthStore from '../../store/authStore';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
@@ -24,10 +27,6 @@ const COSMETIC_CAT_LABELS = {
   'endgame-anim': 'Animations EndGame',
 };
 
-function formatPrice(cents) {
-  return (cents / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' });
-}
-
 export default function PackLibrary() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,7 +36,6 @@ export default function PackLibrary() {
   const [tab, setTab] = useState(initialTab);
 
   const [packs, setPacks] = useState([]);
-  const [filter, setFilter] = useState('tous');
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState(null);
   const [expandedData, setExpandedData] = useState({});
@@ -50,6 +48,9 @@ export default function PackLibrary() {
   const [deletePack, setDeletePack] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const { categories } = useCategories();
+
+  useEscapeClose(Boolean(deletePack) && !deleting, () => setDeletePack(null));
+  useEscapeClose(Boolean(sharePack), () => setSharePack(null));
 
   // Cosmetics state
   const [cosmetics, setCosmetics] = useState([]);
@@ -68,25 +69,20 @@ export default function PackLibrary() {
     setParams(next, { replace: true });
   };
 
-  // Map slug → catégorie pour lookup rapide ; on exclut "custom" du picker.
+  // Map slug → catégorie pour lookup rapide
   const catBySlug = useMemo(() => {
     const m = {};
     for (const c of categories) m[c.slug] = c;
     return m;
   }, [categories]);
-  const filterableCategories = useMemo(
-    () => categories.filter((c) => c.slug !== 'custom'),
-    [categories]
-  );
 
   useEffect(() => {
-    const url = filter === 'tous' ? '/packs' : `/packs?theme=${filter}`;
     setLoading(true);
-    api.get(url)
+    api.get('/packs')
       .then(({ data }) => setPacks(data.packs))
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [filter]);
+  }, []);
 
   // Charge les cosmétiques quand on entre dans l'onglet
   useEffect(() => {
@@ -226,7 +222,7 @@ export default function PackLibrary() {
         <>
           {/* CTA créer un pack — accès rapide en haut */}
           <button
-            className="btn btn-gold library-create-cta"
+            className="btn btn-primary library-create-cta"
             onClick={() => navigate('/editor')}
           >
             <Icon name="pencil" size={18} style={{ marginRight: 8 }} />
@@ -251,27 +247,6 @@ export default function PackLibrary() {
             </div>
             {importError && <p className="library-import-error">{importError}</p>}
           </div>
-
-          {/* Filtres par thème */}
-          <div className="library-filters">
-            <button
-              className={`filter-btn ${filter === 'tous' ? 'active' : ''}`}
-              onClick={() => setFilter('tous')}
-            >
-              <Icon name="wheel" size={16} style={{ marginRight: 4 }} />
-              Tous
-            </button>
-            {filterableCategories.map((c) => (
-              <button
-                key={c.slug}
-                className={`filter-btn ${filter === c.slug ? 'active' : ''}`}
-                onClick={() => setFilter(c.slug)}
-              >
-                <Icon name={c.icon} size={16} style={{ marginRight: 4 }} />
-                {c.name}
-              </button>
-            ))}
-          </div>
         </>
       )}
 
@@ -289,7 +264,7 @@ export default function PackLibrary() {
 
       {/* Liste des packs */}
       {tab === 'packs' && (loading ? (
-        <p className="library-loading">Chargement...</p>
+        <LoadingPlaceholder variant="list" count={5} />
       ) : (() => {
         const myPacks = packs.filter((p) => p.isMine);
         const officialPacks = packs.filter((p) => !p.isMine);
@@ -498,7 +473,7 @@ export default function PackLibrary() {
               </div>
               <div className="share-actions">
                 <button
-                  className="btn btn-gold btn-sm"
+                  className="btn btn-primary btn-sm"
                   style={{ width: '100%' }}
                   onClick={() => {
                     navigator.clipboard.writeText(`${window.location.origin}/packs/import/${sharePack.shareCode}`);
@@ -540,46 +515,27 @@ function CosmeticsView({ cosmetics, grouped, loading, buying, error, purchasedFl
       {error && <p className="library-cos-error">{error}</p>}
 
       {loading ? (
-        <p className="library-loading">Chargement...</p>
+        <LoadingPlaceholder variant="card" count={3} />
       ) : cosmetics.length === 0 ? (
-        <p className="library-loading">Aucun cosmétique en vente pour l'instant.</p>
+        <EmptyState
+          icon="star"
+          title="Boutique en préparation"
+          description="Aucun cosmétique en vente pour l'instant. Reviens bientôt !"
+        />
       ) : (
         Object.keys(grouped).map((cat) => (
           <section key={cat} className="library-cos-section">
             <h2 className="library-section-title">{COSMETIC_CAT_LABELS[cat] || cat}</h2>
             <div className="library-cos-grid">
               {grouped[cat].map((c, i) => (
-                <motion.div
+                <CosmeticCard
                   key={c._id}
-                  className={`library-cos-card ${c.owned ? 'owned' : ''}`}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  {c.category === 'roulette' && c.asset?.metals && (
-                    <div className="library-cos-preview">
-                      <RoulettePreview palette={c.asset.metals} size={130} />
-                    </div>
-                  )}
-                  <div className="library-cos-info">
-                    <span className="library-cos-name">{c.name}</span>
-                    {c.description && <p className="library-cos-desc">{c.description}</p>}
-                    <span className="library-cos-price">{formatPrice(c.priceCents)}</span>
-                  </div>
-                  {c.owned ? (
-                    <span className="library-cos-owned">
-                      <Icon name="check" size={14} /> Possédé
-                    </span>
-                  ) : (
-                    <button
-                      className="btn btn-gold btn-sm library-cos-buy"
-                      onClick={() => onBuy(c)}
-                      disabled={buying === c.slug}
-                    >
-                      {buying === c.slug ? '...' : `Acheter ${formatPrice(c.priceCents)}`}
-                    </button>
-                  )}
-                </motion.div>
+                  cosmetic={c}
+                  layout="vertical"
+                  onBuy={onBuy}
+                  buying={buying === c.slug}
+                  index={i}
+                />
               ))}
             </div>
           </section>

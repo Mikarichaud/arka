@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import useGameStore from '../store/gameStore';
+import useSettingsStore from '../store/settingsStore';
 
 let ctx = null;
 
@@ -95,7 +95,7 @@ const soundDefs = {
 };
 
 export function useSound() {
-  const soundEnabled = useGameStore((s) => s.soundEnabled);
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
 
   const play = useCallback((name) => {
     if (!soundEnabled) return;

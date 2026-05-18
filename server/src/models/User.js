@@ -42,7 +42,7 @@ userSchema.methods.isPremiumActive = function () {
 };
 
 userSchema.methods.toJSON = function () {
-  const obj = this.toObject();
+  const obj = this.toObject({ flattenMaps: true });
   delete obj.password;
   return obj;
 };

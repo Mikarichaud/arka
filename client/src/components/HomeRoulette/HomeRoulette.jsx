@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react';
 import { motion, useAnimation } from 'framer-motion';
+import { useActiveSkin } from '../../hooks/useActiveSkin';
 import './HomeRoulette.css';
 
-const SLICE_ANGLE = 360 / 8;
+const SLICE_COUNT = 8;
+const SLICE_ANGLE = 360 / SLICE_COUNT;
 
-const METALS = [
+const DEFAULT_METALS = [
   { base: '#3d6080' }, { base: '#8a5f20' }, { base: '#1a3a5c' }, { base: '#8a6810' },
   { base: '#2d4d68' }, { base: '#6a3d10' }, { base: '#0e2840' }, { base: '#9a7015' },
 ];
@@ -22,6 +24,9 @@ export default function HomeRoulette({ onClick }) {
   const discRef = useRef(null);
   const controls = useAnimation();
   const [spinning, setSpinning] = useState(false);
+  const rouletteSkin = useActiveSkin('roulette');
+  const palette = rouletteSkin?.asset?.metals;
+  const METALS = (Array.isArray(palette) && palette.length === SLICE_COUNT) ? palette : DEFAULT_METALS;
 
   const handleClick = async () => {
     if (spinning) return;
@@ -111,10 +116,6 @@ export default function HomeRoulette({ onClick }) {
               <stop offset="85%"  stopColor="#9a7020"/>
               <stop offset="100%" stopColor="#5a3c08"/>
             </radialGradient>
-            <filter id="hr-engrave">
-              <feDropShadow dx="0.7" dy="0.9" stdDeviation="0.3" floodColor="#000" floodOpacity="0.9"/>
-              <feDropShadow dx="-0.4" dy="-0.4" stdDeviation="0.2" floodColor="#fff" floodOpacity="0.2"/>
-            </filter>
           </defs>
 
           <circle cx="100" cy="100" r="99.5" fill="url(#hr-chrome-ring)"/>
@@ -141,7 +142,8 @@ export default function HomeRoulette({ onClick }) {
                   textAnchor="middle" dominantBaseline="central"
                   fill="rgba(255,255,255,0.95)" fontSize="15"
                   fontFamily="Bebas Neue, Impact, sans-serif"
-                  letterSpacing="0.04em" filter="url(#hr-engrave)"
+                  letterSpacing="0.04em"
+                  stroke="rgba(0,0,0,0.85)" strokeWidth="0.6" paintOrder="stroke fill"
                   transform={`rotate(${mid}, ${tx}, ${ty})`}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >{i + 1}</text>

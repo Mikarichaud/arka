@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
-import RoulettePreview from '../../components/RoulettePreview/RoulettePreview';
+import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
 import useAuthStore from '../../store/authStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import api from '../../services/api';
@@ -248,32 +248,22 @@ export default function Profile() {
         {ownedCosmetics.length === 0 ? (
           <div className="profile-cosmetics-empty">
             <p>Pas encore de cosmétique. Visite la boutique pour personnaliser ta roulette.</p>
-            <button className="btn btn-gold btn-sm" onClick={() => navigate('/packs?tab=cosmetics')}>
-              <Icon name="star" size={14} style={{ marginRight: 6 }} />
-              Découvrir
-            </button>
           </div>
         ) : (
           <div className="profile-cosmetics-grid">
-            {ownedCosmetics.map((c) => {
+            {ownedCosmetics.map((c, i) => {
               const isActive = user?.activeSkins?.[c.category] === c.slug;
               return (
-                <div key={c._id} className={`profile-cosmetic-card ${isActive ? 'active' : ''}`}>
-                  {c.category === 'roulette' && c.asset?.metals && (
-                    <RoulettePreview palette={c.asset.metals} size={80} />
-                  )}
-                  <div className="profile-cosmetic-info">
-                    <span className="profile-cosmetic-cat">{COSMETIC_CAT_LABELS[c.category] || c.category}</span>
-                    <span className="profile-cosmetic-name">{c.name}</span>
-                  </div>
-                  <button
-                    className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-ghost'}`}
-                    onClick={() => handleActivateSkin(c.category, c.slug)}
-                    disabled={activatingSlug === c.slug}
-                  >
-                    {activatingSlug === c.slug ? '...' : (isActive ? '✓ Actif' : 'Activer')}
-                  </button>
-                </div>
+                <CosmeticCard
+                  key={c._id}
+                  cosmetic={c}
+                  layout="horizontal"
+                  active={isActive}
+                  activating={activatingSlug === c.slug}
+                  onActivate={(cos) => handleActivateSkin(cos.category, cos.slug)}
+                  categoryLabel={COSMETIC_CAT_LABELS[c.category] || c.category}
+                  index={i}
+                />
               );
             })}
           </div>
@@ -301,7 +291,7 @@ export default function Profile() {
         </div>
       </motion.div>
 
-      {/* Actions */}
+      {/* Raccourcis */}
       <motion.div
         className="profile-section"
         initial={{ opacity: 0, y: 16 }}
@@ -309,42 +299,33 @@ export default function Profile() {
         transition={{ duration: 0.4, delay: 0.2 }}
       >
         <h2 className="profile-section-title">Raccourcis</h2>
-        <div className="profile-actions">
-          <button className="profile-action-btn" onClick={() => navigate('/history')}>
-            <Icon name="photo" size={20} />
-            <span>Historique des parties</span>
-            <span className="profile-action-arrow">→</span>
+        <div className="profile-tiles">
+          <button className="profile-tile" onClick={() => navigate('/history')}>
+            <Icon name="photo" size={24} />
+            <span>Historique</span>
           </button>
-          <button className="profile-action-btn" onClick={() => navigate('/packs')}>
-            <Icon name="wheel" size={20} />
-            <span>Les packs de défis</span>
-            <span className="profile-action-arrow">→</span>
+          <button className="profile-tile" onClick={() => navigate('/packs')}>
+            <Icon name="wheel" size={24} />
+            <span>Packs</span>
           </button>
-          <button className="profile-action-btn" onClick={() => navigate('/editor')}>
-            <Icon name="pencil" size={20} />
+          <button className="profile-tile" onClick={() => navigate('/editor')}>
+            <Icon name="pencil" size={24} />
             <span>Créer un pack</span>
-            <span className="profile-action-arrow">→</span>
           </button>
-          <button className="profile-action-btn" onClick={() => navigate('/packs?tab=cosmetics')}>
-            <Icon name="star" size={20} />
-            <span>La boutique</span>
-            <span className="profile-action-arrow">→</span>
-          </button>
-          {user.role === 'gate' && (
-            <>
-              <button className="profile-action-btn profile-gate-btn" onClick={() => navigate('/gate/packs')}>
-                <Icon name="star" size={20} />
-                <span>Gaté — Packs officiels</span>
-                <span className="profile-action-arrow">→</span>
-              </button>
-              <button className="profile-action-btn profile-gate-btn" onClick={() => navigate('/gate/cosmetics')}>
-                <Icon name="star" size={20} />
-                <span>Gaté — Cosmétiques</span>
-                <span className="profile-action-arrow">→</span>
-              </button>
-            </>
-          )}
         </div>
+
+        {user.role === 'gate' && (
+          <div className="profile-gate-row">
+            <button className="profile-gate-pill" onClick={() => navigate('/gate/packs')}>
+              <Icon name="star" size={16} />
+              <span>Gaté — Packs</span>
+            </button>
+            <button className="profile-gate-pill" onClick={() => navigate('/gate/cosmetics')}>
+              <Icon name="star" size={16} />
+              <span>Gaté — Cosmétiques</span>
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Déconnexion */}

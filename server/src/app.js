@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const rateLimit = require('express-rate-limit');
 const errorHandler = require('./middlewares/errorHandler');
 
 const authRoutes = require('./routes/auth');
@@ -15,6 +16,10 @@ const categoryRoutes = require('./routes/categories');
 const cosmeticRoutes = require('./routes/cosmetics');
 
 const app = express();
+
+// On tourne derrière Nginx en prod : il faut faire confiance à X-Forwarded-For
+// sinon req.ip = IP de Nginx pour tous les clients (rate-limit cassé).
+app.set('trust proxy', 1);
 
 app.use(helmet());
 
@@ -35,6 +40,46 @@ app.use((req, res, next) => {
   }
 });
 app.use(express.urlencoded({ extended: true }));
+
+// Rate limiters — appliqués AVANT les routes concernées.
+// Webhook Stripe exempté de tout limiter (Stripe peut retry en burst).
+const globalLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 300,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  skip: (req) => req.originalUrl === '/api/payments/webhook',
+  message: { message: 'Té, doucement avec les requêtes !' },
+});
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Trop de tentatives de connexion. Attends 15 minutes.' },
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  limit: 5,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Trop d\'inscriptions depuis cette adresse. Reviens dans une heure.' },
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 10,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Trop d\'uploads, calme-toi une minute !' },
+});
+
+app.use('/api', globalLimiter);
+app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/register', registerLimiter);
+app.use('/api/media/upload', uploadLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

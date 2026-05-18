@@ -1,0 +1,111 @@
+.cosmetic-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--surface-border);
+  transition: all var(--transition-fast);
+}
+
+.cosmetic-card--owned {
+  border-color: rgba(45, 198, 83, 0.4);
+  background: linear-gradient(135deg, var(--surface-card), rgba(45, 198, 83, 0.04));
+}
+
+.cosmetic-card--active {
+  border-color: var(--bleu-azur);
+  background: linear-gradient(135deg, var(--surface-card), rgba(0, 87, 168, 0.06));
+}
+
+/* ── Vertical (shop) ── */
+.cosmetic-card--vertical {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  border-radius: var(--radius-lg);
+  border-width: 1px;
+}
+
+.cosmetic-card--vertical .cosmetic-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.cosmetic-card--vertical .cosmetic-card-name {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  color: var(--bleu-azur);
+}
+
+.cosmetic-card--vertical .cosmetic-card-desc {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.cosmetic-card--vertical .cosmetic-card-price {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  color: var(--or-etoile);
+  letter-spacing: 0.05em;
+}
+
+.cosmetic-card-buy { padding: 8px 18px; font-size: 0.85rem; }
+
+.cosmetic-card-owned-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(45, 198, 83, 0.15);
+  color: var(--vert-valide);
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+/* ── Horizontal (profile) ── */
+.cosmetic-card--horizontal {
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cosmetic-card--horizontal .cosmetic-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cosmetic-card--horizontal .cosmetic-card-cat {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gris-doux);
+}
+
+.cosmetic-card--horizontal .cosmetic-card-name {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cosmetic-card-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}

@@ -29,7 +29,6 @@ const useGameStore = create(
   currentChallenge: null,
   currentComment: randomComment(),
   exagerateurMode: false,
-  soundEnabled: true,
   gameHistory: [], // { playerName, challengeText, result, points }
 
   setPhase: (phase) => set({ phase }),
@@ -44,8 +43,6 @@ const useGameStore = create(
       set({ pack });
     }
   },
-  setSoundEnabled: (v) => set({ soundEnabled: v }),
-  toggleSound: () => set((state) => ({ soundEnabled: !state.soundEnabled })),
   toggleExagerateur: () => set((s) => ({ exagerateurMode: !s.exagerateurMode })),
 
   spin: async () => {
@@ -148,7 +145,6 @@ const useGameStore = create(
         currentChallenge: s.currentChallenge,
         gameHistory: s.gameHistory,
         exagerateurMode: s.exagerateurMode,
-        soundEnabled: s.soundEnabled,
       }),
       merge: (persisted, current) => {
         const p = persisted || {};

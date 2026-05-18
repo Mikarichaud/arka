@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Icon from '../../components/Icon/Icon';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
+import EmptyState from '../../components/EmptyState/EmptyState';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import api from '../../services/api';
 import './Gallery.css';
 
 export default function Gallery() {
   const { shareLink } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
+
+  useEscapeClose(Boolean(selected), () => setSelected(null));
 
   useEffect(() => {
     api.get(`/sessions/gallery/${shareLink}`)
@@ -21,17 +27,22 @@ export default function Gallery() {
 
   if (loading) {
     return (
-      <div className="gallery-loading">
-        <p>Chargement de la galerie...</p>
+      <div className="gallery-page" style={{ padding: 24 }}>
+        <LoadingPlaceholder variant="tall" count={4} label="Chargement de la galerie" />
       </div>
     );
   }
 
   if (!data) {
     return (
-      <div className="gallery-error">
-        <p>Galerie introuvable.</p>
-        <button className="btn btn-primary btn-sm" onClick={() => navigate('/')}>Retour</button>
+      <div className="gallery-page" style={{ padding: 24 }}>
+        <EmptyState
+          icon="cross"
+          title="Galerie introuvable"
+          description="Le lien est invalide ou la galerie a été supprimée."
+        >
+          <button className="btn btn-primary btn-sm" onClick={() => navigate('/')}>Retour à l'accueil</button>
+        </EmptyState>
       </div>
     );
   }
@@ -41,7 +52,7 @@ export default function Gallery() {
   return (
     <div className="gallery-page">
       <div className="gallery-header">
-        <button className="gallery-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button className="gallery-back" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}>← Retour</button>
         <div className="gallery-meta">
           <h1 className="gallery-title"><Icon name="photo" size={22} style={{ marginRight: 8 }} />Galerie de soirée</h1>
           <p className="gallery-players">
@@ -54,10 +65,11 @@ export default function Gallery() {
       </div>
 
       {!hasMedia ? (
-        <div className="gallery-empty">
-          <p>Aucune photo pour cette soirée.</p>
-          <p className="gallery-empty-sub">La prochaine fois, appuyez sur l'icône appareil photo après chaque défi !</p>
-        </div>
+        <EmptyState
+          icon="photo"
+          title="Aucune photo pour cette soirée"
+          description="La prochaine fois, appuyez sur l'icône appareil photo après chaque défi !"
+        />
       ) : (
         <div className="gallery-grid">
           {data.media.map((item, i) => (

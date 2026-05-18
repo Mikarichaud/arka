@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { QRCodeSVG } from 'qrcode.react';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import useAuthStore from '../../store/authStore';
 import { useCategories } from '../../hooks/useCategories';
 import api from '../../services/api';
@@ -24,6 +25,7 @@ const emptyChallenge = () => ({ text: '', intensity: INTENSITIES[0] });
 
 export default function Editor() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { id: editingId } = useParams();
   const { user } = useAuthStore();
   const { categories } = useCategories();
@@ -157,7 +159,7 @@ export default function Editor() {
   if (loadingPack) {
     return (
       <Layout className="editor-page">
-        <p className="library-loading">Chargement du pack...</p>
+        <LoadingPlaceholder variant="text" count={6} label="Chargement du pack" />
       </Layout>
     );
   }
@@ -167,7 +169,7 @@ export default function Editor() {
     return (
       <Layout className="editor-page">
         <div className="editor-header">
-          <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+          <button className="btn-back" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}>← Retour</button>
           <h1 className="editor-title">Créer un Pack</h1>
         </div>
         <motion.div
@@ -258,7 +260,7 @@ export default function Editor() {
   return (
     <Layout className="editor-page">
       <div className="editor-header">
-        <button className="btn-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button className="btn-back" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}>← Retour</button>
         <h1 className="editor-title">{isEditMode ? 'Modifier le Pack' : 'Créer un Pack'}</h1>
         <p className="editor-subtitle">
           {isPremium
@@ -422,7 +424,7 @@ export default function Editor() {
       {error && <p className="editor-error">{error}</p>}
 
       <button
-        className="btn btn-gold"
+        className="btn btn-primary"
         style={{ width: '100%', padding: '18px', fontSize: '1.1rem', marginTop: 'auto' }}
         onClick={handleSave}
         disabled={saving}

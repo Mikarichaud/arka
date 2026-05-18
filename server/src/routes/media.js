@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { protect } = require('../middlewares/auth');
+const { protect, requirePremium } = require('../middlewares/auth');
 const cloudinary = require('../services/cloudinary');
 
 const upload = multer({
@@ -9,18 +9,12 @@ const upload = multer({
   limits: { fileSize: 50 * 1024 * 1024 }, // 50 Mo max
 });
 
-router.post('/upload', upload.single('file'), (req, res, next) => {
+router.post('/upload', protect, requirePremium, upload.single('file'), (req, res, next) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Aucun fichier reçu.' });
   }
 
   const isVideo = req.file.mimetype.startsWith('video/');
-
-  console.log('Cloudinary config:', {
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY ? '***set***' : 'MISSING',
-    api_secret: process.env.CLOUDINARY_API_SECRET ? '***set***' : 'MISSING',
-  });
 
   const stream = cloudinary.uploader.upload_stream(
     {
@@ -37,13 +31,6 @@ router.post('/upload', upload.single('file'), (req, res, next) => {
   );
 
   stream.end(req.file.buffer);
-});
-
-router.delete('/:publicId', protect, async (req, res, next) => {
-  try {
-    await cloudinary.uploader.destroy(req.params.publicId, { resource_type: 'auto' });
-    res.json({ message: 'Fichier supprimé.' });
-  } catch (err) { next(err); }
 });
 
 module.exports = router;

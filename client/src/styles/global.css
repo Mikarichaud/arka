@@ -162,6 +162,29 @@ h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }
   animation: carreau 0.22s var(--ease-carreau) forwards;
 }
 
+/* ── État désactivé — désature et neutralise les interactions ── */
+.btn:disabled,
+.btn[disabled] {
+  background: var(--gris-doux, #9aa0a8);
+  color: rgba(255, 255, 255, 0.85);
+  border-color: transparent;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
+.btn:disabled:hover,
+.btn[disabled]:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.btn:disabled:active,
+.btn[disabled]:active {
+  animation: none;
+}
+
 /* ── Cards ── */
 .card {
   background: var(--surface-card);

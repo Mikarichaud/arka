@@ -3,8 +3,11 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import { fumigenesVariants } from '../../styles/motion';
 import { useCategories, invalidateCategories } from '../../hooks/useCategories';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import api from '../../services/api';
 import './GatePacks.css';
 
@@ -49,6 +52,12 @@ export default function GatePacks() {
   const [catError, setCatError] = useState('');
   const [deleteCat, setDeleteCat] = useState(null);
   const [deletingCat, setDeletingCat] = useState(false);
+
+  const cancelEditCat = () => { setEditCat(null); setCatError(''); };
+
+  useEscapeClose(Boolean(deletePack) && !deleting, () => setDeletePack(null));
+  useEscapeClose(Boolean(deleteCat) && !deletingCat, () => setDeleteCat(null));
+  useEscapeClose(Boolean(editCat) && !catSaving, cancelEditCat);
 
   // Formulaire pack
   const [name, setName] = useState('');
@@ -202,7 +211,6 @@ export default function GatePacks() {
     setCatIcon(cat.icon || 'wheel');
     setCatError('');
   };
-  const cancelEditCat = () => { setEditCat(null); setCatError(''); };
 
   const handleSaveCat = async () => {
     if (!catName.trim()) { setCatError('Nom requis.'); return; }
@@ -411,7 +419,7 @@ export default function GatePacks() {
         {error && <p className="gate-error">{error}</p>}
 
         <button
-          className="btn btn-gold"
+          className="btn btn-primary"
           style={{ width: '100%', padding: 18, fontSize: '1.1rem', marginTop: 'auto' }}
           onClick={handleSave}
           disabled={saving}
@@ -477,22 +485,26 @@ export default function GatePacks() {
                 )}
               </div>
             ))}
-            <button className="btn btn-gold btn-sm" onClick={startNewCat} style={{ marginTop: 8 }}>
+            <button className="btn btn-primary btn-sm" onClick={startNewCat} style={{ marginTop: 8 }}>
               + Nouvelle catégorie
             </button>
           </motion.div>
         )}
       </div>
 
-      <button className="btn btn-gold gate-new-cta" onClick={startNew}>
+      <button className="btn btn-primary gate-new-cta" onClick={startNew}>
         <Icon name="pencil" size={18} style={{ marginRight: 8 }} />
         Nouveau pack officiel
       </button>
 
       {loading ? (
-        <p className="gate-loading">Chargement...</p>
+        <LoadingPlaceholder variant="list" count={4} />
       ) : packs.length === 0 ? (
-        <p className="gate-empty">Aucun pack officiel pour l'instant.</p>
+        <EmptyState
+          icon="pencil"
+          title="Aucun pack officiel"
+          description="Crée le premier pack officiel pour le rendre disponible aux joueurs."
+        />
       ) : (
         <div className="gate-packs-list">
           {packs.map((p, i) => {
@@ -656,7 +668,7 @@ function CategoryFormModal({ open, mode, name, icon, saving, error, onChangeName
             </div>
             {error && <p className="gate-error">{error}</p>}
             <div className="confirm-actions">
-              <button className="btn btn-gold" style={{ width: '100%' }} onClick={onSave} disabled={saving}>
+              <button className="btn btn-primary" style={{ width: '100%' }} onClick={onSave} disabled={saving}>
                 {saving ? 'Sauvegarde...' : 'Enregistrer'}
               </button>
               <button className="btn btn-ghost btn-sm" onClick={onCancel} disabled={saving}>

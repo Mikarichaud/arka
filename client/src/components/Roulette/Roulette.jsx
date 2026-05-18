@@ -130,12 +130,6 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
               <stop offset="100%" stopColor="#5a3c08"/>
             </radialGradient>
 
-            {/* Filtre gravure — effet estampillé sur les numéros */}
-            <filter id="engrave">
-              <feDropShadow dx="0.7" dy="0.9" stdDeviation="0.3" floodColor="#000000" floodOpacity="0.9"/>
-              <feDropShadow dx="-0.4" dy="-0.4" stdDeviation="0.2" floodColor="#ffffff" floodOpacity="0.2"/>
-            </filter>
-
             {/* Gradient case gagnante */}
             <radialGradient id="winner-gold" cx="72" cy="52" r="105" gradientUnits="userSpaceOnUse">
               <stop offset="0%"   stopColor="#fff0a0"/>
@@ -185,7 +179,7 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
                   );
                 })()}
 
-                {/* Numéro estampillé */}
+                {/* Numéro estampillé (contour léger, pas de feDropShadow → fluide WebKit) */}
                 <text
                   x={tx} y={ty}
                   textAnchor="middle" dominantBaseline="central"
@@ -193,7 +187,9 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
                   fontSize="15"
                   fontFamily="Bebas Neue, Impact, sans-serif"
                   letterSpacing="0.04em"
-                  filter="url(#engrave)"
+                  stroke="rgba(0,0,0,0.85)"
+                  strokeWidth="0.6"
+                  paintOrder="stroke fill"
                   transform={`rotate(${mid}, ${tx}, ${ty})`}
                   style={{ pointerEvents: 'none', userSelect: 'none' }}
                 >

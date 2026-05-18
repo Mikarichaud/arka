@@ -4,7 +4,7 @@ const { protect } = require('../middlewares/auth');
 const Session = require('../models/Session');
 const Pack = require('../models/Pack');
 
-router.post('/', async (req, res, next) => {
+router.post('/', protect, async (req, res, next) => {
   try {
     const { players, packId, history = [] } = req.body;
     if (!players || players.length < 2) {
@@ -27,35 +27,11 @@ router.post('/', async (req, res, next) => {
         points: h.points || 0,
         media: h.media || [],
       })),
+      createdBy: req.user._id,
     };
-
-    if (req.headers.authorization) {
-      const jwt = require('jsonwebtoken');
-      try {
-        const token = req.headers.authorization.split(' ')[1];
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        sessionData.createdBy = decoded.id;
-      } catch {}
-    }
 
     const session = await Session.create(sessionData);
     res.status(201).json({ session, shareLink: session.shareLink });
-  } catch (err) { next(err); }
-});
-
-router.get('/:id', async (req, res, next) => {
-  try {
-    const session = await Session.findById(req.params.id)
-      .populate({ path: 'pack', populate: { path: 'challenges' } });
-    if (!session) return res.status(404).json({ message: 'Session introuvable.' });
-    res.json({ session });
-  } catch (err) { next(err); }
-});
-
-router.put('/:id', protect, async (req, res, next) => {
-  try {
-    const session = await Session.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json({ session });
   } catch (err) { next(err); }
 });
 

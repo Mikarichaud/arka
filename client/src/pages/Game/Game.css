@@ -35,10 +35,34 @@
 
 .game-scores {
   display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 4px;
+}
+
+.game-scores-chips {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 2px;
+}
+.game-scores-chips::-webkit-scrollbar { display: none; }
+
+.game-scores-chips::after {
+  content: '';
+  flex-shrink: 0;
+  width: 4px;
+}
+
+.game-scores-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .score-chip {
@@ -47,8 +71,8 @@
   align-items: center;
   background: white;
   border-radius: var(--radius-md);
-  padding: 8px 14px;
-  min-width: 60px;
+  padding: 8px 12px;
+  min-width: 56px;
   box-shadow: var(--shadow-sm);
   border: 2px solid transparent;
   transition: all var(--transition-fast);
@@ -198,6 +222,27 @@
   gap: 10px;
 }
 
+.game-photo-upsell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px dashed rgba(201, 168, 76, 0.4);
+  border-radius: var(--radius-md);
+  color: var(--or-etoile);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: all var(--transition-fast);
+}
+.game-photo-upsell:hover {
+  background: rgba(201, 168, 76, 0.15);
+  border-style: solid;
+}
+
 /* Bouton "Terminer la partie" — visible sur fond clair et sombre */
 .btn-end-game {
   font-family: var(--font-corps);
@@ -307,88 +352,6 @@
 }
 
 .sound-btn:hover { opacity: 1; }
-
-/* Radar overlay */
-.radar-btn {
-  background: transparent;
-  border: none;
-  font-size: 1.1rem;
-  cursor: pointer;
-  padding: 4px;
-  opacity: 0.4;
-  transition: opacity var(--transition-fast);
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.radar-btn:hover { opacity: 1; }
-
-.radar-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  padding: 24px;
-}
-
-.radar-modal {
-  background: #0d1b3e;
-  border: 1px solid rgba(255,255,255,0.15);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
-  max-width: 340px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  text-align: center;
-}
-
-.radar-title {
-  font-family: var(--font-titre);
-  font-size: 1.4rem;
-  color: white;
-  margin: 0;
-}
-
-.radar-scanning {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  color: rgba(255,255,255,0.7);
-}
-
-.radar-sonar {
-  position: relative;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0,87,168,0.3) 0%, rgba(0,87,168,0.05) 100%);
-  border: 2px solid rgba(0,87,168,0.6);
-  overflow: hidden;
-}
-
-.radar-sweep {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 50%;
-  height: 50%;
-  transform-origin: bottom left;
-  background: linear-gradient(135deg, rgba(0,255,100,0.6) 0%, transparent 70%);
-}
-
-.radar-result {
-  color: #2DC653;
-  font-weight: 700;
-  font-size: 1rem;
-  line-height: 1.5;
-}
 
 /* ── DESKTOP / TV (≥ 1024px) ── */
 @media (min-width: 1024px) {
@@ -524,8 +487,6 @@
   .exagerateur-toggle { font-size: 1rem; padding: 14px; }
 
   .game-points-flash { font-size: 4.5rem; }
-
-  .radar-btn { font-size: 1.3rem; }
 
   .btn-excuse { font-size: 0.9rem; }
 

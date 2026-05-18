@@ -335,7 +335,6 @@ POST   /api/packs             # créer un pack perso (protect, validation Free/P
 PUT    /api/packs/:id         # éditer un pack perso (protect, ownership + validation tier)
 DELETE /api/packs/:id         # supprime aussi les Challenge orphelins (protect, ownership)
 GET    /api/packs/share/:shareCode   # même logique teaser/full selon accès
-POST   /api/packs/:id/duplicate      # prévu, non implémenté
 ```
 
 ### Catégories
@@ -435,7 +434,6 @@ POST   /api/payments/webhook                   # signature Stripe + raw body
 - [x] shareCode unique par pack (nanoid 8) — généré uniquement pour les Premium
 - [x] QR code (qrcode.react) + modale partage (PackLibrary + écran succès Editor)
 - [x] Modale de confirmation de suppression (fumigène)
-- [ ] Duplication d'un pack officiel
 
 ### Phase 4 — Gameplay ✅
 - [x] PastisTimer animé (durée selon intensité : 45/30/20s)

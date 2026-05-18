@@ -2,10 +2,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon';
 import { fumigenesVariants } from '../../styles/motion';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
 import './PaywallModal.css';
 
 export default function PaywallModal({ pack, onClose }) {
   const navigate = useNavigate();
+  useEscapeClose(Boolean(pack), onClose);
 
   return (
     <AnimatePresence>

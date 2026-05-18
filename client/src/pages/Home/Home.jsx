@@ -3,17 +3,14 @@ import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import HomeRoulette from '../../components/HomeRoulette/HomeRoulette';
-import useSessionStore from '../../store/sessionStore';
 import useAuthStore from '../../store/authStore';
-import useGameStore from '../../store/gameStore';
+import useSettingsStore from '../../store/settingsStore';
 import './Home.css';
 
 export default function Home() {
   const navigate = useNavigate();
-  const toggleTheme = useSessionStore((s) => s.toggleTheme);
-  const theme = useSessionStore((s) => s.theme);
+  const { theme, toggleTheme, soundEnabled, toggleSound } = useSettingsStore();
   const { user, logout } = useAuthStore();
-  const { soundEnabled, toggleSound } = useGameStore();
 
   return (
     <Layout className="home-page">

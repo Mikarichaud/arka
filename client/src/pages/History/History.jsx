@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
+import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
+import EmptyState from '../../components/EmptyState/EmptyState';
 import api from '../../services/api';
 import './History.css';
 
 export default function History() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,20 +24,22 @@ export default function History() {
   return (
     <Layout className="history-page">
       <div className="history-header">
-        <button className="history-back" onClick={() => navigate(-1)}>← Retour</button>
+        <button className="history-back" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}>← Retour</button>
         <h1 className="history-title">Mes parties</h1>
       </div>
 
-      {loading && <p className="history-empty">Chargement...</p>}
+      {loading && <LoadingPlaceholder variant="card" count={4} />}
 
       {!loading && sessions.length === 0 && (
-        <div className="history-empty">
-          <p>Aucune partie sauvegardée.</p>
-          <p className="history-empty-sub">Joue une partie et connecte-toi pour garder un historique !</p>
+        <EmptyState
+          icon="trophy"
+          title="Aucune partie sauvegardée"
+          description="Joue une partie et connecte-toi pour garder un historique !"
+        >
           <button className="btn btn-primary btn-sm" onClick={() => navigate('/session/setup')}>
             Jouer maintenant
           </button>
-        </div>
+        </EmptyState>
       )}
 
       {!loading && sessions.length > 0 && (

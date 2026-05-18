@@ -1,23 +1,50 @@
 .setup-page {
   padding-top: max(24px, calc(env(safe-area-inset-top) + 8px));
-  padding-bottom: max(32px, calc(env(safe-area-inset-bottom) + 16px));
-  gap: 24px;
+  padding-bottom: max(120px, calc(env(safe-area-inset-bottom) + 100px));
+  gap: 20px;
 }
-
-.setup-preselected {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  background: rgba(45, 198, 83, 0.1);
-  border: 1px solid rgba(45, 198, 83, 0.35);
-  border-radius: var(--radius-md);
-  color: var(--vert-valide);
-  font-size: 0.88rem;
-}
-.setup-preselected strong { color: var(--text-primary); }
 
 .setup-header { display: flex; flex-direction: column; gap: 6px; }
+
+.setup-step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 2px;
+}
+
+.setup-step-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  border: 2px solid var(--surface-border);
+  color: var(--gris-doux);
+  font-family: var(--font-titre);
+  font-size: 0.85rem;
+  font-weight: 800;
+  transition: all var(--transition-fast);
+}
+.setup-step-dot.active {
+  background: var(--bleu-azur);
+  border-color: var(--bleu-azur);
+  color: white;
+}
+.setup-step-dot.done {
+  background: var(--vert-valide);
+  border-color: var(--vert-valide);
+  color: white;
+}
+
+.setup-step-bar {
+  flex: 0 0 32px;
+  height: 2px;
+  background: var(--surface-border);
+  border-radius: 1px;
+}
 
 .setup-title {
   font-family: var(--font-titre);
@@ -26,6 +53,16 @@
 }
 
 .setup-subtitle { color: var(--gris-doux); }
+
+.setup-section { display: flex; flex-direction: column; gap: 12px; }
+
+.setup-section-title {
+  font-family: var(--font-titre);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
 
 .setup-players { display: flex; flex-direction: column; gap: 10px; }
 
@@ -65,4 +102,111 @@
   font-weight: 700;
   font-size: 0.875rem;
   text-align: center;
+}
+
+.setup-packs-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.setup-packs-loading {
+  text-align: center;
+  color: var(--gris-doux);
+  padding: 24px;
+}
+
+.pack-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  background: var(--bg-card, white);
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pack-card--selected {
+  border-color: var(--bleu-azur);
+  background: var(--bg-card-selected, #eef4ff);
+  box-shadow: 0 0 0 1px var(--bleu-azur), var(--shadow-md);
+}
+
+.pack-icon { flex-shrink: 0; display: flex; align-items: center; }
+
+.pack-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pack-name { font-weight: 800; font-size: 1rem; }
+
+.pack-desc {
+  font-size: 0.8rem;
+  color: var(--gris-doux);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pack-check {
+  color: var(--bleu-azur);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.pack-card--premium { opacity: 0.82; }
+.pack-card--premium .pack-name { color: var(--gris-doux); }
+
+.pack-premium-badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--or-etoile);
+}
+
+.setup-cta-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 12px 16px max(16px, calc(env(safe-area-inset-bottom) + 12px));
+  background: linear-gradient(to top, var(--bg-page, #fff) 70%, rgba(255,255,255,0) 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 50;
+  pointer-events: none;
+}
+
+.setup-cta-bar > * { pointer-events: auto; }
+
+.setup-cta-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--gris-doux);
+}
+
+.setup-cta-hint strong { color: var(--text-primary); }
+
+.setup-cta-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 1.1rem;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .setup-cta-bar { padding: 16px 24px max(20px, calc(env(safe-area-inset-bottom) + 16px)); }
 }

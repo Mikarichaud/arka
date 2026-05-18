@@ -18,7 +18,17 @@ router.put('/:id', protect, async (req, res, next) => {
       return res.status(403).json({ message: 'Té, c\'est pas ton profil !' });
     }
     const { username, avatar } = req.body;
-    const user = await User.findByIdAndUpdate(req.params.id, { username, avatar }, { new: true });
+    const updates = {};
+    if (typeof username === 'string' && username.trim()) {
+      updates.username = username.trim();
+    }
+    if (avatar !== undefined) {
+      if (!req.user.isPremiumActive()) {
+        return res.status(403).json({ message: 'Photo de profil réservée aux Premium.' });
+      }
+      updates.avatar = avatar;
+    }
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
     res.json({ user });
   } catch (err) { next(err); }
 });
@@ -49,6 +59,9 @@ router.put('/me/active-skin', protect, async (req, res, next) => {
 
 router.get('/:id/history', protect, async (req, res, next) => {
   try {
+    if (req.user._id.toString() !== req.params.id) {
+      return res.status(403).json({ message: 'Té, c\'est pas ton historique !' });
+    }
     const history = await GameHistory.find({ user: req.params.id })
       .sort({ createdAt: -1 })
       .populate('session');

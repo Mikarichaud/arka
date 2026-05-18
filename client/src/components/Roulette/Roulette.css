@@ -10,37 +10,42 @@
 }
 
 /* ── Disque ── */
+/* NB: on utilise box-shadow (composé en GPU) plutôt que filter:drop-shadow
+   (qui force la rasterisation CPU à chaque frame et tue Safari iOS).
+   GPU hints (will-change + translateZ) pour forcer la promotion en couche. */
 .roulette-disc {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
   will-change: transform;
-  /* Ombre portée boule de pétanque au repos */
-  filter: drop-shadow(0 10px 28px rgba(0,0,0,0.55))
-          drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-  transition: filter 0.4s ease;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  box-shadow:
+    0 10px 28px rgba(0,0,0,0.55),
+    0 4px 8px rgba(0,0,0,0.3);
+  transition: box-shadow 0.4s ease;
 }
 
 /* Pendant le spin : intensification des ombres + lueur dorée */
 .roulette-wrapper.is-spinning .roulette-disc {
-  filter:
-    drop-shadow(0 12px 40px rgba(0,0,0,0.7))
-    drop-shadow(0 0 30px rgba(201,168,76,0.45))
-    drop-shadow(0 0 60px rgba(201,168,76,0.2));
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.7),
+    0 0 30px rgba(201,168,76,0.45),
+    0 0 60px rgba(201,168,76,0.2);
   animation: boule-pulse 0.55s ease-in-out infinite alternate;
 }
 
 @keyframes boule-pulse {
   from {
-    filter:
-      drop-shadow(0 12px 40px rgba(0,0,0,0.7))
-      drop-shadow(0 0 30px rgba(201,168,76,0.4));
+    box-shadow:
+      0 12px 40px rgba(0,0,0,0.7),
+      0 0 30px rgba(201,168,76,0.4);
   }
   to {
-    filter:
-      drop-shadow(0 14px 55px rgba(0,0,0,0.8))
-      drop-shadow(0 0 55px rgba(201,168,76,0.7))
-      drop-shadow(0 0 90px rgba(61,96,128,0.35));
+    box-shadow:
+      0 14px 55px rgba(0,0,0,0.8),
+      0 0 55px rgba(201,168,76,0.7),
+      0 0 90px rgba(61,96,128,0.35);
   }
 }
 
@@ -50,9 +55,9 @@
 }
 
 @keyframes boule-land {
-  0%   { filter: drop-shadow(0 0 0 14px rgba(201,168,76,1)) drop-shadow(0 0 80px rgba(201,168,76,0.9)); }
-  60%  { filter: drop-shadow(0 10px 35px rgba(0,0,0,0.6)) drop-shadow(0 0 20px rgba(201,168,76,0.4)); }
-  100% { filter: drop-shadow(0 10px 28px rgba(0,0,0,0.55)) drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+  0%   { box-shadow: 0 0 0 14px rgba(201,168,76,1), 0 0 80px rgba(201,168,76,0.9); }
+  60%  { box-shadow: 0 10px 35px rgba(0,0,0,0.6), 0 0 20px rgba(201,168,76,0.4); }
+  100% { box-shadow: 0 10px 28px rgba(0,0,0,0.55), 0 4px 8px rgba(0,0,0,0.3); }
 }
 
 /* ── SVG ── */

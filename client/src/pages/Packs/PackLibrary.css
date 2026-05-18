@@ -26,34 +26,6 @@
 
 .library-import-error { color: var(--rouge-defi); font-size: 0.85rem; font-weight: 700; }
 
-/* Filtres */
-.library-filters {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-  scrollbar-width: none;
-}
-
-.filter-btn {
-  padding: 8px 16px;
-  border-radius: var(--radius-pill);
-  border: 2px solid #e0e0e0;
-  background: white;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-}
-
-.filter-btn.active {
-  background: var(--bleu-azur);
-  border-color: var(--bleu-azur);
-  color: white;
-}
-
 /* Grille packs */
 .library-grid {
   display: flex;
@@ -128,62 +100,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-}
-
-.library-cos-card {
-  background: var(--surface-card);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid var(--surface-border);
-  text-align: center;
-}
-
-.library-cos-card.owned {
-  border-color: rgba(45, 198, 83, 0.4);
-  background: linear-gradient(135deg, var(--surface-card), rgba(45,198,83,0.04));
-}
-
-.library-cos-preview { display: flex; align-items: center; justify-content: center; }
-
-.library-cos-info { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-
-.library-cos-name {
-  font-family: var(--font-titre);
-  font-size: 1.2rem;
-  color: var(--bleu-azur);
-}
-
-.library-cos-desc {
-  color: var(--text-secondary);
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
-.library-cos-price {
-  font-family: var(--font-titre);
-  font-size: 1.2rem;
-  color: var(--or-etoile);
-  letter-spacing: 0.05em;
-}
-
-.library-cos-buy { padding: 8px 18px; font-size: 0.85rem; }
-
-.library-cos-owned {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: var(--radius-pill);
-  background: rgba(45, 198, 83, 0.15);
-  color: var(--vert-valide);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.04em;
 }
 
 @media (min-width: 768px) {

@@ -10,29 +10,27 @@ import PlayerCard from '../../components/PlayerCard/PlayerCard';
 import EndGame from '../../components/EndGame/EndGame';
 import MediaUpload from '../../components/MediaUpload/MediaUpload';
 import Icon from '../../components/Icon/Icon';
+import RadarParisiens from '../../components/RadarParisiens/RadarParisiens';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
+import useSettingsStore from '../../store/settingsStore';
 import { useSound } from '../../hooks/useSound';
 import { useActiveSkin } from '../../hooks/useActiveSkin';
-import { fumigenesVariants, fumigenesSoft } from '../../styles/motion';
+import { fumigenesSoft } from '../../styles/motion';
 import api from '../../services/api';
 import './Game.css';
-
-const RADAR_RESULTS = [
-  "C'est bon, y'en a pas ici, on est entre nous.",
-  "Zone sécurisée. Aucun Parisien détecté.",
-  "Scan terminé. 0 touriste. 100% Marseille.",
-];
 
 export default function Game() {
   const navigate = useNavigate();
   const {
     session, pack, phase, isSpinning, spinResult, currentChallenge,
-    currentComment, exagerateurMode, soundEnabled, toggleSound,
+    currentComment, exagerateurMode,
     gameHistory,
     setPhase, spin, nextPlayer, updatePlayerScore, addHistoryEntry,
     addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
   } = useGameStore();
+  const soundEnabled = useSettingsStore((s) => s.soundEnabled);
+  const toggleSound = useSettingsStore((s) => s.toggleSound);
   const { user } = useAuthStore();
   const { play } = useSound();
   const rouletteSkin = useActiveSkin('roulette');
@@ -41,9 +39,6 @@ export default function Game() {
   const [timerRunning, setTimerRunning] = useState(false);
   const [lastPoints, setLastPoints] = useState(null);
   const [shareLink, setShareLink] = useState(null);
-  const [radarResult, setRadarResult] = useState(null);
-  const [radarVisible, setRadarVisible] = useState(false);
-  const [radarScanning, setRadarScanning] = useState(false);
 
   if (!session || !pack) {
     return <Navigate to="/" replace />;
@@ -96,30 +91,22 @@ export default function Game() {
   };
 
   const handleEndGame = async () => {
-    try {
-      const res = await api.post('/sessions', {
-        players: session.players,
-        packId: pack._id,
-        history: useGameStore.getState().gameHistory,
-      });
-      setShareLink(res.data.shareLink);
-    } catch {}
+    if (user) {
+      try {
+        const res = await api.post('/sessions', {
+          players: session.players,
+          packId: pack._id,
+          history: useGameStore.getState().gameHistory,
+        });
+        setShareLink(res.data.shareLink);
+      } catch {}
+    }
     setPhase('endgame');
   };
 
   const handleRestart = () => {
     resetGame();
     navigate('/session/setup');
-  };
-
-  const handleRadar = () => {
-    setRadarVisible(true);
-    setRadarScanning(true);
-    setRadarResult(null);
-    setTimeout(() => {
-      setRadarScanning(false);
-      setRadarResult(RADAR_RESULTS[Math.floor(Math.random() * RADAR_RESULTS.length)]);
-    }, 2500);
   };
 
   if (phase === 'endgame') {
@@ -141,21 +128,21 @@ export default function Game() {
     <Layout className={`game-page ${isCompact ? 'game-page--compact' : ''}`}>
       {/* Header scores */}
       <div className="game-scores">
-        {session.players.map((p) => (
-          <div key={p.name} className={`score-chip ${p.name === currentPlayer.name ? 'active' : ''}`}>
-            <span className="score-name">{p.name}</span>
-            <span className="score-pts">{p.score}</span>
-          </div>
-        ))}
+        <div className="game-scores-chips">
+          {session.players.map((p) => (
+            <div key={p.name} className={`score-chip ${p.name === currentPlayer.name ? 'active' : ''}`}>
+              <span className="score-name">{p.name}</span>
+              <span className="score-pts">{p.score}</span>
+            </div>
+          ))}
+        </div>
 
-        <button className="sound-btn" onClick={toggleSound} title="Sons" aria-label="toggle son">
-          <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={18} />
-        </button>
-
-        {/* Radar à Parisiens — bouton caché */}
-        <button className="radar-btn" onClick={handleRadar} title="..." aria-label="radar">
-          <Icon name="radar" size={18} />
-        </button>
+        <div className="game-scores-actions">
+          <button className="sound-btn" onClick={toggleSound} title="Sons" aria-label="toggle son">
+            <Icon name={soundEnabled ? 'sound-on' : 'sound-off'} size={18} />
+          </button>
+          <RadarParisiens players={session.players} history={gameHistory} />
+        </div>
       </div>
 
       {/* Colonne gauche desktop : roulette */}
@@ -292,7 +279,18 @@ export default function Game() {
               </div>
 
               {lastPoints !== null && (
-                <MediaUpload onUploaded={addMediaToLastEntry} />
+                user?.tier === 'premium' ? (
+                  <MediaUpload onUploaded={addMediaToLastEntry} />
+                ) : (
+                  <button
+                    type="button"
+                    className="game-photo-upsell"
+                    onClick={() => navigate('/premium')}
+                  >
+                    <Icon name="camera" size={16} />
+                    <span>Garde une trace de ce moment avec Premium</span>
+                  </button>
+                )
               )}
 
               <div className="game-result-actions">
@@ -307,45 +305,6 @@ export default function Game() {
           )}
         </AnimatePresence>
       </div>
-
-      {/* Radar à Parisiens — modale */}
-      <AnimatePresence>
-        {radarVisible && (
-          <motion.div className="radar-overlay"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            onClick={() => !radarScanning && setRadarVisible(false)}>
-            <motion.div
-              className="radar-modal"
-              variants={fumigenesVariants}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-            >
-              <h3 className="radar-title"><Icon name="radar" size={22} style={{ marginRight: 8 }} />Radar à Parisiens</h3>
-              {radarScanning ? (
-                <div className="radar-scanning">
-                  <div className="radar-sonar">
-                    <motion.div className="radar-sweep"
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }} />
-                  </div>
-                  <p>Scan en cours...</p>
-                </div>
-              ) : (
-                <motion.p className="radar-result"
-                  initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                  {radarResult}
-                </motion.p>
-              )}
-              {!radarScanning && (
-                <button className="btn btn-primary btn-sm" onClick={() => setRadarVisible(false)}>
-                  Parfait, on continue !
-                </button>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </Layout>
   );
 }
