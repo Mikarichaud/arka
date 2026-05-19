@@ -55,6 +55,40 @@ function statePayload(salon) {
   return publicSalon(salon);
 }
 
+// Set des playerId actuellement connectés à ce salon (room Socket.IO).
+// Utilisé pour skip les joueurs offline dans la rotation et le vote.
+function onlinePlayerIdsForSalon(io, code) {
+  const room = io.sockets.adapter.rooms.get(`salon:${code}`);
+  const ids = new Set();
+  if (!room) return ids;
+  for (const socketId of room) {
+    const sock = io.sockets.sockets.get(socketId);
+    if (sock?.data?.playerId) ids.add(sock.data.playerId);
+  }
+  return ids;
+}
+
+// Trouve l'index du premier joueur online (ou -1 si personne).
+function findFirstOnlinePlayerIndex(salon, io) {
+  const online = onlinePlayerIdsForSalon(io, salon.code);
+  for (let i = 0; i < salon.players.length; i += 1) {
+    if (online.has(salon.players[i].playerId)) return i;
+  }
+  return -1;
+}
+
+// Trouve le prochain index online après fromIndex (wrap around).
+// Retourne -1 si aucun joueur n'est online.
+function findNextOnlinePlayerIndex(salon, fromIndex, io) {
+  const online = onlinePlayerIdsForSalon(io, salon.code);
+  const n = salon.players.length;
+  for (let i = 1; i <= n; i += 1) {
+    const idx = (fromIndex + i) % n;
+    if (online.has(salon.players[idx].playerId)) return idx;
+  }
+  return -1;
+}
+
 function attachGameHandlers(io, socket) {
   // ─── game:pickPack ─────────────────────────────────────
   // Host pick un pack et démarre la partie. On charge le pack populé, on snapshot
@@ -64,8 +98,11 @@ function attachGameHandlers(io, socket) {
       if (!isHostSocket(socket)) return ack?.({ ok: false, code: 'HOST_ONLY' });
       const salon = await Salon.findOne({ code: socket.data.code });
       if (!salon || salon.status === 'ended') return ack?.({ ok: false, code: 'SALON_GONE' });
-      if (salon.players.length < 2) {
-        return ack?.({ ok: false, code: 'NEED_TWO_PLAYERS', message: 'Au moins 2 joueurs pour démarrer.' });
+      // On exige >=2 joueurs ONLINE (pas juste membres). Les offline ne peuvent ni
+      // tourner ni voter, donc les compter bloquerait le jeu (bug rapporté).
+      const onlineCount = onlinePlayerIdsForSalon(io, salon.code).size;
+      if (onlineCount < 2) {
+        return ack?.({ ok: false, code: 'NEED_TWO_PLAYERS', message: 'Au moins 2 joueurs en ligne pour démarrer.' });
       }
 
       const pack = await Pack.findById(packId).populate('challenges');
@@ -87,10 +124,13 @@ function attachGameHandlers(io, socket) {
       // Reset scores et historique pour cette partie
       for (const p of salon.players) p.score = 0;
       salon.status = 'playing';
+      // Démarre sur le premier joueur ONLINE (skip les membres offline).
+      const startIdx = findFirstOnlinePlayerIndex(salon, io);
+      const firstPlayerIndex = startIdx >= 0 ? startIdx : 0;
       salon.currentGame = {
         packId: pack._id,
         pack: snapshot,
-        currentPlayerIndex: 0,
+        currentPlayerIndex: firstPlayerIndex,
         phase: 'idle',
         spinSeed: null,
         spinResult: null,
@@ -104,7 +144,7 @@ function attachGameHandlers(io, socket) {
 
       io.to(`salon:${salon.code}`).emit('game:packPicked', {
         pack: snapshot,
-        currentPlayerIndex: 0,
+        currentPlayerIndex: firstPlayerIndex,
       });
       io.to(`salon:${salon.code}`).emit('salon:state', statePayload(salon));
       ack?.({ ok: true });
@@ -258,9 +298,14 @@ function attachGameHandlers(io, socket) {
 
       salon.currentGame.votes.set(socket.data.playerId, vote);
 
-      // Décompte
-      const others = salon.players.filter((_, i) => i !== salon.currentGame.currentPlayerIndex);
-      const total = others.length;
+      // Décompte : on attend SEULEMENT les votes des joueurs ONLINE.
+      // Les membres offline ne peuvent pas voter, donc on ne les compte pas dans `total`
+      // sinon le jeu reste bloqué en phase vote (bug rapporté).
+      const online = onlinePlayerIdsForSalon(io, salon.code);
+      const onlineOthers = salon.players.filter(
+        (p, i) => i !== salon.currentGame.currentPlayerIndex && online.has(p.playerId),
+      );
+      const total = onlineOthers.length;
       const yes = Array.from(salon.currentGame.votes.values()).filter((v) => v === 'completed').length;
       const no = Array.from(salon.currentGame.votes.values()).filter((v) => v === 'refused').length;
       const cast = yes + no;
@@ -268,7 +313,7 @@ function attachGameHandlers(io, socket) {
       // Broadcast progression (sans révéler qui a voté quoi pour garder un peu de tension)
       io.to(`salon:${salon.code}`).emit('game:voteProgress', { cast, total, yes, no });
 
-      if (cast === total) {
+      if (cast >= total && total > 0) {
         const verdict = yes > total / 2 ? 'completed' : 'refused';
         await finalizeResult(io, salon, verdict);
       } else {
@@ -291,7 +336,10 @@ function attachGameHandlers(io, socket) {
       if (!allowed) return ack?.({ ok: false, code: 'NOT_ALLOWED' });
       if (salon.currentGame.phase !== 'result') return ack?.({ ok: false, code: 'BAD_PHASE' });
 
-      const nextIndex = (salon.currentGame.currentPlayerIndex + 1) % salon.players.length;
+      // Skip les joueurs offline dans la rotation : un membre absent ne doit pas
+      // bloquer le jeu en attendant un spin qui ne viendra jamais.
+      const nextIndex = findNextOnlinePlayerIndex(salon, salon.currentGame.currentPlayerIndex, io);
+      if (nextIndex === -1) return ack?.({ ok: false, code: 'NO_ONLINE_PLAYERS' });
       salon.currentGame.currentPlayerIndex = nextIndex;
       salon.currentGame.phase = 'idle';
       salon.currentGame.currentChallenge = null;
@@ -308,6 +356,59 @@ function attachGameHandlers(io, socket) {
       ack?.({ ok: true });
     } catch (err) {
       console.error('game:nextTurn error', err);
+      ack?.({ ok: false, code: 'SERVER_ERROR' });
+    }
+  });
+
+  // ─── game:skipCurrent ──────────────────────────────────
+  // Host only. Permet de sauter le tour du current player s'il est offline
+  // (le bouton "TOURNER" n'est plus actionné, le jeu se bloque).
+  // Marque le tour comme "skipped" dans l'historique (0 pt) et avance.
+  socket.on('game:skipCurrent', async (_, ack) => {
+    try {
+      if (!isHostSocket(socket)) return ack?.({ ok: false, code: 'HOST_ONLY' });
+      const salon = await Salon.findOne({ code: socket.data.code });
+      if (!salon || salon.status !== 'playing') return ack?.({ ok: false, code: 'NOT_PLAYING' });
+
+      const currentIdx = salon.currentGame.currentPlayerIndex;
+      const currentPlayer = salon.players[currentIdx];
+      if (!currentPlayer) return ack?.({ ok: false, code: 'BAD_STATE' });
+
+      // Garde : on n'autorise le skip que si le current player est vraiment offline.
+      const online = onlinePlayerIdsForSalon(io, salon.code);
+      if (online.has(currentPlayer.playerId)) {
+        return ack?.({ ok: false, code: 'CURRENT_IS_ONLINE', message: 'Ce joueur est en ligne, pas besoin de le sauter.' });
+      }
+
+      // Entry historique : tour sauté
+      salon.currentGame.history.push({
+        playerName: currentPlayer.pseudo,
+        challengeText: salon.currentGame.currentChallenge?.text || '(tour sauté)',
+        caseNumber: (salon.currentGame.spinResult ?? 0) + 1,
+        result: 'refused',
+        points: 0,
+        media: [],
+        timestamp: new Date(),
+      });
+
+      // Avance au prochain joueur online
+      const nextIndex = findNextOnlinePlayerIndex(salon, currentIdx, io);
+      if (nextIndex === -1) return ack?.({ ok: false, code: 'NO_ONLINE_PLAYERS' });
+
+      salon.currentGame.currentPlayerIndex = nextIndex;
+      salon.currentGame.phase = 'idle';
+      salon.currentGame.currentChallenge = null;
+      salon.currentGame.spinResult = null;
+      salon.currentGame.spinSeed = null;
+      salon.currentGame.spinStartedAt = null;
+      salon.currentGame.votes = new Map();
+      salon.touchActivity();
+      await salon.save();
+
+      io.to(`salon:${salon.code}`).emit('game:nextTurn', { currentPlayerIndex: nextIndex });
+      ack?.({ ok: true });
+    } catch (err) {
+      console.error('game:skipCurrent error', err);
       ack?.({ ok: false, code: 'SERVER_ERROR' });
     }
   });

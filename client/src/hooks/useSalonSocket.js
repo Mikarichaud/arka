@@ -26,7 +26,10 @@ const ERROR_MESSAGES = {
   JOIN_FAILED: 'Connexion impossible. Réessaie.',
   NOT_FOUND: 'Salon introuvable.',
   BAD_STATUS: 'Mauvais état du salon pour cette action.',
+  BAD_STATE: 'État du jeu incohérent.',
   NO_PACK: 'Pas de pack chargé.',
+  NO_ONLINE_PLAYERS: 'Plus aucun gaté en ligne, hé bé.',
+  CURRENT_IS_ONLINE: 'Ce joueur est en ligne, pas besoin de le sauter.',
 };
 
 // Connecte la socket pour un salon donné et synchronise le salonStore.

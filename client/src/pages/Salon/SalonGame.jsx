@@ -136,6 +136,11 @@ export default function SalonGame({ emit, code }) {
 
   const timerDuration = TIMER_DURATION[game?.currentChallenge?.intensity?.level] || 30;
   const isEndGameScreen = salon.status === 'between-games';
+  // Le current player est-il offline ? Si oui, le host doit pouvoir sauter le tour
+  // (sinon le jeu se bloque en attendant un spin/vote qui ne viendra jamais).
+  const currentOffline = !!currentPlayer && !onlinePlayerIds.includes(currentPlayer.playerId);
+  const canSkipCurrent = isHost && currentOffline && !isEndGameScreen
+    && ['idle', 'spinning', 'challenge', 'vote'].includes(phase);
 
   // ── Actions courantes ─────────────────────────────────
   const handleSpin = async () => {
@@ -160,6 +165,7 @@ export default function SalonGame({ emit, code }) {
   const handleNext = async () => emit('game:nextTurn');
   const handleEndGame = async () => emit('game:endGame');
   const handleNewRound = async () => emit('game:newRound');
+  const handleSkipCurrent = async () => emit('game:skipCurrent');
 
   // Quitter le salon = simple sortie. Le salon survit, les creds restent en localStorage,
   // l'user peut le retrouver via Mes salons. Même comportement pour host et non-host.
@@ -406,6 +412,25 @@ export default function SalonGame({ emit, code }) {
                 </>
               )}
             </motion.div>
+
+            {/* Bannière "Joueur absent" — visible si current player offline.
+                Host voit en plus le bouton "Sauter ce tour" pour débloquer. */}
+            {currentOffline && (
+              <motion.div
+                className="salon-offline-banner"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <span>
+                  <strong>{currentPlayer?.pseudo}</strong> est parti faire un tour, le jeu attend…
+                </span>
+                {canSkipCurrent && (
+                  <button className="btn btn-primary btn-sm" onClick={handleSkipCurrent}>
+                    Sauter ce tour
+                  </button>
+                )}
+              </motion.div>
+            )}
 
             <Roulette
               challenges={pack.challenges}
