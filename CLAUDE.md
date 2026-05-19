@@ -5,8 +5,10 @@
 Application web mobile-first de jeu de défis en tour par tour. Une roulette fictive 8 cases s'anime et s'arrête sur un défi que le joueur doit réaliser. Ambiance 100% marseillaise : design, sons, textes, humour.
 
 **Deux modes de jeu** :
-- **Mode local (V1, par défaut)** : jeu physique, tous les joueurs dans la même pièce, un seul écran (pseudo-multi sur un device). Chaque joueur joue à son tour.
-- **Mode Salon (Phase 9, en cours)** : multijoueur temps réel synchronisé, chaque joueur sur son propre téléphone. Création Premium-only (les gatés admin passent automatiquement), invitation par QR/code. Salon **persistant** (groupe qui survit aux soirées et accumule l'historique des parties), accessible via la page **Mes salons** (`/salons`). Salon privé, max 10 joueurs.
+- **Mode local** : jeu physique, tous les joueurs dans la même pièce, un seul écran (pseudo-multi sur un device). Chaque joueur joue à son tour.
+- **Mode Salon** : multijoueur temps réel synchronisé, chaque joueur sur son propre téléphone. Création Premium-only (les gatés admin passent automatiquement), invitation par QR/code. Salon **persistant** (groupe qui survit aux soirées et accumule l'historique des parties), accessible via la page **Mes salons** (`/salons`). Salon privé, max 10 joueurs.
+
+**Statut** : en production sur **arka.michaelrichaud.fr**. Toutes les phases code livrées (1-9). Restent post-déploiement : Stripe LIVE, OG image dédiée, Search Console submission, Phase 8.2 contenu/backlinks.
 
 ---
 
@@ -14,16 +16,18 @@ Application web mobile-first de jeu de défis en tour par tour. Une roulette fic
 
 | Couche | Techno |
 |---|---|
-| Frontend | React 18 + Vite 8, React Router v6, Zustand, Framer Motion |
-| Backend | Node.js 22.12 + Express 5 |
-| Base de données | MongoDB 9 + Mongoose |
-| Auth | JWT + bcryptjs |
-| Médias | Cloudinary (stream direct) + Multer (memoryStorage) |
+| Frontend | React 19.2 + Vite 8, React Router v7, Zustand 5, Framer Motion 12 |
+| Backend | Node.js 22 + Express 5 |
+| Base de données | MongoDB 7 + Mongoose 9 |
+| Auth | JWT (1d expiry default) + bcryptjs |
+| Médias | Cloudinary v2 (stream direct) + Multer (memoryStorage) |
 | Paiements | Stripe (Checkout + Billing Portal + Webhooks) |
 | QR Code | qrcode.react |
-| Temps réel (Phase 9) | Socket.IO (server + client) — rooms par salon, state en mémoire + snapshots Mongo |
-| PWA | vite-plugin-pwa (Phase 6) |
-| Déploiement | Docker Compose + Nginx + Certbot sur OVH |
+| Temps réel | Socket.IO 4 (server + client) — rooms par salon, state en mémoire + snapshots Mongo |
+| PWA | vite-plugin-pwa |
+| SEO | react-helmet-async + sitemap dynamique server-side |
+| Sécurité | helmet + express-rate-limit + CSP nginx, `npm audit` 0 vuln |
+| Déploiement | Docker Compose + Nginx + Certbot Let's Encrypt sur VPS OVH Debian 12 |
 
 ---
 
@@ -31,90 +35,130 @@ Application web mobile-first de jeu de défis en tour par tour. Une roulette fic
 
 ```
 la-roulade-marseillaise/
-├── client/                   # React + Vite
+├── client/                                # React + Vite
 │   ├── public/
-│   │   ├── sounds/           # Fichiers audio (vide — à remplir Phase 6)
-│   │   └── favicon.svg
+│   │   ├── sounds/                        # Fichiers audio (vide — sons via Web Audio synth)
+│   │   ├── robots.txt                     # SEO : Allow public, Disallow privé
+│   │   ├── favicon.ico, pwa-*.png         # Icônes PWA + favicon
+│   │   └── pwa-icon-source.svg
 │   ├── src/
 │   │   ├── components/
 │   │   │   ├── ChallengeCard/
-│   │   │   ├── CosmeticCard/         # Carte cosmétique unifiée (boutique + profil)
-│   │   │   ├── EmptyState/           # États vides homogènes (icône + titre + actions)
-│   │   │   ├── EndGame/              # Écran fin de partie + confettis
-│   │   │   ├── HomeRoulette/         # Roulette d'accueil cliquable
+│   │   │   ├── CosmeticCard/              # Carte cosmétique unifiée (boutique + profil)
+│   │   │   ├── EmptyState/                # États vides homogènes (icône + titre + actions)
+│   │   │   ├── EndGame/                   # Écran fin de partie + confettis
+│   │   │   ├── HomeRoulette/              # Roulette d'accueil cliquable
 │   │   │   ├── Icon/
-│   │   │   ├── Layout/
-│   │   │   ├── LoadingPlaceholder/   # Skeletons animés (shimmer GPU-friendly)
-│   │   │   ├── MediaUpload/          # Upload photo/vidéo Cloudinary (Premium only)
+│   │   │   ├── Layout/                    # Wrapper page + animation slide
+│   │   │   ├── LoadingPlaceholder/        # Skeletons animés (shimmer GPU-friendly)
+│   │   │   ├── MediaUpload/               # Upload photo/vidéo Cloudinary (Premium only)
 │   │   │   ├── PastisTimer/
-│   │   │   ├── PaywallModal/         # Modale teaser pack premium
+│   │   │   ├── PaywallModal/              # Modale teaser pack premium
 │   │   │   ├── PlayerCard/
 │   │   │   ├── ProtectedRoute.jsx
-│   │   │   ├── RadarParisiens/       # Easter egg autonome (apparaît si suspect détecté)
+│   │   │   ├── RadarParisiens/            # Easter egg autonome
 │   │   │   ├── Roulette/
-│   │   │   ├── RoulettePreview/      # Mini-roulette statique pour shop/profil
+│   │   │   ├── RoulettePreview/           # Mini-roulette statique pour shop/profil
+│   │   │   ├── SEO/                       # <SEO> centralisé (Helmet + OG + Twitter + JSON-LD)
 │   │   │   └── VotePanel/
 │   │   ├── pages/
-│   │   │   ├── Auth/             # Login + Register (pseudo ou email)
-│   │   │   ├── Editor/           # Éditeur de packs perso (protégé)
-│   │   │   ├── Gallery/          # /gallery/:shareLink — public
-│   │   │   ├── Game/             # Écran de jeu principal
-│   │   │   ├── Gate/             # /gate/packs + /gate/cosmetics — admin (requireGate)
-│   │   │   ├── History/          # /history — protégé
-│   │   │   ├── Home/
-│   │   │   ├── Packs/            # PackLibrary (PackSelection a fusionné dans SessionSetup wizard)
-│   │   │   ├── Premium/          # Premium (pricing) + PremiumSuccess
-│   │   │   ├── Profile/          # /profile — stats, abonnement, portail
-│   │   │   └── Session/          # SessionSetup (wizard 2 étapes : joueurs → pack)
+│   │   │   ├── Auth/                      # Login + Register
+│   │   │   ├── Editor/                    # Éditeur de packs perso (protégé)
+│   │   │   ├── Gallery/                   # /gallery/:shareLink — public (SEO)
+│   │   │   ├── Game/                      # Écran de jeu local
+│   │   │   ├── Gate/                      # /gate/packs + /gate/cosmetics — admin
+│   │   │   ├── History/                   # /history — protégé
+│   │   │   ├── Home/                      # Landing + section À propos indexable
+│   │   │   ├── Packs/                     # PackLibrary unifiée packs + cosmétiques
+│   │   │   ├── Premium/                   # Pricing + success
+│   │   │   ├── Profile/                   # Stats, abonnement, portail Stripe
+│   │   │   ├── Salon/                     # SalonNew, SalonJoin, SalonLobby (+SalonGame),
+│   │   │   │                              # MesSalons, SalonHistory, SalonToast
+│   │   │   └── Session/                   # SessionSetup wizard (joueurs → pack)
 │   │   ├── store/
 │   │   │   ├── authStore.js
-│   │   │   ├── gameStore.js        # state machine de gameplay (phase, spin, scoring, history)
-│   │   │   ├── sessionStore.js     # config de partie courante (playerNames, selectedPackId)
-│   │   │   └── settingsStore.js    # préférences user (theme, soundEnabled) — persistées localStorage
-│   │   ├── hooks/                # useSound, useActiveSkin, useCategories, useEscapeClose
+│   │   │   ├── gameStore.js               # state machine gameplay local (persist)
+│   │   │   ├── sessionStore.js            # config partie courante locale
+│   │   │   ├── settingsStore.js           # theme + soundEnabled (persist localStorage)
+│   │   │   └── salonStore.js              # état du salon courant (Phase 9)
+│   │   ├── hooks/
+│   │   │   ├── useSound.js                # Web Audio synth (spin/stop/validate/refuse/arrive)
+│   │   │   ├── useActiveSkin.js           # Cosmétique actif par catégorie
+│   │   │   ├── useCategories.js           # Cache module-level
+│   │   │   ├── useEscapeClose.js          # ESC ferme modale
+│   │   │   └── useSalonSocket.js          # Connexion Socket.IO + handlers + auto-reconnect iOS
 │   │   ├── services/
-│   │   │   └── api.js            # Axios, baseURL=/api (proxy Vite)
+│   │   │   ├── api.js                     # Axios baseURL=/api
+│   │   │   └── salonStorage.js            # localStorage arka-salon-<code>
+│   │   ├── utils/
+│   │   │   └── permissions.js             # hasPremiumAccess (tier OR role=gate)
 │   │   ├── styles/
 │   │   │   ├── global.css
-│   │   │   └── variables.css
-│   │   └── App.jsx
+│   │   │   ├── variables.css
+│   │   │   └── motion.js                  # Framer Motion variants (fumigènes, etc.)
+│   │   ├── App.jsx                        # Routes + AnimatedRoutes (slide directionnel)
+│   │   └── main.jsx                       # HelmetProvider + StrictMode + SW register
 │   ├── index.html
-│   └── vite.config.js
+│   ├── nginx.conf                         # Reverse proxy + CSP + Socket.IO upgrade + sitemap
+│   ├── Dockerfile                         # Multi-stage Vite build + Nginx alpine
+│   ├── vite.config.js                     # PWA + proxy /api (ws: true)
+│   └── package.json                       # overrides ws:^8.20.1 (CVE patch)
 │
 ├── server/
 │   ├── src/
-│   │   ├── config/
-│   │   │   └── db.js
+│   │   ├── config/db.js
 │   │   ├── models/
-│   │   │   ├── User.js
+│   │   │   ├── User.js                    # tier + role gate + activeSkins Map
 │   │   │   ├── Pack.js
 │   │   │   ├── Challenge.js
-│   │   │   ├── Session.js
-│   │   │   └── GameHistory.js
+│   │   │   ├── Session.js                 # historique parties locales
+│   │   │   ├── GameHistory.js             # legacy
+│   │   │   ├── Category.js                # catégories dynamiques (replace enum theme)
+│   │   │   ├── Cosmetic.js                # Stripe Products auto-sync
+│   │   │   └── Salon.js                   # groupe persistant + currentGame + games[]
 │   │   ├── routes/
-│   │   │   ├── auth.js
-│   │   │   ├── users.js
-│   │   │   ├── packs.js
-│   │   │   ├── sessions.js
-│   │   │   ├── media.js
-│   │   │   └── payments.js       # Stripe Checkout + Portal + Webhook
+│   │   │   ├── auth.js                    # register (validation regex) + login + me
+│   │   │   ├── users.js                   # GET /:id projection si pas owner
+│   │   │   ├── packs.js                   # CRUD + teaser si pas accès
+│   │   │   ├── sessions.js                # sauvegarde partie locale
+│   │   │   ├── media.js                   # upload Cloudinary (requirePremium)
+│   │   │   ├── payments.js                # Stripe Checkout + Portal + Webhook
+│   │   │   ├── gate.js                    # CRUD packs/categories/cosmetics admin
+│   │   │   ├── categories.js              # GET public
+│   │   │   ├── cosmetics.js               # GET public + checkout
+│   │   │   ├── salons.js                  # CRUD + resume + history + media upload
+│   │   │   └── sitemap.js                 # /sitemap.xml dynamique SEO
+│   │   ├── sockets/
+│   │   │   ├── index.js                   # initSockets + salon:join/leave/destroy
+│   │   │   ├── game.js                    # game:* events + skip offline players
+│   │   │   └── lifecycle.js               # recovery boot + cleanup TTL 2h
 │   │   ├── middlewares/
-│   │   │   ├── auth.js           # protect, optionalAuth, requirePremium
+│   │   │   ├── auth.js                    # protect, optionalAuth, requirePremium,
+│   │   │   │                              # requireGate, requireSalonMember
 │   │   │   └── errorHandler.js
 │   │   ├── services/
-│   │   │   ├── cloudinary.js     # cloudinary.v2 configuré
-│   │   │   └── stripe.js         # stripe SDK initialisé
-│   │   └── app.js                # body parser conditionnel pour /webhook
+│   │   │   ├── cloudinary.js              # v2 (CVE patché)
+│   │   │   └── stripe.js
+│   │   ├── controllers/authController.js
+│   │   └── app.js                         # helmet + CORS + rate limit + body parser
 │   ├── scripts/
-│   │   └── seed.js               # npm run seed — 7 packs officiels
-│   ├── .env
-│   ├── .env.example
-│   └── server.js
+│   │   ├── seed-categories.js
+│   │   ├── seed-packs.js                  # Mireille, Virage Sud, Mouloud
+│   │   ├── seed-cosmetics.js              # 3 skins roulette + Stripe sync
+│   │   └── fix-premium-period.js          # resync abos Stripe
+│   ├── .env, .env.example
+│   ├── server.js                          # httpServer + Socket.IO + lifecycle
+│   ├── Dockerfile                         # Node 22 alpine, npm ci --omit=dev
+│   └── package.json                       # overrides ws:^8.20.1 (CVE patch)
 │
-├── docker-compose.yml
-├── docker-compose.prod.yml
-├── nginx/
-│   └── nginx.conf
+├── scripts/
+│   ├── init-ssl.sh                        # Let's Encrypt premier cert
+│   ├── deploy.sh                          # git pull + rebuild + restart
+│   └── setup-vps.md                       # Doc complète setup VPS Debian
+│
+├── docker-compose.yml                     # Dev (server + client)
+├── docker-compose.prod.yml                # Prod (server + client + certbot)
+├── .env.production.example
 └── CLAUDE.md
 ```
 
@@ -160,15 +204,18 @@ Nom : **"Nuit sur les Goudes"** — activable manuellement, fond `--nuit-goudes`
 
 ## Sound Design
 
-| Événement | Fichier | Statut |
-|---|---|---|
-| Roulette qui tourne | `sounds/cigales.mp3` | ⏳ à ajouter |
-| Roulette qui s'arrête | `sounds/sifflet.mp3` | ⏳ à ajouter |
-| Validation d'un défi | `sounds/carreau.mp3` | ⏳ à ajouter |
-| Timer qui expire | `sounds/dramatique.mp3` | ⏳ à ajouter |
-| Vote refus | `sounds/soupir.mp3` | ⏳ à ajouter |
+Tous les sons sont **synthétisés via Web Audio API** (pas de fichiers .mp3 à fournir). Le hook `useSound.js` expose `play(name)` et `playSound(name)` (version standalone hors composant pour les event handlers socket).
 
-Infrastructure son : hook `useSound.js` — fallback silencieux si fichier manquant. Toggle global `soundEnabled` dans `useSettingsStore` (persisté localStorage).
+| Événement | Preset | Synthèse |
+|---|---|---|
+| Roulette qui tourne | `spin` | Bruit blanc filtré bandpass 600Hz, decay 250ms |
+| Roulette qui s'arrête | `stop` | Sine 1100→440Hz exponential decay, 450ms |
+| Validation d'un défi | `validate` | 2 carrés 660+880Hz cascadés |
+| Refus / défi raté | `refuse` | Sawtooth 280→130Hz exponential decay |
+| Timer expire | `timer` | 2 sine 220+185Hz cascadés |
+| Joueur arrive en salon | `arrive` | 3 sine Do-Mi-Sol (523-659-784Hz) en cascade |
+
+Toggle global `soundEnabled` dans `useSettingsStore` (persisté localStorage `roulade-sound`). Les sons salon (`spin`/`stop`/`validate`/`refuse`) sont **synchronisés multi-device** : ils déclenchent simultanément sur tous les phones au moment précis du `startAt` calculé serveur.
 
 ---
 
@@ -412,7 +459,7 @@ GET    /api/auth/me
 
 ### Users
 ```
-GET    /api/users/:id                    # (protect)
+GET    /api/users/:id                    # (protect) — projection publique si pas owner (username avatar tier role createdAt stats)
 PUT    /api/users/:id                    # (protect) — whitelist stricte { username, avatar }, avatar uniquement si isPremiumActive()
 PUT    /api/users/me/active-skin         # body: { category, slug | null } - active/désactive cosmétique (protect, ownership)
 GET    /api/users/:id/history            # (protect) — vérifie req.user._id === req.params.id (anti-IDOR)
@@ -530,6 +577,12 @@ Server → Client (broadcast room) :
 - `game:ended` `{ finalScores, history }`
 - `chat:emoji` `{ emoji, fromPlayerId, fromPseudo }`
 - `media:added` `{ url, playerId, pseudo }`
+
+### SEO (hors `/api`)
+```
+GET    /sitemap.xml                   # dynamique : pages fixes + galleries publiques + packs avec shareCode. Cache 1h.
+GET    /robots.txt                    # statique dans client/public, Allow public + Disallow espaces privés
+```
 
 ---
 
@@ -692,7 +745,7 @@ Server → Client (broadcast room) :
 - [x] Hints GPU : `will-change: transform`, `transform: translateZ(0)`, `backface-visibility: hidden` sur les éléments animés.
 - [x] Contour SVG léger (`stroke` + `paintOrder: stroke fill`) sur les chiffres pour conserver l'effet "gravure" sans coût GPU.
 
-### Phase 7 — Déploiement OVH 🔄
+### Phase 7 — Déploiement OVH ✅
 - [x] `client/Dockerfile` (multi-stage Vite build + Nginx alpine)
 - [x] `server/Dockerfile` (Node 22 alpine, `npm ci --omit=dev`)
 - [x] `docker-compose.prod.yml` (server + client + certbot, réseau bridge isolé)
@@ -704,26 +757,28 @@ Server → Client (broadcast room) :
 - [x] `scripts/setup-vps.md` (doc complète : install Mongo apt, UFW, users Mongo, backups cron, premier déploiement, Stripe live)
 - [x] **Architecture** : Mongo en service systemd sur le host Debian (bind 127.0.0.1 + 172.17.0.1), conteneurs accèdent via `host.docker.internal:host-gateway`. UFW protège tout sauf 22/80/443. Template OVH "Debian 12 - Docker" → Docker préinstallé.
 - [x] Domaine cible : **arka.michaelrichaud.fr**
-- [ ] Setup réel sur le VPS OVH (à faire en SSH)
-- [ ] Premier déploiement live + génération SSL
-- [ ] Stripe en mode live + webhook prod configuré
-- [ ] Création du compte gaté en prod et seeds initiaux
+- [x] Setup réel sur le VPS OVH (sections 1-7 du setup-vps.md exécutées)
+- [x] Premier déploiement live + génération SSL Let's Encrypt
+- [x] Création du compte gaté en prod
+- [ ] Stripe en mode live + webhook prod configuré (cf. section "Stripe LIVE" dans TODOs)
 
-### Phase 8 — SEO & Référencement 📋
+### Phase 8 — SEO & Référencement 🚧
 **Stratégie** : viser le long-tail à faible concurrence ("jeu de défis marseillais", "roulette de défis entre amis", "jeu apéro marseille") + nom de marque ("La Roulade Marseillaise", "ARKA roulade"). Cibler **"roulette"** ou **"roulade"** seuls n'est pas réaliste (concurrence casinos / cuisine).
 
-**Constat technique actuel** : SPA React = pas idéal SEO out-of-the-box. Mêmes meta tags partout, pas de pré-rendu, pas d'OG tags, pas de sitemap.
+**Phase 8.1 technique livrée** — il reste l'OG image 1200x630 dédiée à créer et la soumission aux Webmaster Tools (post-déploiement). **Phase 8.2 contenu/backlinks** reste à attaquer.
 
-**Phase 8.1 — SEO technique (1-2 jours dev)**
-- [ ] `react-helmet-async` : meta tags `title` + `description` par route (Home, Premium, Packs, Galerie publique)
-- [ ] Open Graph + Twitter Cards : image de partage, titre, description par page (preview correct sur WhatsApp / Insta / iMessage)
-- [ ] Pré-rendering des pages publiques (Home, Premium, Packs library) via `vite-plugin-prerender` ou similaire — HTML statique au build, SPA prend le relais après hydratation
-- [ ] `public/robots.txt` explicite (crawlable + sitemap)
-- [ ] `sitemap.xml` dynamique généré par le serveur (`/api/sitemap.xml`) listant : pages publiques fixes + chaque galerie partagée + chaque pack public
-- [ ] JSON-LD structured data type `WebApplication` / `Game` sur la Home
-- [ ] Canonical URLs (gérer les duplicates `?tab=cosmetics`, etc.)
-- [ ] Section "À propos / règles du jeu" sur la Home avec du vrai texte indexable (~300-500 mots)
-- [ ] Vérification Search Console + Bing Webmaster
+**Phase 8.1 — SEO technique** ✅
+- [x] `react-helmet-async` installé + `HelmetProvider` wrap dans `main.jsx`.
+- [x] Composant `<SEO>` centralisé (`client/src/components/SEO/SEO.jsx`) : title (suffixé automatiquement par "· La Roulade Marseillaise"), description, canonical, Open Graph, Twitter Cards, JSON-LD optionnel, prop `noindex` pour les pages privées.
+- [x] Meta + OG sur les routes publiques : **Home** (description marketing + JSON-LD WebApplication), **Premium** (pricing teaser), **Packs / Boutique** (catalogue), **Gallery** (`ogType: 'article'`, image = premier média de la galerie, title dynamique avec les joueurs).
+- [x] Section "À propos / règles du jeu" sur la Home avec ~400 mots indexables : 4 sous-sections H2/H3 (jeu, modes, packs, pourquoi marseillais, comment commencer). Visible en scrollant sous la roulette. Mobile + desktop responsive.
+- [x] `client/public/robots.txt` : Allow all + Disallow espaces privés (`/login`, `/profile`, `/history`, `/editor`, `/gate/`, `/salon/`, `/salons`). Référence `Sitemap: https://arka.michaelrichaud.fr/sitemap.xml`.
+- [x] Sitemap dynamique server-side : `server/src/routes/sitemap.js` génère `/sitemap.xml` avec pages fixes + galleries publiques (max 500, sorted by createdAt desc) + packs partageables (shareCode != null). Cache 1h.
+- [x] Nginx `location = /sitemap.xml` proxy vers le backend, robots.txt servi statiquement depuis `/usr/share/nginx/html`.
+- [x] Canonical URLs : auto via `<link rel="canonical">` dans `<SEO>`, basée sur le `path` passé en prop.
+- [x] JSON-LD `WebApplication` sur la Home avec `applicationCategory: GameApplication`, offers gratuit, creator ARKA.
+- [ ] Image OG 1200x630 dédiée à créer (fallback actuel : `pwa-512x512.png`, carrée — coupée en bandeau sur certaines plateformes).
+- [ ] Vérification Search Console + Bing Webmaster (post-déploiement)
 
 **Phase 8.2 — Contenu & backlinks (continu, plusieurs mois)**
 - [ ] Blog / page "Inspirations soirées" avec du contenu marseillais
@@ -732,7 +787,7 @@ Server → Client (broadcast room) :
 - [ ] Présence Insta / TikTok avec lien retour
 - [ ] Reviews ou citation par influenceurs marseillais
 
-### Phase 9 — Salons multijoueurs temps réel 🚧
+### Phase 9 — Salons multijoueurs temps réel ✅
 **Vision** : permettre à un Premium de créer un "Salon" privé invitable par QR/code. Chaque joueur sur son propre téléphone. Roulette synchronisée multi-device. Le salon survit plusieurs parties (une soirée = un salon). Max 10 joueurs.
 
 **Règles de gating** :
@@ -924,3 +979,53 @@ Récupérer le `whsec_...` affiché et le mettre dans `STRIPE_WEBHOOK_SECRET`.
 - Toujours gérer les erreurs côté API avec des messages en français marseillais
 - Les sons et animations sont toujours optionnels (accessibilité)
 - Ne pas mentionner Claude/Anthropic dans les commits git
+
+---
+
+## Reste à faire / TODOs
+
+Items en attente, par domaine. À cocher au fur et à mesure.
+
+### Redéploiements (Phase 7 ✅ déjà en prod)
+
+Pour chaque nouveau push de fonctionnalité ou patch :
+
+```bash
+# Depuis le mac
+git push origin main
+
+# Sur le VPS (en SSH debian@arka.michaelrichaud.fr)
+cd /opt/roulade
+./scripts/deploy.sh
+```
+
+Le script `deploy.sh` fait pull + rebuild images + restart + cleanup. Renouvellement SSL Let's Encrypt automatique via le conteneur certbot (boucle 12h).
+
+Cas particuliers :
+- **Nouveaux scripts dans `server/scripts/`** (seeds, migrations) : rebuild force du conteneur server avant `docker exec ... node scripts/X.js`.
+- **Changements `.env.production`** : éditer sur le VPS avec `nano /opt/roulade/.env.production` puis `docker compose -f docker-compose.prod.yml up -d server` pour recharger.
+- **Changement Mongoose schema** : pas de migration auto. Les anciens docs gardent leurs anciens champs, les nouveaux champs ont leur default. Pour cleanup, scripter via `mongosh`.
+- **Changement nginx.conf** : rebuild image client (pas de hot reload nginx en prod).
+
+### Phase 8 — SEO (suite après déploiement)
+- [ ] **Créer une OG image dédiée 1200x630** (preview WhatsApp/iMessage/Insta parfaite). Pour l'instant fallback `pwa-512x512.png` (carré, coupé en bandeau). Une fois créée, la mettre dans `client/public/og-image.png` et update `DEFAULT_OG_IMAGE` + remettre `og:image:width/height` dans `<SEO>`.
+- [ ] **Soumettre le sitemap dans Google Search Console** (https://search.google.com/search-console) : ajouter la propriété `arka.michaelrichaud.fr`, vérifier via meta tag ou DNS, soumettre `https://arka.michaelrichaud.fr/sitemap.xml`.
+- [ ] **Bing Webmaster Tools** (https://www.bing.com/webmasters) : même flow.
+- [ ] **Tester les previews** via [opengraph.xyz](https://www.opengraph.xyz/) après déploiement. Vérifier que les meta sont bien rendues (helmet-async écrit dans le DOM après hydratation, mais Google et la plupart des crawlers rendent le JS aujourd'hui).
+- [ ] **Phase 8.2 — Contenu & backlinks** (continu sur plusieurs mois) : blog/page "Inspirations soirées", backlinks Product Hunt + sites jeux d'apéro + blogs marseillais + presse régionale (La Provence, Made In Marseille), présence Insta/TikTok, reviews influenceurs marseillais.
+
+### Stripe LIVE (quand prêt à monétiser)
+- [ ] Dans dashboard Stripe **mode Live** : créer 2 produits Premium Mensuel + Annuel avec leurs Prices, copier les IDs.
+- [ ] Récupérer `sk_live_...` + créer un nouvel endpoint webhook live, copier le `whsec_live_...`.
+- [ ] Update `.env.production` sur le VPS : `STRIPE_SECRET_KEY=sk_live_xxx`, `STRIPE_WEBHOOK_SECRET=whsec_live_xxx`, `STRIPE_PRICE_MONTHLY=price_xxx`, `STRIPE_PRICE_ANNUAL=price_xxx`.
+- [ ] Relancer le `seed-cosmetics.js` pour créer les Stripe Products/Prices côté **Live** (les Test seront orphelins, à archiver à la main).
+- [ ] Restart server : `docker compose -f docker-compose.prod.yml up -d server`.
+- [ ] Faire un vrai paiement test (carte perso, on rembourse après) pour valider le flow end-to-end.
+
+### Polish / features bonus identifiées mais reportées
+- [ ] **Page admin `/gate/users`** : CRUD users, promouvoir en gate via UI, bannir, stats globales.
+- [ ] **Push notifications PWA** : notifs natives "X t'a invité dans son salon".
+- [ ] **Replay stories post-partie** (Sprint 4) : photos du salon en mode stories Insta après une partie.
+- [ ] **Catalogue de packs officiels** à créer depuis `/gate/packs` (BUSINESS.md liste : EVJF, Soirée Filles, Pack 18+, EVG, Noël en Famille, Après-Ski, La Tournée du Pastis…).
+- [ ] **Audit vibrate Android** : tester sur device réel que `navigator.vibrate()` marche sans user-gesture explicite.
+- [ ] **CSP tuning post-déploiement** : si des assets bloquent dans la console DevTools, ajuster la directive dans `client/nginx.conf`.

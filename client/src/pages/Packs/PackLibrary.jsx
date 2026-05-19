@@ -8,6 +8,7 @@ import PaywallModal from '../../components/PaywallModal/PaywallModal';
 import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import EmptyState from '../../components/EmptyState/EmptyState';
+import SEO from '../../components/SEO/SEO';
 import { useCategories } from '../../hooks/useCategories';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
@@ -192,6 +193,13 @@ export default function PackLibrary() {
 
   return (
     <Layout className="library-page">
+      <SEO
+        title={tab === 'cosmetics' ? 'La Boutique' : 'Les Packs de défis'}
+        description={tab === 'cosmetics'
+          ? 'Personnalise ta roulette avec des skins marseillais : Vélodrome, Calanques, Bouillabaisse… Aiguilles, cochonnets, cadres d\'avatar à débloquer.'
+          : 'Choisis ton pack de défis marseillais : Mireille la daronne, Virage Sud (supporters OM), Mouloud le Pêcheur (rois de l\'exagération), EVJF, Soirée 18+, EVG, Noël en Famille…'}
+        path={tab === 'cosmetics' ? '/packs?tab=cosmetics' : '/packs'}
+      />
       <div className="library-header">
         <button
           className="btn-back"

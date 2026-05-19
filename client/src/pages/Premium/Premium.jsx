@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Icon from '../../components/Icon/Icon';
+import SEO from '../../components/SEO/SEO';
 import useAuthStore from '../../store/authStore';
 import api from '../../services/api';
 import './Premium.css';
@@ -55,6 +56,11 @@ export default function Premium() {
 
   return (
     <div className="premium-page">
+      <SEO
+        title="Premium"
+        description="Passe en Premium : packs de défis illimités, salons multijoueur temps réel, photos de soirée, historique des parties, roulettes custom. À partir de 2,99 €/mois."
+        path="/premium"
+      />
 
       {/* ── Nav ── */}
       <div className="premium-nav">

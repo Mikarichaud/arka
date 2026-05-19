@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+
+# Espaces privés / authentifiés — pas la peine d'indexer
+Disallow: /login
+Disallow: /profile
+Disallow: /history
+Disallow: /editor
+Disallow: /gate/
+Disallow: /salon/
+Disallow: /salons
+
+# Pages publiques (cosmétique : le crawler les trouvera quand même via les liens internes)
+# Sitemap dynamique servi par le backend
+Sitemap: https://arka.michaelrichaud.fr/sitemap.xml

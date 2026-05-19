@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   MOBILE — flex colonne : header → brand → roulette → actions
+   MOBILE — flex colonne : header → brand → roulette → actions → about
    ═══════════════════════════════════════════════════ */
 .home-page {
   display: flex;
@@ -8,6 +8,72 @@
   padding: 0;
   gap: 0;
   background: linear-gradient(165deg, #0d1b3e 0%, #0a4082 45%, #0057A8 75%, #003d7a 100%);
+  /* La section À propos peut faire scroller la page (utile pour SEO + contenu). */
+  overflow-x: hidden;
+}
+
+/* ── Section À propos / Règles — indexable Google ── */
+.home-about {
+  order: 4;
+  padding: 48px max(20px, env(safe-area-inset-left)) max(56px, calc(env(safe-area-inset-bottom) + 40px));
+  max-width: 720px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.home-about h2 {
+  font-family: var(--font-titre);
+  font-size: clamp(1.7rem, 5vw, 2.2rem);
+  color: var(--or-etoile);
+  letter-spacing: 0.02em;
+  margin: 0 0 16px;
+  text-align: center;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.home-about h3 {
+  font-family: var(--font-titre);
+  font-size: 1.25rem;
+  color: white;
+  letter-spacing: 0.03em;
+  margin: 28px 0 10px;
+}
+
+.home-about p {
+  margin: 0 0 14px;
+}
+
+.home-about strong {
+  color: var(--or-etoile-light);
+  font-weight: 700;
+}
+
+.home-about em {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.home-about ul {
+  margin: 0 0 16px;
+  padding-left: 20px;
+}
+
+.home-about li {
+  margin-bottom: 10px;
+}
+
+@media (min-width: 1024px) {
+  /* En desktop, .home-page est flex-row (left + roulette plein écran).
+     On wrap pour que .home-about passe sur une nouvelle ligne en plein écran. */
+  .home-page { flex-wrap: wrap; }
+  .home-about {
+    flex: 0 0 100%;
+    padding: 80px 64px max(64px, env(safe-area-inset-bottom));
+    max-width: 960px;
+    font-size: 1rem;
+  }
 }
 
 /* Sur mobile : home-left transparent → ses enfants deviennent

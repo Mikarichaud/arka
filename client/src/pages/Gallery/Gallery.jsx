@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Icon from '../../components/Icon/Icon';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import EmptyState from '../../components/EmptyState/EmptyState';
+import SEO from '../../components/SEO/SEO';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import api from '../../services/api';
 import './Gallery.css';
@@ -49,17 +50,27 @@ export default function Gallery() {
 
   const hasMedia = data.media && data.media.length > 0;
 
+  const playerNames = data.players.map((p) => p.name).join(' · ');
+  const sessionDate = new Date(data.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
   return (
     <div className="gallery-page">
+      <SEO
+        title={`Galerie soirée — ${playerNames}`}
+        description={`Photos et défis de la soirée du ${sessionDate} avec ${playerNames}. Reviens nous voir sur La Roulade Marseillaise.`}
+        path={`/gallery/${shareLink}`}
+        ogType="article"
+        image={data.media?.[0] || undefined}
+      />
       <div className="gallery-header">
         <button className="gallery-back" onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}>← Retour</button>
         <div className="gallery-meta">
           <h1 className="gallery-title"><Icon name="photo" size={22} style={{ marginRight: 8 }} />Galerie de soirée</h1>
           <p className="gallery-players">
-            {data.players.map((p) => p.name).join(' · ')}
+            {playerNames}
           </p>
           <p className="gallery-date">
-            {new Date(data.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {sessionDate}
           </p>
         </div>
       </div>

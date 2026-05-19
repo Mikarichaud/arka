@@ -15,6 +15,7 @@ const gateRoutes = require('./routes/gate');
 const categoryRoutes = require('./routes/categories');
 const cosmeticRoutes = require('./routes/cosmetics');
 const salonRoutes = require('./routes/salons');
+const sitemapRoute = require('./routes/sitemap');
 
 const app = express();
 
@@ -98,6 +99,9 @@ app.use('/api/salons', salonRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });
 });
+
+// Sitemap SEO — exposé sur /sitemap.xml directement (pas sous /api)
+app.use('/', sitemapRoute);
 
 app.use(errorHandler);
 
