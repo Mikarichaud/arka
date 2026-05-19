@@ -14,18 +14,27 @@ import PremiumSuccess from './pages/Premium/PremiumSuccess';
 import Profile from './pages/Profile/Profile';
 import GatePacks from './pages/Gate/GatePacks';
 import GateCosmetics from './pages/Gate/GateCosmetics';
+import SalonNew from './pages/Salon/SalonNew';
+import SalonJoin from './pages/Salon/SalonJoin';
+import SalonLobby from './pages/Salon/SalonLobby';
+import MesSalons from './pages/Salon/MesSalons';
+import SalonHistory from './pages/Salon/SalonHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const NavDirectionContext = createContext(1);
 export const useNavDirection = () => useContext(NavDirectionContext);
 
-// Pages sans slide (jeu plein écran, galerie)
-const NO_SLIDE = ['/game', '/gallery'];
+// Pages sans slide (jeu plein écran, galerie, salons)
+const NO_SLIDE = ['/game', '/gallery', '/salon/'];
 
 function AnimatedRoutes() {
   const location = useLocation();
   const navType = useNavigationType();
-  const direction = navType === 'POP' ? -1 : 1;
+  // POP = navigation back/forward du browser → animation back (-1)
+  // REPLACE avec state.dir='back' = un Quitter explicite qui doit s'animer comme back
+  // (sinon l'animation default = forward, ce qui est faux pour un retour).
+  const isBack = navType === 'POP' || location.state?.dir === 'back';
+  const direction = isBack ? -1 : 1;
 
   const noSlide = NO_SLIDE.some((p) => location.pathname.startsWith(p));
 
@@ -74,6 +83,12 @@ function AnimatedRoutes() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
             <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />
+            <Route path="/salon/new" element={<ProtectedRoute><SalonNew /></ProtectedRoute>} />
+            <Route path="/salon/join" element={<SalonJoin />} />
+            <Route path="/salon/join/:shareLink" element={<SalonJoin />} />
+            <Route path="/salons" element={<ProtectedRoute><MesSalons /></ProtectedRoute>} />
+            <Route path="/salon/:code/history" element={<ProtectedRoute><SalonHistory /></ProtectedRoute>} />
+            <Route path="/salon/:code" element={<SalonLobby />} />
             <Route path="/shop" element={<Navigate to="/packs?tab=cosmetics" replace />} />
           </Routes>
         </motion.div>

@@ -136,6 +136,22 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Ligne des CTA salon : sur mobile = stacked, sur tablette ≥ 480px = côte à côte */
+.home-salon-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.home-salon-cta {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+@media (min-width: 480px) {
+  .home-salon-row { flex-direction: row; }
+  .home-salon-row .home-salon-cta { flex: 1; }
+}
 .home-premium-cta:hover {
   background: rgba(201, 168, 76, 0.22) !important;
   border-color: rgba(201, 168, 76, 0.7) !important;

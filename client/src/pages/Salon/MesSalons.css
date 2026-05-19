@@ -1,0 +1,198 @@
+/* Page "Mes salons" — liste des groupes persistants */
+
+.mes-salons-page {
+  padding-top: max(24px, calc(env(safe-area-inset-top) + 8px));
+  padding-bottom: max(40px, calc(env(safe-area-inset-bottom) + 24px));
+  gap: 24px;
+}
+
+/* ─── Action bar top : Créer + Rejoindre ──────────────── */
+
+.mes-salons-action-bar {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.mes-salons-cta {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 18px;
+  font-size: 0.95rem;
+}
+
+.mes-salons-cta--upsell {
+  /* Visuel "premium teaser" pour les Free */
+  background: rgba(201, 168, 76, 0.08) !important;
+  border-color: rgba(201, 168, 76, 0.4) !important;
+  color: var(--or-etoile) !important;
+}
+.mes-salons-cta--upsell:hover {
+  background: rgba(201, 168, 76, 0.16) !important;
+  border-color: rgba(201, 168, 76, 0.6) !important;
+}
+
+@media (min-width: 480px) {
+  .mes-salons-action-bar { grid-template-columns: 1fr 1fr; }
+}
+
+.mes-salons-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mes-salons-section-title {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.mes-salons-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 768px) {
+  .mes-salons-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (min-width: 1280px) {
+  .mes-salons-grid { grid-template-columns: 1fr 1fr 1fr; }
+}
+
+.mes-salon-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+.mes-salon-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.mes-salon-card--ended { opacity: 0.85; }
+
+.mes-salon-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mes-salon-card-name {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  letter-spacing: 0.01em;
+  color: var(--text-primary);
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mes-salon-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.mes-salon-status--lobby {
+  background: rgba(0, 87, 168, 0.12);
+  color: var(--bleu-azur);
+}
+.mes-salon-status--playing {
+  background: rgba(45, 198, 83, 0.15);
+  color: var(--vert-valide);
+}
+.mes-salon-status--between-games {
+  background: rgba(201, 168, 76, 0.18);
+  color: var(--or-etoile);
+}
+.mes-salon-status--ended {
+  background: rgba(140, 150, 170, 0.15);
+  color: var(--gris-doux);
+}
+
+.mes-salon-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--vert-valide);
+  animation: mes-salon-pulse 1.6s infinite;
+}
+
+@keyframes mes-salon-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(45, 198, 83, 0.5); }
+  70%  { box-shadow: 0 0 0 6px rgba(45, 198, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(45, 198, 83, 0); }
+}
+
+.mes-salon-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.78rem;
+  color: var(--gris-doux);
+}
+
+.mes-salon-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mes-salon-host-pill {
+  background: rgba(201, 168, 76, 0.18);
+  color: var(--or-etoile) !important;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.7rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.mes-salon-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.mes-salon-actions .btn { padding: 8px 14px; font-size: 0.85rem; }
+
+.btn-quiet-danger {
+  background: none;
+  border: 1px solid transparent;
+  color: var(--gris-doux);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  transition: all var(--transition-fast);
+}
+.btn-quiet-danger:hover {
+  color: var(--rouge-defi);
+  border-color: rgba(230, 57, 70, 0.4);
+  background: rgba(230, 57, 70, 0.08);
+}

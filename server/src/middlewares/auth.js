@@ -53,4 +53,30 @@ const requireGate = (req, res, next) => {
   next();
 };
 
-module.exports = { protect, optionalAuth, requirePremium, requireGate };
+// Vérifie qu'on est bien membre actif d'un salon (via connectionToken).
+// Attache req.salon et req.salonPlayer pour les handlers.
+// Le code du salon vient de req.params.code, le token de req.headers['x-salon-token'] ou req.body.connectionToken.
+const Salon = require('../models/Salon');
+const requireSalonMember = async (req, res, next) => {
+  try {
+    const code = (req.params.code || '').toUpperCase();
+    const token = req.headers['x-salon-token'] || req.body?.connectionToken;
+    if (!code || !token) {
+      return res.status(401).json({ message: 'Authentification salon manquante.' });
+    }
+    const salon = await Salon.findOne({ code });
+    if (!salon) return res.status(404).json({ message: 'Salon introuvable.' });
+    if (salon.status === 'ended') {
+      return res.status(410).json({ message: 'Ce salon est fermé.', code: 'SALON_ENDED' });
+    }
+    const player = salon.findPlayerByToken(token);
+    if (!player) {
+      return res.status(403).json({ message: 'Pas membre de ce salon.', code: 'NOT_MEMBER' });
+    }
+    req.salon = salon;
+    req.salonPlayer = player;
+    next();
+  } catch (err) { next(err); }
+};
+
+module.exports = { protect, optionalAuth, requirePremium, requireGate, requireSalonMember };

@@ -14,6 +14,7 @@ const paymentRoutes = require('./routes/payments');
 const gateRoutes = require('./routes/gate');
 const categoryRoutes = require('./routes/categories');
 const cosmeticRoutes = require('./routes/cosmetics');
+const salonRoutes = require('./routes/salons');
 
 const app = express();
 
@@ -28,7 +29,9 @@ const corsOptions = process.env.NODE_ENV === 'production'
   : { origin: true, credentials: true };
 
 app.use(cors(corsOptions));
-app.use(morgan('dev'));
+// En prod : format combined (1 ligne par requête, parsable par fail2ban/grafana).
+// En dev : format dev (couleurs).
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Webhook Stripe : body brut obligatoire pour la vérification de signature
 // Toutes les autres routes : JSON parsé
@@ -90,6 +93,7 @@ app.use('/api/payments', paymentRoutes);
 app.use('/api/gate', gateRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cosmetics', cosmeticRoutes);
+app.use('/api/salons', salonRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

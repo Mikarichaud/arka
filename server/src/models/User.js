@@ -36,6 +36,10 @@ userSchema.methods.comparePassword = function (candidate) {
 };
 
 userSchema.methods.isPremiumActive = function () {
+  // Les Gatés (rôle admin du site) ont l'équivalent Premium en permanence :
+  // accès à tout le contenu, création illimitée de packs/salons, upload média/avatar.
+  // Ça évite de leur faire payer un abonnement pour gérer leur propre instance.
+  if (this.role === 'gate') return true;
   if (this.tier !== 'premium') return false;
   if (!this.subscription?.currentPeriodEnd) return false;
   return new Date() < new Date(this.subscription.currentPeriodEnd);

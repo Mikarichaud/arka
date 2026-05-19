@@ -1,0 +1,538 @@
+/* ═══════════════════════════════════════════════════════════════
+   Pages Salon (Phase 9 — Multijoueur temps réel)
+   - SalonNew  : création (Premium)
+   - SalonJoin : code manuel + landing QR
+   - SalonLobby: lobby + redirection vers le jeu quand la partie démarre
+   ═══════════════════════════════════════════════════════════════ */
+
+.salon-page {
+  padding-top: max(24px, calc(env(safe-area-inset-top) + 8px));
+  padding-bottom: max(40px, calc(env(safe-area-inset-bottom) + 24px));
+  gap: 20px;
+}
+
+.salon-header { display: flex; flex-direction: column; gap: 6px; }
+
+.salon-title {
+  font-family: var(--font-titre);
+  font-size: 2.2rem;
+  color: var(--bleu-azur);
+  letter-spacing: 0.01em;
+}
+
+.salon-subtitle {
+  color: var(--gris-doux);
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* ─── Form (create / join) ──────────────────────────── */
+
+.salon-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.salon-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.salon-error {
+  color: var(--rouge-defi);
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin: 0;
+  text-align: center;
+}
+
+.salon-cta {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.salon-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--gris-doux);
+  margin-top: 4px;
+}
+
+/* ─── Preview (landing via shareLink) ────────────────── */
+
+.salon-preview {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.salon-preview-name {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.salon-preview-meta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: var(--gris-doux);
+  font-size: 0.9rem;
+}
+
+.salon-preview-meta strong { color: var(--text-primary); }
+
+.salon-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.salon-status-pill--live { background: rgba(45,198,83,0.15); color: var(--vert-valide); border-color: var(--vert-valide); }
+.salon-status-pill--ended { background: rgba(230,57,70,0.12); color: var(--rouge-defi); border-color: var(--rouge-defi); }
+.salon-status-pill--full { background: rgba(201,168,76,0.18); color: var(--or-etoile); border-color: var(--or-etoile); }
+
+/* ─── Lobby ──────────────────────────────────────────── */
+
+.lobby-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lobby-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.lobby-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--vert-valide);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.lobby-live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--vert-valide);
+  box-shadow: 0 0 0 0 rgba(45,198,83,0.6);
+  animation: lobby-pulse 1.6s infinite;
+}
+.lobby-live--off .lobby-live-dot { background: var(--gris-doux); box-shadow: none; animation: none; }
+.lobby-live--off { color: var(--gris-doux); }
+
+@keyframes lobby-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(45,198,83,0.5); }
+  70%  { box-shadow: 0 0 0 10px rgba(45,198,83,0); }
+  100% { box-shadow: 0 0 0 0 rgba(45,198,83,0); }
+}
+
+.lobby-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gris-doux);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.lobby-name {
+  font-family: var(--font-titre);
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+/* ─── Bloc invitation ────────────────────────────────── */
+
+.lobby-invite {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.lobby-invite-qr {
+  padding: 10px;
+  background: white;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  line-height: 0;
+}
+
+.lobby-invite-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.lobby-invite-code-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gris-doux);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.lobby-invite-code-value {
+  font-family: var(--font-titre);
+  font-size: 2.2rem;
+  color: var(--bleu-azur);
+  letter-spacing: 0.18em;
+  cursor: pointer;
+  user-select: all;
+}
+
+.lobby-invite-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.lobby-invite-actions .btn { flex: 1 1 130px; min-width: 130px; }
+
+/* ─── Liste joueurs ──────────────────────────────────── */
+
+.lobby-players {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lobby-players-title {
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lobby-players-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lobby-player-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--surface-bg);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--surface-border);
+  transition: background var(--transition-fast);
+}
+
+.lobby-player-row--me { border-color: var(--bleu-azur); background: rgba(0,87,168,0.06); }
+
+.lobby-player-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gris-doux);
+  flex-shrink: 0;
+}
+.lobby-player-dot--online { background: var(--vert-valide); }
+
+.lobby-player-pseudo {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-player-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(201,168,76,0.18);
+  color: var(--or-etoile);
+}
+
+.lobby-player-badge--me {
+  background: rgba(0,87,168,0.12);
+  color: var(--bleu-azur);
+}
+
+/* ─── Actions host / leave ───────────────────────────── */
+
+.lobby-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lobby-actions .btn { width: 100%; }
+
+/* Lien rouge discret pour "Détruire le salon" — moins agressif qu'un btn-danger */
+.btn-quiet-danger-text {
+  background: none;
+  border: none;
+  color: var(--rouge-defi);
+  font-family: var(--font-corps);
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 8px;
+  cursor: pointer;
+  opacity: 0.75;
+  text-decoration: underline;
+  text-decoration-color: rgba(230, 57, 70, 0.4);
+  text-underline-offset: 3px;
+  transition: opacity var(--transition-fast);
+}
+.btn-quiet-danger-text:hover { opacity: 1; }
+
+.lobby-warn {
+  font-size: 0.8rem;
+  color: var(--gris-doux);
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Host disconnected overlay ──────────────────────── */
+
+.lobby-host-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,17,23,0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 24px;
+}
+
+.lobby-host-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lobby-host-title {
+  font-family: var(--font-titre);
+  font-size: 1.5rem;
+  color: var(--rouge-defi);
+  margin: 0;
+}
+
+.lobby-host-countdown {
+  font-family: var(--font-titre);
+  font-size: 3rem;
+  color: var(--or-etoile);
+  letter-spacing: 0.02em;
+}
+
+/* ─── Salon mort (read-only) ─────────────────────────── */
+
+.lobby-dead {
+  background: rgba(230,57,70,0.08);
+  border: 1px solid var(--rouge-defi);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  text-align: center;
+  color: var(--rouge-defi);
+  font-weight: 700;
+}
+
+.lobby-dead small {
+  display: block;
+  margin-top: 4px;
+  color: var(--gris-doux);
+  font-weight: 600;
+}
+
+/* ─── Modal partagée (style fumigène) ────────────────── */
+
+.salon-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13,17,23,0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 110;
+  padding: 24px;
+}
+
+.salon-modal {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.salon-modal-title {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  color: var(--rouge-defi);
+  margin: 0;
+  text-align: center;
+}
+
+.salon-modal-body {
+  color: var(--text-primary);
+  text-align: center;
+  margin: 0;
+}
+
+.salon-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.salon-modal-actions .btn { flex: 1; }
+
+/* ─── Pack picker modale (host lance la partie) ─────── */
+
+.salon-pack-picker {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  max-width: 460px;
+  width: 100%;
+  max-height: 80dvh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.salon-pack-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.salon-pack-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.salon-pack-row:hover:not(:disabled) {
+  background: rgba(0, 87, 168, 0.08);
+  border-color: var(--bleu-azur);
+}
+.salon-pack-row:active:not(:disabled) { transform: scale(0.98); }
+.salon-pack-row:disabled { opacity: 0.6; cursor: wait; }
+.salon-pack-row.is-loading { border-color: var(--or-etoile); }
+
+.salon-pack-row-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.salon-pack-row-name {
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.salon-pack-row-desc {
+  font-size: 0.82rem;
+  color: var(--gris-doux);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (min-width: 768px) {
+  .salon-title { font-size: 2.6rem; }
+  .lobby-shell { max-width: 640px; margin: 0 auto; width: 100%; }
+}

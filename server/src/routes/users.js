@@ -6,7 +6,13 @@ const GameHistory = require('../models/GameHistory');
 
 router.get('/:id', protect, async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).populate('customPacks');
+    const isMe = req.user._id.toString() === req.params.id;
+    // Si on regarde son propre profil, on renvoie tout. Sinon, profil PUBLIC
+    // uniquement (pas l'email, pas la subscription Stripe, pas les achats).
+    const projection = isMe ? undefined : 'username avatar tier role createdAt stats';
+    let query = User.findById(req.params.id, projection);
+    if (isMe) query = query.populate('customPacks');
+    const user = await query;
     if (!user) return res.status(404).json({ message: 'Utilisateur introuvable.' });
     res.json({ user });
   } catch (err) { next(err); }

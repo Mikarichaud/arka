@@ -92,6 +92,24 @@ const soundDefs = {
       osc.stop(t + 0.22);
     });
   },
+
+  // Petit chime d'arrivée — 3 notes ascendantes douces (do-mi-sol) façon cigale qui pousse la porte
+  arrive: (c) => {
+    [523.25, 659.25, 783.99].forEach((freq, i) => {
+      const osc = c.createOscillator();
+      const gain = c.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const t = c.currentTime + i * 0.08;
+      gain.gain.setValueAtTime(0.0001, t);
+      gain.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28);
+      osc.connect(gain);
+      gain.connect(c.destination);
+      osc.start(t);
+      osc.stop(t + 0.32);
+    });
+  },
 };
 
 export function useSound() {
@@ -109,4 +127,17 @@ export function useSound() {
   }, [soundEnabled]);
 
   return { play };
+}
+
+// Version standalone (utilisable hors composant : event handlers socket, helpers).
+// Lit le préférence soundEnabled directement depuis le store.
+export function playSound(name) {
+  try {
+    if (!useSettingsStore.getState().soundEnabled) return;
+    const c = getCtx();
+    if (!c) return;
+    soundDefs[name]?.(c);
+  } catch {
+    // Fallback silencieux
+  }
 }

@@ -29,7 +29,9 @@ export default defineConfig({
         globPatterns: ['**/*.{js,css,html,ico,png,svg,webp,woff,woff2}'],
         runtimeCaching: [
           {
-            urlPattern: /^\/api\//,
+            // Cache des appels REST /api uniquement. Le transport Socket.IO
+            // (/api/socket.io/...) est exclu pour ne pas intercepter le polling/WS.
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/') && !url.pathname.startsWith('/api/socket.io'),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
@@ -56,6 +58,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:5003',
         changeOrigin: true,
+        ws: true,
       },
     },
   },

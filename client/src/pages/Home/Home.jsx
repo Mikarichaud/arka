@@ -5,6 +5,7 @@ import Icon from '../../components/Icon/Icon';
 import HomeRoulette from '../../components/HomeRoulette/HomeRoulette';
 import useAuthStore from '../../store/authStore';
 import useSettingsStore from '../../store/settingsStore';
+import { hasPremiumAccess } from '../../utils/permissions';
 import './Home.css';
 
 export default function Home() {
@@ -52,6 +53,25 @@ export default function Home() {
           >
             Lancer une partie
           </button>
+          {/* Salons : logged-in = un seul CTA Mes salons (qui héberge Créer + Rejoindre + ses groupes).
+              Anonyme = juste Rejoindre via code/QR. */}
+          {user ? (
+            <button
+              className="btn btn-ghost home-ghost-btn home-salon-cta"
+              onClick={() => navigate('/salons')}
+            >
+              <Icon name="trophy" size={16} style={{ marginRight: 6 }} />
+              Mes salons
+            </button>
+          ) : (
+            <button
+              className="btn btn-ghost home-ghost-btn home-salon-cta"
+              onClick={() => navigate('/salon/join')}
+            >
+              <Icon name="anchor" size={16} style={{ marginRight: 6 }} />
+              Rejoindre un salon
+            </button>
+          )}
           <button
             className="btn btn-ghost home-ghost-btn"
             onClick={() => navigate('/packs')}
@@ -67,10 +87,10 @@ export default function Home() {
               >
                 <Icon name="wave" size={14} />
                 <span className="home-user-name">{user.username}</span>
-                {user.tier === 'premium' && <Icon name="star" size={13} />}
+                {hasPremiumAccess(user) && <Icon name="star" size={13} />}
               </button>
               <div className="home-user-actions">
-                {user.tier !== 'premium' && (
+                {!hasPremiumAccess(user) && (
                   <button
                     className="home-user-btn home-user-btn--gold"
                     onClick={() => navigate('/premium')}

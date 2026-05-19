@@ -7,6 +7,7 @@ import Icon from '../../components/Icon/Icon';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import useAuthStore from '../../store/authStore';
 import { useCategories } from '../../hooks/useCategories';
+import { hasPremiumAccess } from '../../utils/permissions';
 import api from '../../services/api';
 import './Editor.css';
 
@@ -29,7 +30,7 @@ export default function Editor() {
   const { id: editingId } = useParams();
   const { user } = useAuthStore();
   const { categories } = useCategories();
-  const isPremium = user?.tier === 'premium';
+  const isPremium = hasPremiumAccess(user);
   const isEditMode = Boolean(editingId);
   const minChallenges = isPremium ? PREMIUM_MIN : FREE_CHALLENGES;
   const maxChallenges = isPremium ? PREMIUM_MAX : FREE_CHALLENGES;

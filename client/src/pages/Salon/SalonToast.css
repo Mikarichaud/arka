@@ -1,0 +1,82 @@
+/* Toast "Té, X vient d'arriver !" — apparition top-center, auto-dismiss */
+
+.salon-toast-anchor {
+  position: fixed;
+  top: max(16px, calc(env(safe-area-inset-top) + 8px));
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 120;
+  pointer-events: none; /* anchor n'absorbe pas les clics, le toast oui */
+  max-width: calc(100vw - 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.salon-toast {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.salon-toast-wave {
+  font-size: 1.2rem;
+  animation: salon-toast-wave 1.6s ease-in-out infinite;
+  transform-origin: 70% 80%;
+  display: inline-block;
+}
+
+@keyframes salon-toast-wave {
+  0%, 60%, 100% { transform: rotate(0deg); }
+  10%, 30%      { transform: rotate(14deg); }
+  20%, 40%      { transform: rotate(-8deg); }
+}
+
+.salon-toast-text strong { color: var(--bleu-azur); }
+
+/* Variante erreur : pill rouge, cliquable pour fermer */
+.salon-toast--error {
+  background: var(--rouge-defi);
+  border-color: var(--rouge-defi);
+  color: white;
+  cursor: pointer;
+}
+
+.salon-toast-error-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-family: var(--font-titre);
+  font-size: 0.95rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* Sur desktop, on remonte le toast en dessous de la zone scores sticky */
+@media (min-width: 1024px) {
+  .salon-toast-anchor {
+    top: 76px;
+  }
+  .salon-toast {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+  }
+}

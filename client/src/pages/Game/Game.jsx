@@ -14,6 +14,7 @@ import RadarParisiens from '../../components/RadarParisiens/RadarParisiens';
 import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import useSettingsStore from '../../store/settingsStore';
+import { hasPremiumAccess } from '../../utils/permissions';
 import { useSound } from '../../hooks/useSound';
 import { useActiveSkin } from '../../hooks/useActiveSkin';
 import { fumigenesSoft } from '../../styles/motion';
@@ -279,7 +280,7 @@ export default function Game() {
               </div>
 
               {lastPoints !== null && (
-                user?.tier === 'premium' ? (
+                hasPremiumAccess(user) ? (
                   <MediaUpload onUploaded={addMediaToLastEntry} />
                 ) : (
                   <button

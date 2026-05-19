@@ -1,0 +1,494 @@
+/* ═══════════════════════════════════════════════════════
+   SalonGame — gameplay multijoueur temps réel
+   Surcharges et compléments au-dessus des styles Game.css
+   ═══════════════════════════════════════════════════════ */
+
+.salon-game-page {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Le Layout met padding:0 sur .game-page (la roulette utilise toute la largeur).
+   En salon mobile, on a des podiums, un bloc invite et des chips qui méritent
+   de respirer sur les côtés. On rend une marge latérale uniquement en dessous
+   de 1024px (sur desktop le grid 2-col gère lui-même la largeur). */
+@media (max-width: 1023px) {
+  /* Padding sur les 4 côtés. Le Layout met padding:0 sur .game-page (la roulette
+     prend toute la largeur en mode jeu local), on rétablit l'espace pour le salon
+     où les podiums/chips/invite ont besoin de respirer ET pour que les score chips
+     du haut ne touchent pas la barre de statut / l'encoche. */
+  .layout-page.salon-game-page {
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+    padding-top: max(28px, calc(env(safe-area-inset-top) + 16px));
+    padding-bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+  }
+
+  /* L'endgame avait son propre padding latéral, on l'enlève pour ne pas doubler. */
+  .salon-endgame {
+    padding-left: 0;
+    padding-right: 0;
+    padding-top: 16px;
+  }
+
+  /* Le titre dépassait souvent sur petits écrans → on le rend fluide. */
+  .salon-endgame-title {
+    font-size: clamp(1.6rem, 7.5vw, 2.4rem);
+    line-height: 1.05;
+  }
+}
+
+/* ─── Badge EN DIRECT (header scores) ─────────────────── */
+
+.salon-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(45,198,83,0.15);
+  border: 1px solid var(--vert-valide);
+  color: var(--vert-valide);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.salon-live-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vert-valide);
+  box-shadow: 0 0 0 0 rgba(45,198,83,0.6);
+  animation: salon-live-pulse 1.6s infinite;
+}
+
+@keyframes salon-live-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(45,198,83,0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(45,198,83,0); }
+  100% { box-shadow: 0 0 0 0 rgba(45,198,83,0); }
+}
+
+.salon-live-badge--off {
+  background: rgba(140,150,170,0.15);
+  border-color: var(--gris-doux);
+  color: var(--gris-doux);
+}
+.salon-live-badge--off .salon-live-badge-dot {
+  background: var(--gris-doux);
+  box-shadow: none;
+  animation: none;
+}
+
+.salon-live-badge strong { font-size: 0.9rem; }
+
+/* Sur desktop, le badge passe en blanc semi-transparent dans le header sombre */
+@media (min-width: 1024px) {
+  .salon-live-badge {
+    background: rgba(45,198,83,0.18);
+    border-color: rgba(45,198,83,0.6);
+  }
+  .salon-live-badge--off {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.25);
+    color: rgba(255,255,255,0.7);
+  }
+}
+
+/* ─── Vue spectateur (joueur qui n'est PAS current) ───── */
+
+.salon-spectator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--gris-doux);
+  font-style: italic;
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 0;
+  padding: 12px 16px;
+}
+
+.salon-spectator--column {
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* En mode spectateur idle (juste un message d'attente, pas de CTA),
+   on prend le contrôle de la position verticale pour que le texte se centre
+   dans l'espace disponible au lieu de coller au bas comme un bouton. */
+.game-idle--spectator {
+  margin: auto 0;
+  align-items: center;
+  justify-content: center;
+}
+
+.salon-spectator small {
+  color: var(--text-secondary);
+  font-style: normal;
+  font-size: 0.82rem;
+}
+
+/* ─── Pile d'actions du current player en challenge ───── */
+
+.salon-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.salon-actions-stack .btn { min-width: 140px; }
+
+/* ─── Vote multi-device ───────────────────────────────── */
+
+.salon-vote {
+  background: var(--surface-card);
+  border-radius: var(--radius-md);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.salon-vote-title {
+  font-family: var(--font-titre);
+  font-size: 1.6rem;
+  color: var(--bleu-azur);
+  margin: 0;
+}
+
+.salon-vote-sub {
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+.salon-vote-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.salon-vote-buttons .btn { flex: 1; padding: 14px; font-size: 1rem; }
+
+/* ─── Résultat refusé ──────────────────────────────── */
+
+.salon-result-refused {
+  display: inline-block;
+  font-family: var(--font-titre);
+  font-size: 1.4rem;
+  color: white;
+  background: var(--rouge-defi);
+  text-align: center;
+  letter-spacing: 0.08em;
+  padding: 6px 18px;
+  border-radius: var(--radius-pill);
+  margin: 0 auto 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ─── Réactions emojis : FAB repliable bas-droite ────── */
+
+.salon-emoji-dock {
+  position: fixed;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(14px, calc(env(safe-area-inset-bottom) + 10px));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 60;
+}
+
+.salon-emoji-fab {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(13,17,23,0.85);
+  backdrop-filter: blur(10px);
+  color: white;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.salon-emoji-fab:hover { transform: scale(1.06); }
+.salon-emoji-fab:active { transform: scale(0.92); }
+.salon-emoji-fab.is-open {
+  background: var(--rouge-defi);
+  border-color: var(--rouge-defi);
+}
+
+.salon-emoji-popover {
+  display: flex;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(13,17,23,0.92);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-md);
+}
+
+.salon-emoji-btn {
+  background: none;
+  border: none;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: transform var(--transition-fast), background var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.salon-emoji-btn:hover { background: rgba(255,255,255,0.1); transform: scale(1.15); }
+.salon-emoji-btn:active { transform: scale(0.88); }
+
+/* ─── Couche d'animation des emojis qui flottent ─────── */
+
+.salon-emoji-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 55;
+  overflow: hidden;
+}
+
+.salon-emoji-burst {
+  position: absolute;
+  bottom: 80px;
+  font-size: 2.4rem;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+  user-select: none;
+}
+
+/* ─── Écran fin de partie inline ──────────────────────── */
+
+.salon-endgame {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 32px 16px max(80px, calc(env(safe-area-inset-bottom) + 80px));
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.salon-endgame-title {
+  font-family: var(--font-titre);
+  font-size: 2.4rem;
+  color: var(--or-etoile);
+  margin: 0;
+  text-align: center;
+  text-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.salon-endgame-podium {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Petit dot vert/gris pour indiquer si le joueur est encore là */
+.salon-endgame-podium-row {
+  position: relative;
+}
+.salon-endgame-podium-dot {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gris-doux);
+  box-shadow: 0 0 0 2px white;
+  z-index: 1;
+}
+.salon-endgame-podium-row.is-online .salon-endgame-podium-dot {
+  background: var(--vert-valide);
+}
+
+/* Bloc invite intégré à l'endgame — réutilise lobby-invite mais plus compact */
+.salon-endgame-invite {
+  margin-top: 4px;
+  width: 100%;
+}
+.salon-endgame-invite-title {
+  font-family: var(--font-titre);
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: var(--bleu-azur);
+  margin: 0;
+  text-align: center;
+}
+
+.salon-endgame-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.salon-endgame-actions .btn-gold { width: 100%; }
+
+/* Séparateur "ou" entre la nouvelle partie et les options de sortie */
+.salon-endgame-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--gris-doux);
+  margin: 4px 0;
+}
+.salon-endgame-divider::before,
+.salon-endgame-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--surface-border);
+}
+
+/* Row de chips compacts pour les options de sortie */
+.salon-endgame-quick-leave {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.salon-quick-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  color: var(--text-primary);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-corps);
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+  -webkit-tap-highlight-color: transparent;
+}
+.salon-quick-link:hover {
+  background: var(--bleu-azur);
+  border-color: var(--bleu-azur);
+  color: white;
+}
+.salon-quick-link:active { transform: scale(0.96); }
+
+.salon-quick-link--danger {
+  color: var(--rouge-defi);
+  border-color: rgba(230, 57, 70, 0.4);
+  background: rgba(230, 57, 70, 0.08);
+}
+.salon-quick-link--danger:hover {
+  background: var(--rouge-defi);
+  border-color: var(--rouge-defi);
+  color: white;
+}
+
+/* Sur desktop le fond du .game-page est un dégradé bleu sombre — les chips
+   doivent rester lisibles sans s'écraser visuellement contre les player-cards
+   blanches du podium. */
+@media (min-width: 1024px) {
+  .salon-endgame-divider {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .salon-endgame-divider::before,
+  .salon-endgame-divider::after {
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .salon-quick-link {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+  }
+  .salon-quick-link:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.4);
+    color: white;
+  }
+  .salon-quick-link--danger {
+    color: #ffb0b8;
+    background: rgba(230, 57, 70, 0.14);
+    border-color: rgba(230, 57, 70, 0.45);
+  }
+  .salon-quick-link--danger:hover {
+    background: var(--rouge-defi);
+    border-color: var(--rouge-defi);
+    color: white;
+  }
+}
+
+@media (min-width: 768px) {
+  .salon-endgame { max-width: 640px; }
+}
+
+/* Desktop : .game-page utilise une grille 2-col (left/right) qui laisse
+   l'endgame coincé dans une seule colonne. On lui rend les 2 colonnes. */
+@media (min-width: 1024px) {
+  /* En endgame desktop, on quitte le grid 2-col (qui force height: 100dvh + overflow:hidden
+     pour le mode jeu local). On passe en flex column avec scroll naturel de la page :
+     plus de scrollbar interne moche sur la card, c'est le viewport qui scroll. */
+  .salon-game-page.salon-game-page--endgame {
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+  /* Le bandeau scores reste sticky en haut pour qu'on garde le contexte au scroll */
+  .salon-game-page--endgame .game-scores {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(8px);
+    padding: 10px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    margin: 0;
+  }
+  .salon-game-page--endgame .salon-endgame {
+    /* Annule le placement grid (n'a plus de sens en flex column) */
+    grid-column: unset;
+    grid-row: unset;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-top: 32px;
+    padding-bottom: 64px;
+    overflow: visible;
+    min-height: auto;
+  }
+  .salon-endgame-title { font-size: 2.4rem; }
+  .salon-endgame-podium { gap: 10px; }
+  .salon-endgame-invite { gap: 10px; padding: 14px; }
+  .salon-endgame-invite .lobby-invite-qr { padding: 8px; }
+  .salon-endgame-invite .lobby-invite-qr svg { width: 120px; height: 120px; }
+}
