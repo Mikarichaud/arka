@@ -326,6 +326,15 @@ export default function Profile() {
             </button>
           </div>
         )}
+
+        {user.isOwner && (
+          <div className="profile-gate-row">
+            <button className="profile-gate-pill profile-gate-pill--owner" onClick={() => navigate('/admin')}>
+              <Icon name="lightning" size={16} />
+              <span>Le café du commerce (admin)</span>
+            </button>
+          </div>
+        )}
       </motion.div>
 
       {/* Déconnexion */}

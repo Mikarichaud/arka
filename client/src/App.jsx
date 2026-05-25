@@ -14,6 +14,7 @@ import PremiumSuccess from './pages/Premium/PremiumSuccess';
 import Profile from './pages/Profile/Profile';
 import GatePacks from './pages/Gate/GatePacks';
 import GateCosmetics from './pages/Gate/GateCosmetics';
+import AdminDashboard from './pages/Admin/Dashboard';
 import SalonNew from './pages/Salon/SalonNew';
 import SalonJoin from './pages/Salon/SalonJoin';
 import SalonLobby from './pages/Salon/SalonLobby';
@@ -83,6 +84,7 @@ function AnimatedRoutes() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
             <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/salon/new" element={<ProtectedRoute><SalonNew /></ProtectedRoute>} />
             <Route path="/salon/join" element={<SalonJoin />} />
             <Route path="/salon/join/:shareLink" element={<SalonJoin />} />

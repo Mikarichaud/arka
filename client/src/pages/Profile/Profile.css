@@ -296,6 +296,16 @@
 
 .profile-gate-pill svg { color: var(--or-etoile); }
 
+/* Variante "owner" — toi seul, accent rouge (admin du dashboard) */
+.profile-gate-pill--owner {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.08), rgba(230, 57, 70, 0.18));
+  border-color: rgba(230, 57, 70, 0.4);
+}
+.profile-gate-pill--owner:hover {
+  background: linear-gradient(135deg, rgba(230, 57, 70, 0.15), rgba(230, 57, 70, 0.25));
+}
+.profile-gate-pill--owner svg { color: var(--rouge-defi); }
+
 /* ── Déconnexion ── */
 .profile-logout {
   width: 100%;

@@ -894,6 +894,17 @@ Le modèle "salon = soirée éphémère qui meurt si le host part" a été rempl
 - **playerSchema.lastSeenAt** : timestamp mis à jour à chaque `salon:join` et `disconnect`. Utile pour tri "dernière activité" et pour les anciens joueurs qui reviennent.
 - **`GET /api/salons/me`** retourne maintenant TOUS les salons où je suis membre (pas juste host), avec `isHost`, `gameCount`, `myLastSeenAt`.
 
+## Owner / Dashboard admin
+
+- Rôle **owner** = propriétaire de l'instance (un seul, pas plusieurs comme gate). Match par email vs `process.env.OWNER_EMAIL` (lowercase). Pas de role en DB, juste une env var → pas de migration de schema.
+- Middleware `requireOwner` dans `middlewares/auth.js` : 401 si pas connecté, 403 `OWNER_REQUIRED` si pas l'owner.
+- Méthode `User.methods.isOwner()` + exposition `isOwner: bool` dans `User.toJSON()` → le client conditionne l'affichage du lien Admin via `user.isOwner`.
+- Route `GET /api/admin/stats` (protect + requireOwner) : retourne `{ users (par tier + signups 7d/30d), subscriptions (active/canceled/pastDue/cancelAtEnd + MRR estimé), packs (officiels/custom/total), sessions (locales + médias), salons (par status + games joués cumulés + activeRooms list), live (socketsConnected + salonsWithPlayers) }`.
+- Page client `/admin` (`pages/Admin/Dashboard.jsx`) : polling 5s du endpoint, pill "EN DIRECT" qui pulse, bouton Pause/Reprendre, libellés marseillais ("Le café du commerce", "Pause pastis", "Sur le carreau", "Au cagnard"). Cards animées au changement de valeur (Framer Motion).
+- Lien d'accès dans `/profile` : pill rouge "Le café du commerce (admin)" visible UNIQUEMENT si `user.isOwner` (à côté des pills gatées).
+- Env `OWNER_EMAIL` à set dans `.env.production` (sinon le dashboard est désactivé pour tout le monde).
+- Sockets stats récupérées en mémoire via l'export `activeSockets` Map de `sockets/index.js` (pas de round-trip Mongo pour le live count).
+
 ## Gate = Premium effectif
 
 - `User.isPremiumActive()` retourne `true` automatiquement si `role === 'gate'`. Effet domino : **tous** les checks Premium côté serveur (requirePremium middleware, pack creation, salon creation, media upload, avatar upload) acceptent les gatés sans qu'ils aient à payer.

@@ -16,6 +16,7 @@ const categoryRoutes = require('./routes/categories');
 const cosmeticRoutes = require('./routes/cosmetics');
 const salonRoutes = require('./routes/salons');
 const sitemapRoute = require('./routes/sitemap');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 
@@ -95,6 +96,7 @@ app.use('/api/gate', gateRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/cosmetics', cosmeticRoutes);
 app.use('/api/salons', salonRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

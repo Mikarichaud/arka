@@ -53,6 +53,18 @@ const requireGate = (req, res, next) => {
   next();
 };
 
+// Owner = propriétaire de l'instance (toi). Match par email vs OWNER_EMAIL en env.
+// Plus restrictif que requireGate : il n'y a qu'UN owner par instance, pas plusieurs.
+const requireOwner = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ message: 'Hé bé, tu t\'es pas connecté !' });
+  }
+  if (!req.user.isOwner()) {
+    return res.status(403).json({ message: 'Espace réservé au patron de l\'instance.', code: 'OWNER_REQUIRED' });
+  }
+  next();
+};
+
 // Vérifie qu'on est bien membre actif d'un salon (via connectionToken).
 // Attache req.salon et req.salonPlayer pour les handlers.
 // Le code du salon vient de req.params.code, le token de req.headers['x-salon-token'] ou req.body.connectionToken.
@@ -79,4 +91,4 @@ const requireSalonMember = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { protect, optionalAuth, requirePremium, requireGate, requireSalonMember };
+module.exports = { protect, optionalAuth, requirePremium, requireGate, requireOwner, requireSalonMember };

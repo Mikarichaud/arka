@@ -45,9 +45,17 @@ userSchema.methods.isPremiumActive = function () {
   return new Date() < new Date(this.subscription.currentPeriodEnd);
 };
 
+// Owner = super-admin (toi, le propriétaire de l'instance). Match par email,
+// configuré via OWNER_EMAIL en env. Donne accès au /admin dashboard.
+userSchema.methods.isOwner = function () {
+  return !!process.env.OWNER_EMAIL && this.email === process.env.OWNER_EMAIL.toLowerCase();
+};
+
 userSchema.methods.toJSON = function () {
   const obj = this.toObject({ flattenMaps: true });
   delete obj.password;
+  // Flag virtuel : permet au client de conditionner l'affichage du lien Admin
+  obj.isOwner = this.isOwner();
   return obj;
 };
 

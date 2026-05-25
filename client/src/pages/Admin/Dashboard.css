@@ -1,0 +1,243 @@
+/* Dashboard admin — vue d'ensemble live de l'instance */
+
+.admin-page {
+  padding-top: max(24px, calc(env(safe-area-inset-top) + 8px));
+  padding-bottom: max(40px, calc(env(safe-area-inset-bottom) + 24px));
+  gap: 20px;
+}
+
+.admin-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.admin-header-title {
+  flex: 1;
+  min-width: 200px;
+}
+
+.admin-title {
+  font-family: var(--font-titre);
+  font-size: 2.2rem;
+  color: var(--bleu-azur);
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+
+.admin-subtitle {
+  color: var(--gris-doux);
+  font-size: 0.92rem;
+  margin: 4px 0 0;
+}
+
+.admin-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(45, 198, 83, 0.15);
+  border: 1px solid var(--vert-valide);
+  color: var(--vert-valide);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.admin-live-pill--paused {
+  background: rgba(201, 168, 76, 0.18);
+  border-color: var(--or-etoile);
+  color: var(--or-etoile);
+}
+
+.admin-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: admin-live-pulse 1.6s infinite;
+}
+
+.admin-live-pill--paused .admin-live-dot {
+  animation: none;
+}
+
+@keyframes admin-live-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(45, 198, 83, 0.55); }
+  70%  { box-shadow: 0 0 0 8px rgba(45, 198, 83, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(45, 198, 83, 0); }
+}
+
+.admin-last-fetch {
+  font-size: 0.82rem;
+  color: var(--gris-doux);
+  margin: 0;
+}
+
+.admin-last-fetch-sep {
+  margin: 0 8px;
+  opacity: 0.5;
+}
+
+.admin-last-fetch strong {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.admin-error {
+  background: rgba(230, 57, 70, 0.08);
+  border: 1px solid var(--rouge-defi);
+  color: var(--rouge-defi);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* ─── Sections ───────────────────────────────────── */
+
+.admin-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.admin-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-titre);
+  font-size: 1.2rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (min-width: 640px) {
+  .admin-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  .admin-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1440px) {
+  .admin-grid { grid-template-columns: repeat(5, 1fr); }
+}
+
+/* Le bandeau live a une importance visuelle un peu plus marquée */
+.admin-grid--live .admin-stat {
+  background: linear-gradient(135deg, #fff, var(--surface-bg));
+}
+
+/* ─── Stat card ─────────────────────────────────── */
+
+.admin-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 16px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  min-height: 90px;
+}
+
+.admin-stat-value {
+  font-family: var(--font-titre);
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+  line-height: 1;
+}
+
+.admin-stat-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-stat-hint {
+  font-size: 0.72rem;
+  color: var(--gris-doux);
+  margin-top: 2px;
+}
+
+.admin-stat--gold .admin-stat-value { color: var(--or-etoile); }
+.admin-stat--green .admin-stat-value { color: var(--vert-valide); }
+.admin-stat--red .admin-stat-value { color: var(--rouge-defi); }
+
+/* ─── Liste des salons actifs ───────────────────── */
+
+.admin-rooms {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 6px;
+  box-shadow: var(--shadow-sm);
+}
+
+.admin-rooms-title {
+  font-family: var(--font-titre);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+
+.admin-rooms-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-rooms-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 4px;
+  font-size: 0.85rem;
+  border-bottom: 1px dashed var(--surface-border);
+}
+
+.admin-rooms-row:last-child { border-bottom: none; }
+
+.admin-rooms-code {
+  font-family: var(--font-titre);
+  font-size: 0.95rem;
+  letter-spacing: 0.12em;
+  color: var(--bleu-azur);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.admin-rooms-code:hover { text-decoration: underline; }
+
+.admin-rooms-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--gris-doux);
+  font-weight: 700;
+}
