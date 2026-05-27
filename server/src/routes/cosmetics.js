@@ -16,11 +16,13 @@ router.get('/', optionalAuth, async (req, res, next) => {
     };
     const cosmetics = await Cosmetic.find(filter).sort({ category: 1, priceCents: 1 });
     const isGate = req.user?.role === 'gate';
+    const featuresUnlocked = process.env.FEATURES_UNLOCKED === 'true';
     const owned = new Set(req.user?.purchasedSkins || []);
     const result = cosmetics.map((c) => {
       const obj = c.toObject();
-      // Les gatés possèdent automatiquement tous les cosmétiques
-      obj.owned = isGate || owned.has(c.slug);
+      // Les gatés possèdent automatiquement tous les cosmétiques.
+      // Mode lancement : tout le monde aussi (mais sans persistance — le flip retire l'accès).
+      obj.owned = featuresUnlocked || isGate || owned.has(c.slug);
       return obj;
     });
     res.json({ cosmetics: result });

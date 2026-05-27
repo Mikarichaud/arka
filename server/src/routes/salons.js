@@ -37,14 +37,24 @@ function randomSalonName() {
 function newPlayerId() { return crypto.randomUUID(); }
 function newConnectionToken() { return crypto.randomUUID(); }
 
-// Snapshot public renvoyé au client (jamais les connectionToken des autres)
-function publicSalon(salon, viewerToken = null) {
+// Snapshot public renvoyé au client (jamais les connectionToken des autres).
+// Async pour résoudre le hostIsPremium (déterminant pour l'upload média et toute
+// future feature gated "host pays for the group"). En mode lancement avec
+// FEATURES_UNLOCKED=true, isPremiumActive() court-circuite la lecture sub.
+async function publicSalon(salon, viewerToken = null) {
+  let hostIsPremium = false;
+  try {
+    const host = await User.findById(salon.hostUserId).select('tier role subscription');
+    hostIsPremium = host ? host.isPremiumActive() : false;
+  } catch { /* host introuvable → false */ }
+
   return {
     code: salon.code,
     shareLink: salon.shareLink,
     name: salon.name,
     status: salon.status,
     hostUserId: salon.hostUserId,
+    hostIsPremium,
     players: salon.players.map((p) => ({
       playerId: p.playerId,
       pseudo: p.pseudo,
@@ -90,7 +100,7 @@ router.post('/', protect, requirePremium, async (req, res, next) => {
     await salon.save();
 
     res.status(201).json({
-      salon: publicSalon(salon, connectionToken),
+      salon: await publicSalon(salon, connectionToken),
       playerId,
       connectionToken,
     });
@@ -151,7 +161,7 @@ router.post('/:code/join', joinLimiter, optionalAuth, async (req, res, next) => 
     await salon.save();
 
     res.status(201).json({
-      salon: publicSalon(salon, connectionToken),
+      salon: await publicSalon(salon, connectionToken),
       playerId,
       connectionToken,
     });
@@ -290,7 +300,7 @@ router.post('/:code/resume', protect, async (req, res, next) => {
       playerId: player.playerId,
       connectionToken: player.connectionToken,
       pseudo: player.pseudo,
-      salon: publicSalon(salon, player.connectionToken),
+      salon: await publicSalon(salon, player.connectionToken),
     });
   } catch (err) { next(err); }
 });
@@ -313,11 +323,20 @@ router.delete('/:code', protect, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// POST /api/salons/:code/media/upload — upload média réservé aux membres du salon
+// POST /api/salons/:code/media/upload — upload média réservé aux membres du salon.
 // Bypass de requirePremium : le Premium du host "paye" pour tous les membres.
-router.post('/:code/media/upload', requireSalonMember, upload.single('file'), (req, res) => {
+// Si le host n'est PAS Premium (post-flip FEATURES_UNLOCKED), tout le monde est bloqué.
+router.post('/:code/media/upload', requireSalonMember, upload.single('file'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'Aucun fichier reçu.' });
+  }
+  // Le host doit être Premium (court-circuité par FEATURES_UNLOCKED côté isPremiumActive)
+  const host = await User.findById(req.salon.hostUserId).select('tier role subscription');
+  if (!host || !host.isPremiumActive()) {
+    return res.status(403).json({
+      message: 'Le patron du salon doit être Premium pour les souvenirs photo/vidéo.',
+      code: 'HOST_NOT_PREMIUM',
+    });
   }
   const isVideo = req.file.mimetype.startsWith('video/');
   const stream = cloudinary.uploader.upload_stream(
@@ -333,7 +352,7 @@ router.post('/:code/media/upload', requireSalonMember, upload.single('file'), (r
       // Touch d'activité, broadcast à venir par Socket.IO côté client après réception du url
       req.salon.touchActivity();
       req.salon.save().catch(() => {});
-      res.json({ url: result.secure_url, publicId: result.public_id });
+      res.json({ url: result.secure_url, publicId: result.public_id, resourceType: isVideo ? 'video' : 'image' });
     },
   );
   stream.end(req.file.buffer);

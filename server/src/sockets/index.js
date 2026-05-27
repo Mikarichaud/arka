@@ -16,8 +16,8 @@ function onlinePlayerIds(code) {
   return Array.from(getActive(code).keys());
 }
 
-function buildStatePayload(salon, viewerToken) {
-  const data = publicSalon(salon, viewerToken);
+async function buildStatePayload(salon, viewerToken) {
+  const data = await publicSalon(salon, viewerToken);
   data.onlinePlayerIds = onlinePlayerIds(salon.code);
   return data;
 }
@@ -82,7 +82,7 @@ function initSockets(httpServer, corsOptions) {
         salon.touchActivity();
         await salon.save();
 
-        ack?.({ ok: true, salon: buildStatePayload(salon, connectionToken) });
+        ack?.({ ok: true, salon: await buildStatePayload(salon, connectionToken) });
 
         // Broadcast aux autres : on envoie le player object complet pour gérer aussi
         // le cas "nouveau joueur jamais vu" (idempotent côté client via markPlayerJoined).

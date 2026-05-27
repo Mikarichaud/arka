@@ -25,11 +25,27 @@ function pickPhrase(pseudo, seed) {
   return PHRASES[idx].replace('X', pseudo);
 }
 
+const MEDIA_PHRASES = [
+  'X a immortalisé ce moment 📸',
+  'X garde un souvenir, hé bé !',
+  'X a dégainé l\'appareil photo.',
+  'X capture la scène pour la postérité.',
+  'X immortalise ça, on va se régaler.',
+];
+
+function pickMediaPhrase(pseudo, seed) {
+  const idx = Math.abs(hashString(seed || pseudo)) % MEDIA_PHRASES.length;
+  return MEDIA_PHRASES[idx].replace('X', pseudo);
+}
+
 export default function SalonToast() {
   const joinToast = useSalonStore((s) => s.recentJoinToast);
   const setRecentJoinToast = useSalonStore((s) => s.setRecentJoinToast);
   const errorToast = useSalonStore((s) => s.errorToast);
   const clearErrorToast = useSalonStore((s) => s.clearErrorToast);
+  const mediaToast = useSalonStore((s) => s.mediaToast);
+  const clearMediaToast = useSalonStore((s) => s.clearMediaToast);
+  const setMediaLightbox = useSalonStore((s) => s.setMediaLightbox);
 
   useEffect(() => {
     if (!joinToast) return undefined;
@@ -42,6 +58,12 @@ export default function SalonToast() {
     const t = setTimeout(() => clearErrorToast(), 3800);
     return () => clearTimeout(t);
   }, [errorToast?.ts, clearErrorToast]);
+
+  useEffect(() => {
+    if (!mediaToast) return undefined;
+    const t = setTimeout(() => clearMediaToast(), 3500);
+    return () => clearTimeout(t);
+  }, [mediaToast?.id, clearMediaToast]);
 
   // Anchor en position fixe (centrage horizontal via transform), motion gère l'animation Y.
   // Le wrapper évite le conflit transform: translateX vs framer-motion y.
@@ -78,6 +100,31 @@ export default function SalonToast() {
           >
             <span className="salon-toast-error-icon">!</span>
             <span className="salon-toast-text">{errorToast.message}</span>
+          </motion.div>
+        )}
+        {mediaToast && (
+          <motion.div
+            key={`media-${mediaToast.id}`}
+            className="salon-toast salon-toast--media"
+            initial={{ opacity: 0, y: -24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 26 }}
+            onClick={() => {
+              setMediaLightbox({ url: mediaToast.url, resourceType: mediaToast.resourceType });
+              clearMediaToast();
+            }}
+            role="button"
+            title="Voir en grand"
+          >
+            <div className="salon-toast-media-thumb">
+              {mediaToast.resourceType === 'video' ? (
+                <video src={mediaToast.url} muted playsInline />
+              ) : (
+                <img src={mediaToast.url} alt="" />
+              )}
+            </div>
+            <span className="salon-toast-text">{pickMediaPhrase(mediaToast.pseudo, mediaToast.id)}</span>
           </motion.div>
         )}
       </AnimatePresence>

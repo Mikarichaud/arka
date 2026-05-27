@@ -3,15 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon';
 import { fumigenesVariants } from '../../styles/motion';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { FEATURES_UNLOCKED } from '../../utils/permissions';
 import './PaywallModal.css';
 
 export default function PaywallModal({ pack, onClose }) {
   const navigate = useNavigate();
-  useEscapeClose(Boolean(pack), onClose);
+  // Mode lancement : la modale ne s'ouvre jamais (tout est gratuit).
+  const open = Boolean(pack) && !FEATURES_UNLOCKED;
+  useEscapeClose(open, onClose);
 
   return (
     <AnimatePresence>
-      {pack && (
+      {open && (
         <motion.div
           className="paywall-overlay"
           initial={{ opacity: 0 }}

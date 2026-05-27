@@ -13,6 +13,7 @@ import useAuthStore from '../../store/authStore';
 import { saveSalonCreds } from '../../services/salonStorage';
 import SalonGame from './SalonGame';
 import SalonToast from './SalonToast';
+import SalonMediaLightbox from './SalonMediaLightbox';
 import './Salon.css';
 
 function ackMessageFromCode(code) {
@@ -192,6 +193,7 @@ export default function SalonLobby() {
       <>
         <SalonGame emit={emit} code={code} />
         <SalonToast />
+        <SalonMediaLightbox />
       </>
     );
   }
@@ -230,6 +232,7 @@ export default function SalonLobby() {
   return (
     <Layout className="salon-page">
       <SalonToast />
+      <SalonMediaLightbox />
       <div className="lobby-shell">
 
         {/* Barre status */}

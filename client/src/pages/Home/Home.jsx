@@ -6,7 +6,7 @@ import HomeRoulette from '../../components/HomeRoulette/HomeRoulette';
 import SEO, { SITE_URL, SITE_NAME } from '../../components/SEO/SEO';
 import useAuthStore from '../../store/authStore';
 import useSettingsStore from '../../store/settingsStore';
-import { hasPremiumAccess } from '../../utils/permissions';
+import { hasPremiumAccess, FEATURES_UNLOCKED } from '../../utils/permissions';
 
 const HOME_JSON_LD = [
   {
@@ -114,10 +114,10 @@ export default function Home() {
               >
                 <Icon name="wave" size={14} />
                 <span className="home-user-name">{user.username}</span>
-                {hasPremiumAccess(user) && <Icon name="star" size={13} />}
+                {hasPremiumAccess(user) && !FEATURES_UNLOCKED && <Icon name="star" size={13} />}
               </button>
               <div className="home-user-actions">
-                {!hasPremiumAccess(user) && (
+                {!hasPremiumAccess(user) && !FEATURES_UNLOCKED && (
                   <button
                     className="home-user-btn home-user-btn--gold"
                     onClick={() => navigate('/premium')}
@@ -138,13 +138,15 @@ export default function Home() {
               >
                 Se connecter
               </button>
-              <button
-                className="btn btn-ghost home-ghost-btn home-premium-cta"
-                onClick={() => navigate('/premium')}
-              >
-                <Icon name="star" size={16} style={{ marginRight: 6 }} />
-                Découvrir Premium
-              </button>
+              {!FEATURES_UNLOCKED && (
+                <button
+                  className="btn btn-ghost home-ghost-btn home-premium-cta"
+                  onClick={() => navigate('/premium')}
+                >
+                  <Icon name="star" size={16} style={{ marginRight: 6 }} />
+                  Découvrir Premium
+                </button>
+              )}
             </>
           )}
         </motion.section>
@@ -180,7 +182,8 @@ export default function Home() {
           </li>
           <li>
             <strong>Mode Salon (multijoueur temps réel)</strong> — Chacun sur son propre phone, la roulette tourne
-            simultanément sur tous les devices, le vote se fait à distance. Création réservée aux Premium, invitation
+            simultanément sur tous les devices, le vote se fait à distance.
+            {FEATURES_UNLOCKED ? ' Création ouverte à tous,' : ' Création réservée aux Premium,'} invitation
             par code à 8 caractères ou QR à scanner. Le salon survit aux soirées et garde l'historique des parties,
             les photos uploadées et les stats par joueur.
           </li>
@@ -203,7 +206,7 @@ export default function Home() {
         <h3>Comment commencer</h3>
         <p>
           Clique sur <em>Lancer une partie</em> pour démarrer en local. Pas besoin de compte. Si tu veux jouer
-          à distance avec des potes éparpillés, crée un Salon (Premium) ou rejoins celui qu'un ami t'a envoyé
+          à distance avec des potes éparpillés, crée un Salon{FEATURES_UNLOCKED ? '' : ' (Premium)'} ou rejoins celui qu'un ami t'a envoyé
           par code/QR. Allez l'OM, et que le meilleur gagne.
         </p>
       </section>

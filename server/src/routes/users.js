@@ -49,8 +49,10 @@ router.put('/me/active-skin', protect, async (req, res, next) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'Utilisateur introuvable.' });
 
-    // Les gatés peuvent activer n'importe quel cosmétique sans l'avoir acheté
-    if (slug && user.role !== 'gate' && !user.purchasedSkins?.includes(slug)) {
+    // Les gatés peuvent activer n'importe quel cosmétique sans l'avoir acheté.
+    // En mode lancement (FEATURES_UNLOCKED), tout le monde aussi.
+    const featuresUnlocked = process.env.FEATURES_UNLOCKED === 'true';
+    if (slug && !featuresUnlocked && user.role !== 'gate' && !user.purchasedSkins?.includes(slug)) {
       return res.status(403).json({ message: 'Tu ne possèdes pas ce cosmétique.' });
     }
 

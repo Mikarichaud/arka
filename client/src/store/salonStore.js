@@ -17,6 +17,8 @@ const useSalonStore = create((set, get) => ({
   emojiBurst: null,                  // { id, emoji, fromPlayerId } pour réaction live
   recentJoinToast: null,             // { id, pseudo, ts } notification d'un joueur qui arrive
   errorToast: null,                  // { message, ts } notification d'erreur (emit ack failed, etc.)
+  mediaToast: null,                  // { id, url, resourceType, pseudo, ts } notif live d'un upload média
+  mediaLightbox: null,               // { url, resourceType } overlay plein écran (tap sur toast)
 
   setSalon: (salon) => set({ salon, onlinePlayerIds: salon?.onlinePlayerIds || [] }),
   setMyPlayerId: (id) => set({ myPlayerId: id }),
@@ -81,6 +83,9 @@ const useSalonStore = create((set, get) => ({
   setRecentJoinToast: (t) => set({ recentJoinToast: t }),
   pushErrorToast: (message) => set({ errorToast: { message, ts: Date.now() } }),
   clearErrorToast: () => set({ errorToast: null }),
+  setMediaToast: (t) => set({ mediaToast: t }),
+  clearMediaToast: () => set({ mediaToast: null }),
+  setMediaLightbox: (m) => set({ mediaLightbox: m }),
 
   // Reset complet : quitter un salon
   reset: () => set({
@@ -95,6 +100,8 @@ const useSalonStore = create((set, get) => ({
     emojiBurst: null,
     recentJoinToast: null,
     errorToast: null,
+    mediaToast: null,
+    mediaLightbox: null,
   }),
 
   // Lecture utilitaire : suis-je le host ?

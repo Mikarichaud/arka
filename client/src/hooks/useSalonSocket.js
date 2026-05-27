@@ -207,10 +207,20 @@ export function useSalonSocket(code, connectionToken) {
     });
 
     socket.on('media:added', (payload) => {
-      // Diffusion uniquement, l'UI s'en sert pour faire flash un toast.
-      useSalonStore.setState((s) => ({
-        salon: s.salon ? { ...s.salon, lastMedia: payload } : s.salon,
-      }));
+      // Diffusion → toast live + persistance dans la galerie via salon.lastMedia
+      const { url, playerId } = payload || {};
+      if (!url) return;
+      const s = store();
+      const player = s.salon?.players?.find((p) => p.playerId === playerId);
+      const resourceType = /\/video\/upload\//.test(url) ? 'video' : 'image';
+      s.setMediaToast({
+        id: `${playerId}-${Date.now()}`,
+        url,
+        resourceType,
+        pseudo: player?.pseudo || 'Quelqu\'un',
+        playerId,
+        ts: Date.now(),
+      });
     });
 
     socket.on('chat:emoji', ({ emoji, fromPlayerId }) => {

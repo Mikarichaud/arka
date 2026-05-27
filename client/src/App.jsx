@@ -21,6 +21,7 @@ import SalonLobby from './pages/Salon/SalonLobby';
 import MesSalons from './pages/Salon/MesSalons';
 import SalonHistory from './pages/Salon/SalonHistory';
 import ProtectedRoute from './components/ProtectedRoute';
+import { FEATURES_UNLOCKED } from './utils/permissions';
 
 export const NavDirectionContext = createContext(1);
 export const useNavDirection = () => useContext(NavDirectionContext);
@@ -79,8 +80,8 @@ function AnimatedRoutes() {
             <Route path="/game" element={<Game />} />
             <Route path="/gallery/:shareLink" element={<Gallery />} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-            <Route path="/premium" element={<Premium />} />
-            <Route path="/premium/success" element={<PremiumSuccess />} />
+            <Route path="/premium" element={FEATURES_UNLOCKED ? <Navigate to="/" replace /> : <Premium />} />
+            <Route path="/premium/success" element={FEATURES_UNLOCKED ? <Navigate to="/" replace /> : <PremiumSuccess />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
             <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />

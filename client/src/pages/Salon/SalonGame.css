@@ -203,6 +203,16 @@
 
 .salon-vote-buttons .btn { flex: 1; padding: 14px; font-size: 1rem; }
 
+/* ─── Bloc upload média en phase result ─────────────── */
+
+.salon-result-media {
+  width: 100%;
+  margin: 12px 0 4px;
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 /* ─── Résultat refusé ──────────────────────────────── */
 
 .salon-result-refused {

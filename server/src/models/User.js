@@ -36,6 +36,9 @@ userSchema.methods.comparePassword = function (candidate) {
 };
 
 userSchema.methods.isPremiumActive = function () {
+  // Mode lancement : si FEATURES_UNLOCKED=true, tout le monde a l'équivalent Premium.
+  // Flipper la var à false (ou la retirer) pour refermer le freemium.
+  if (process.env.FEATURES_UNLOCKED === 'true') return true;
   // Les Gatés (rôle admin du site) ont l'équivalent Premium en permanence :
   // accès à tout le contenu, création illimitée de packs/salons, upload média/avatar.
   // Ça évite de leur faire payer un abonnement pour gérer leur propre instance.

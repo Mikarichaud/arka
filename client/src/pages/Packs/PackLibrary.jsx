@@ -13,6 +13,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import useAuthStore from '../../store/authStore';
+import { FEATURES_UNLOCKED } from '../../utils/permissions';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
 import './PackLibrary.css';
@@ -285,7 +286,7 @@ export default function PackLibrary() {
             return (
               <motion.div
                 key={pack._id}
-                className={`library-pack-card ${pack.isPremium ? 'library-pack-card--premium' : ''} ${pack.isMine ? 'library-pack-card--mine' : ''}`}
+                className={`library-pack-card ${pack.isPremium && !FEATURES_UNLOCKED ? 'library-pack-card--premium' : ''} ${pack.isMine ? 'library-pack-card--mine' : ''}`}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.06 }}
@@ -295,7 +296,7 @@ export default function PackLibrary() {
                   <div className="library-pack-info">
                     <span className="library-pack-name">
                       {pack.name}
-                      {pack.isPremium && <span className="library-premium-tag">Premium</span>}
+                      {pack.isPremium && !FEATURES_UNLOCKED && <span className="library-premium-tag">Premium</span>}
                       {pack.isMine && <span className="library-mine-tag">Mon pack</span>}
                     </span>
                     <span className="library-pack-desc">{pack.description}</span>

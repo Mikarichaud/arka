@@ -55,6 +55,10 @@ function statePayload(salon) {
   return publicSalon(salon);
 }
 
+async function emitState(io, salon) {
+  io.to(`salon:${salon.code}`).emit('salon:state', await statePayload(salon));
+}
+
 // Set des playerId actuellement connectés à ce salon (room Socket.IO).
 // Utilisé pour skip les joueurs offline dans la rotation et le vote.
 function onlinePlayerIdsForSalon(io, code) {
@@ -146,7 +150,7 @@ function attachGameHandlers(io, socket) {
         pack: snapshot,
         currentPlayerIndex: firstPlayerIndex,
       });
-      io.to(`salon:${salon.code}`).emit('salon:state', statePayload(salon));
+      await emitState(io, salon);
       ack?.({ ok: true });
     } catch (err) {
       console.error('game:pickPack error', err);
@@ -471,7 +475,7 @@ function attachGameHandlers(io, socket) {
         })),
         history: salon.currentGame.history,
       });
-      io.to(`salon:${salon.code}`).emit('salon:state', statePayload(salon));
+      await emitState(io, salon);
       ack?.({ ok: true });
     } catch (err) {
       console.error('game:endGame error', err);
@@ -494,7 +498,7 @@ function attachGameHandlers(io, socket) {
       await salon.save();
 
       io.to(`salon:${salon.code}`).emit('game:newRound', {});
-      io.to(`salon:${salon.code}`).emit('salon:state', statePayload(salon));
+      await emitState(io, salon);
       ack?.({ ok: true });
     } catch (err) {
       console.error('game:newRound error', err);

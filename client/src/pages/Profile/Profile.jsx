@@ -6,6 +6,7 @@ import Icon from '../../components/Icon/Icon';
 import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
 import useAuthStore from '../../store/authStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
+import { FEATURES_UNLOCKED } from '../../utils/permissions';
 import api from '../../services/api';
 import './Profile.css';
 
@@ -23,7 +24,7 @@ const COSMETIC_CAT_LABELS = {
 function Avatar({ user, isPremium, onUpload, uploading }) {
   const inputRef = useRef(null);
   const initials = (user?.username || '?').slice(0, 2).toUpperCase();
-  const editable = isPremium;
+  const editable = isPremium || FEATURES_UNLOCKED;
 
   return (
     <div
@@ -77,9 +78,11 @@ export default function Profile() {
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
-    api.get('/payments/subscription')
-      .then(({ data }) => setSub(data))
-      .catch(() => {});
+    if (!FEATURES_UNLOCKED) {
+      api.get('/payments/subscription')
+        .then(({ data }) => setSub(data))
+        .catch(() => {});
+    }
     // Rafraîchit le user depuis le serveur
     api.get('/auth/me')
       .then(({ data }) => setUser(data.user))
@@ -173,13 +176,14 @@ export default function Profile() {
         <div className="profile-identity-info">
           <span className="profile-username">
             {user.username}
-            {isPremium && <Icon name="star" size={16} style={{ marginLeft: 8 }} />}
+            {isPremium && !FEATURES_UNLOCKED && <Icon name="star" size={16} style={{ marginLeft: 8 }} />}
           </span>
           <span className="profile-email">{user.email}</span>
         </div>
       </motion.div>
 
-      {/* Abonnement */}
+      {/* Abonnement — masqué en mode lancement (tout est gratuit pour tout le monde) */}
+      {!FEATURES_UNLOCKED && (
       <motion.div
         className="profile-section"
         initial={{ opacity: 0, y: 16 }}
@@ -231,6 +235,7 @@ export default function Profile() {
           </motion.p>
         )}
       </motion.div>
+      )}
 
       {/* Cosmétiques */}
       <motion.div

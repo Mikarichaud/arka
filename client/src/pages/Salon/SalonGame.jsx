@@ -8,12 +8,13 @@ import ChallengeCard from '../../components/ChallengeCard/ChallengeCard';
 import PastisTimer from '../../components/PastisTimer/PastisTimer';
 import PlayerCard from '../../components/PlayerCard/PlayerCard';
 import Icon from '../../components/Icon/Icon';
+import SalonMediaUpload from '../../components/SalonMediaUpload/SalonMediaUpload';
 import useSalonStore from '../../store/salonStore';
 import useAuthStore from '../../store/authStore';
 import { useActiveSkin } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { useSound } from '../../hooks/useSound';
-import { clearSalonCreds } from '../../services/salonStorage';
+import { clearSalonCreds, loadSalonCreds } from '../../services/salonStorage';
 import { fumigenesSoft } from '../../styles/motion';
 import './Salon.css';
 import './SalonGame.css';
@@ -62,6 +63,15 @@ export default function SalonGame({ emit, code }) {
     () => [...(salon?.players || [])].sort((a, b) => (b.score || 0) - (a.score || 0)),
     [salon?.players],
   );
+
+  // Credentials salon pour l'upload média scopé (header x-salon-token).
+  // hostIsPremium vient du payload salon:state (gate "host pays for the group").
+  const salonCreds = useMemo(() => loadSalonCreds(code), [code]);
+
+  const handleMediaUploaded = async (url) => {
+    // Broadcast à tous les membres du salon → toast + attache à l'historique.
+    try { await emit('media:added', { url }, { silent: true }); } catch { /* noop */ }
+  };
 
   // ── Spin synchronisé multi-device : on attend `startAt` puis on lance l'anim ──
   // Bonus : on vibre 50ms simultanément sur tous les phones connectés. Vraie sensation
@@ -607,6 +617,17 @@ export default function SalonGame({ emit, code }) {
                       />
                     ))}
                   </div>
+
+                  {salonCreds?.connectionToken && (
+                    <div className="salon-result-media">
+                      <SalonMediaUpload
+                        code={code}
+                        connectionToken={salonCreds.connectionToken}
+                        hostIsPremium={!!salon?.hostIsPremium}
+                        onUploaded={handleMediaUploaded}
+                      />
+                    </div>
+                  )}
 
                   <div className="game-result-actions">
                     {(isMe || isHost) && (
