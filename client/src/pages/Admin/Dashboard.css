@@ -39,6 +39,42 @@
   gap: 8px;
 }
 
+/* ─── Onglets Stats / Galerie ──────────────────────── */
+.admin-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-pill);
+  margin: 18px 0;
+  width: max-content;
+  max-width: 100%;
+}
+
+.admin-tab {
+  padding: 8px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+}
+
+.admin-tab:hover {
+  color: var(--text-primary);
+}
+
+.admin-tab.is-active {
+  background: var(--bleu-azur);
+  color: white;
+}
+
 .admin-live-pill {
   display: inline-flex;
   align-items: center;

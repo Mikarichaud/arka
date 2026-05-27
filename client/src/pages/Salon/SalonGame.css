@@ -203,6 +203,42 @@
 
 .salon-vote-buttons .btn { flex: 1; padding: 14px; font-size: 1rem; }
 
+/* ─── Bouton Quitter discret dans le header scores ─── */
+
+.salon-quit-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+  border: none;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.salon-quit-btn:hover {
+  background: var(--rouge-defi);
+  color: white;
+  transform: scale(1.05);
+}
+
+[data-theme="dark"] .salon-quit-btn {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+[data-theme="dark"] .salon-quit-btn:hover {
+  background: var(--rouge-defi);
+  color: white;
+}
+
 /* ─── Bloc upload média en phase result ─────────────── */
 
 .salon-result-media {

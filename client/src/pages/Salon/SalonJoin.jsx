@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { useNavigate, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
@@ -14,6 +14,7 @@ const CODE_ALPHABET = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;
 export default function SalonJoin() {
   const navigate = useNavigate();
   const location = useLocation();
+  const navType = useNavigationType();
   const { shareLink } = useParams();
   const { user } = useAuthStore();
 
@@ -39,9 +40,13 @@ export default function SalonJoin() {
         if (cancelled) return;
         setPreview(data);
         setCode(data.code);
-        // Reprise auto si on a déjà des creds pour ce salon
+        // Reprise auto si on a déjà des creds pour ce salon — SAUF si on arrive
+        // ici via une navigation back (POP). Sinon on piège l'user : il quitte
+        // le salon → browser back → SalonJoin → auto-redirect → boucle infinie.
+        // Sur POP on affiche le formulaire ; l'user peut cliquer "Entrer" pour
+        // revenir explicitement dans le salon (handleJoin a sa propre logique de reprise).
         const existing = loadSalonCreds(data.code);
-        if (existing && data.status !== 'ended') {
+        if (existing && data.status !== 'ended' && navType !== 'POP') {
           navigate(`/salon/${data.code}`, { replace: true });
         }
       } catch (err) {
@@ -52,7 +57,7 @@ export default function SalonJoin() {
       }
     })();
     return () => { cancelled = true; };
-  }, [shareLink, navigate]);
+  }, [shareLink, navigate, navType]);
 
   const handleJoin = async (e) => {
     e?.preventDefault?.();

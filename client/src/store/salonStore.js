@@ -20,7 +20,14 @@ const useSalonStore = create((set, get) => ({
   mediaToast: null,                  // { id, url, resourceType, pseudo, ts } notif live d'un upload média
   mediaLightbox: null,               // { url, resourceType } overlay plein écran (tap sur toast)
 
-  setSalon: (salon) => set({ salon, onlinePlayerIds: salon?.onlinePlayerIds || [] }),
+  // Ne reset onlinePlayerIds que si le payload en contient (via salon:join initial ou
+  // salon:state enrichi). Sinon on préserve la liste maintenue incrémentalement par
+  // playerJoined/playerLeft/playerReconnected — un broadcast intermédiaire sans la
+  // liste ne doit pas faire disparaître tout le monde du SalonGame.
+  setSalon: (salon) => set((s) => ({
+    salon,
+    onlinePlayerIds: Array.isArray(salon?.onlinePlayerIds) ? salon.onlinePlayerIds : s.onlinePlayerIds,
+  })),
   setMyPlayerId: (id) => set({ myPlayerId: id }),
   setOnlinePlayerIds: (ids) => set({ onlinePlayerIds: ids }),
   setSocketConnected: (connected) => set({ socketConnected: connected }),

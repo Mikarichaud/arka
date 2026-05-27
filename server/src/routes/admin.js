@@ -128,4 +128,107 @@ router.get('/stats', protect, requireOwner, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ─── Galerie owner : toutes les photos/vidéos classées par pseudo ─────────────
+// Aggrège 3 sources : (1) parties archivées des salons, (2) partie en cours d'un
+// salon (currentGame.history), (3) parties locales (Session). Owner uniquement.
+router.get('/gallery', protect, requireOwner, async (req, res, next) => {
+  try {
+    const projectSalonArchived = {
+      _id: 0,
+      url: '$games.history.media',
+      pseudo: '$games.history.playerName',
+      challengeText: '$games.history.challengeText',
+      salonCode: '$code',
+      salonName: '$name',
+      gameDate: '$games.completedAt',
+      source: { $literal: 'salon' },
+    };
+    const projectSalonLive = {
+      _id: 0,
+      url: '$currentGame.history.media',
+      pseudo: '$currentGame.history.playerName',
+      challengeText: '$currentGame.history.challengeText',
+      salonCode: '$code',
+      salonName: '$name',
+      gameDate: '$currentGame.history.timestamp',
+      source: { $literal: 'salon-live' },
+    };
+    const projectSession = {
+      _id: 0,
+      url: '$history.media',
+      pseudo: '$history.playerName',
+      challengeText: '$history.challengeText',
+      shareLink: '$shareLink',
+      gameDate: '$history.timestamp',
+      source: { $literal: 'local' },
+    };
+
+    const [salonArchived, salonLive, sessionItems] = await Promise.all([
+      Salon.aggregate([
+        { $unwind: '$games' },
+        { $unwind: '$games.history' },
+        { $unwind: '$games.history.media' },
+        { $match: { 'games.history.media': { $type: 'string' } } },
+        { $project: projectSalonArchived },
+      ]),
+      Salon.aggregate([
+        { $match: { 'currentGame.history': { $exists: true, $ne: [] } } },
+        { $unwind: '$currentGame.history' },
+        { $unwind: '$currentGame.history.media' },
+        { $match: { 'currentGame.history.media': { $type: 'string' } } },
+        { $project: projectSalonLive },
+      ]),
+      Session.aggregate([
+        { $unwind: '$history' },
+        { $unwind: '$history.media' },
+        { $match: { 'history.media': { $type: 'string' } } },
+        { $project: projectSession },
+      ]),
+    ]);
+
+    // Fusion + détection resourceType + grouping par pseudo
+    const all = [...salonArchived, ...salonLive, ...sessionItems];
+    const grouped = new Map();
+    for (const item of all) {
+      const pseudo = (item.pseudo || 'Anonyme').trim() || 'Anonyme';
+      if (!grouped.has(pseudo)) {
+        grouped.set(pseudo, {
+          pseudo,
+          items: [],
+          photoCount: 0,
+          videoCount: 0,
+          latestAt: null,
+        });
+      }
+      const g = grouped.get(pseudo);
+      const resourceType = /\/video\/upload\//.test(item.url) ? 'video' : 'image';
+      const entry = { ...item, resourceType };
+      if (resourceType === 'video') g.videoCount += 1;
+      else g.photoCount += 1;
+      if (!g.latestAt || new Date(item.gameDate) > new Date(g.latestAt)) {
+        g.latestAt = item.gameDate;
+      }
+      g.items.push(entry);
+    }
+
+    // Tri : pseudos par activité récente desc, items au sein du pseudo par date desc
+    const pseudos = Array.from(grouped.values());
+    for (const g of pseudos) {
+      g.items.sort((a, b) => new Date(b.gameDate || 0) - new Date(a.gameDate || 0));
+      g.count = g.items.length;
+    }
+    pseudos.sort((a, b) => new Date(b.latestAt || 0) - new Date(a.latestAt || 0));
+
+    res.json({
+      pseudos,
+      totals: {
+        pseudoCount: pseudos.length,
+        photoCount: pseudos.reduce((s, p) => s + p.photoCount, 0),
+        videoCount: pseudos.reduce((s, p) => s + p.videoCount, 0),
+        total: all.length,
+      },
+    });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

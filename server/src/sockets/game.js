@@ -56,7 +56,9 @@ function statePayload(salon) {
 }
 
 async function emitState(io, salon) {
-  io.to(`salon:${salon.code}`).emit('salon:state', await statePayload(salon));
+  const data = await statePayload(salon);
+  data.onlinePlayerIds = Array.from(onlinePlayerIdsForSalon(io, salon.code));
+  io.to(`salon:${salon.code}`).emit('salon:state', data);
 }
 
 // Set des playerId actuellement connectés à ce salon (room Socket.IO).

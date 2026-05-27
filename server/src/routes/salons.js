@@ -206,11 +206,15 @@ router.get('/:code/history', optionalAuth, async (req, res, next) => {
     const salon = await Salon.findOne({ code: req.params.code.toUpperCase() });
     if (!salon) return res.status(404).json({ message: 'Salon introuvable.' });
 
-    // Membre via userId OU via connectionToken (anonyme) OU host
+    // Membre via userId OU via connectionToken (anonyme) OU host.
+    // L'owner (super-admin via OWNER_EMAIL) bypasse pour la modération : il peut
+    // consulter l'historique et la galerie de N'IMPORTE QUEL salon. Aucun autre
+    // user gaté ne passe — ce contrôle est unique à l'owner.
     const isHostUser = req.user && String(salon.hostUserId) === String(req.user._id);
     const memberByUser = req.user && salon.players.some((p) => String(p.userId) === String(req.user._id));
     const memberByToken = token ? salon.findPlayerByToken(token) : null;
-    if (!isHostUser && !memberByUser && !memberByToken) {
+    const isOwnerUser = !!req.user?.isOwner?.();
+    if (!isHostUser && !memberByUser && !memberByToken && !isOwnerUser) {
       return res.status(403).json({ message: 'Accès réservé aux membres du salon.' });
     }
 

@@ -6,6 +6,7 @@ import Icon from '../../components/Icon/Icon';
 import SEO from '../../components/SEO/SEO';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import useAuthStore from '../../store/authStore';
+import AdminGallery from './AdminGallery';
 import api from '../../services/api';
 import './Dashboard.css';
 
@@ -35,6 +36,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [lastFetchAt, setLastFetchAt] = useState(null);
   const [paused, setPaused] = useState(false);
+  const [tab, setTab] = useState('stats'); // stats | gallery
   const pollTimer = useRef(null);
 
   const fetchStats = async (silent = false) => {
@@ -66,12 +68,14 @@ export default function Dashboard() {
   }, [user, navigate]);
 
   useEffect(() => {
-    if (paused || error) return undefined;
+    // Poll auto désactivé hors de l'onglet Stats : la galerie est statique,
+    // pas besoin de la refetch toutes les 5s.
+    if (paused || error || tab !== 'stats') return undefined;
     pollTimer.current = setInterval(() => fetchStats(true), POLL_INTERVAL_MS);
     return () => {
       if (pollTimer.current) clearInterval(pollTimer.current);
     };
-  }, [paused, error]);
+  }, [paused, error, tab]);
 
   if (!user) return null;
 
@@ -89,32 +93,56 @@ export default function Dashboard() {
           <p className="admin-subtitle">Ce qui bouge en direct sur ton instance.</p>
         </div>
         <div className="admin-header-actions">
-          <span className={`admin-live-pill ${paused ? 'admin-live-pill--paused' : ''}`}>
-            <span className="admin-live-dot" />
-            {paused ? 'EN PAUSE' : 'EN DIRECT'}
-          </span>
-          <button
-            className="btn btn-ghost btn-sm"
-            onClick={() => setPaused((p) => !p)}
-          >
-            {paused ? 'Reprendre' : 'Pause'}
-          </button>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={() => fetchStats()}
-          >
-            ↻ Rafraîchir
-          </button>
+          {tab === 'stats' && (
+            <>
+              <span className={`admin-live-pill ${paused ? 'admin-live-pill--paused' : ''}`}>
+                <span className="admin-live-dot" />
+                {paused ? 'EN PAUSE' : 'EN DIRECT'}
+              </span>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPaused((p) => !p)}
+              >
+                {paused ? 'Reprendre' : 'Pause'}
+              </button>
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => fetchStats()}
+              >
+                ↻ Rafraîchir
+              </button>
+            </>
+          )}
         </div>
       </div>
 
-      {error && (
+      {/* ─── Onglets ──────────────────────────────────── */}
+      <div className="admin-tabs">
+        <button
+          className={`admin-tab ${tab === 'stats' ? 'is-active' : ''}`}
+          onClick={() => setTab('stats')}
+        >
+          <Icon name="lightning" size={14} style={{ marginRight: 6 }} />
+          Stats
+        </button>
+        <button
+          className={`admin-tab ${tab === 'gallery' ? 'is-active' : ''}`}
+          onClick={() => setTab('gallery')}
+        >
+          <Icon name="camera" size={14} style={{ marginRight: 6 }} />
+          Galerie
+        </button>
+      </div>
+
+      {error && tab === 'stats' && (
         <div className="admin-error">
           {error}
         </div>
       )}
 
-      {loading && !data ? (
+      {tab === 'gallery' ? (
+        <AdminGallery />
+      ) : loading && !data ? (
         <div className="admin-grid">
           <LoadingPlaceholder variant="card" />
           <LoadingPlaceholder variant="card" />

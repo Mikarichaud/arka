@@ -178,24 +178,17 @@ export default function SalonGame({ emit, code }) {
   const handleSkipCurrent = async () => emit('game:skipCurrent');
 
   // Quitter le salon = simple sortie. Le salon survit, les creds restent en localStorage,
-  // l'user peut le retrouver via Mes salons. Même comportement pour host et non-host.
+  // l'user peut le retrouver via Mes salons (logged) ou via le QR/code (anonyme).
   //
-  // Stratégie pour la pile d'historique :
-  // - Si une destination explicite est passée et n'est pas /salons (ex: Partie locale → /session/setup),
-  //   on push normalement (replace pour ne pas laisser /salon/CODE dans l'historique).
-  // - Sinon (Quitter classique) : navigate(-1) pour POPER /salon/CODE proprement → pas d'empilement.
-  //   Ça évite le bug "appuyer 5 fois sur retour" qui apparaissait quand chaque cycle Reprendre/Quitter
-  //   accumulait des entries /salons via replace successifs.
-  // - Fallback : navigate('/salons') si aucun historique (cas direct URL).
+  // On va TOUJOURS vers une destination stable (/salons ou /) plutôt que navigate(-1).
+  // Raison : si l'user est entré via QR (/salon/join/:shareLink), un POP le ramène sur
+  // SalonJoin — pas le comportement attendu d'un Quitter. La perte de "history clean-up"
+  // via POP est compensée par `replace: true` qui évite de laisser /salon/CODE derrière.
   const handleLeave = async (path) => {
     try { await emit('salon:leave', undefined, { silent: true }); } catch { /* noop */ }
     const isExplicitForward = !!path && path !== '/' && path !== '/salons';
     if (isExplicitForward) {
       navigate(path, { replace: true });
-      return;
-    }
-    if (location.key !== 'default') {
-      navigate(-1);
       return;
     }
     navigate(user ? '/salons' : '/', { replace: true, state: { dir: 'back' } });
@@ -292,6 +285,17 @@ export default function SalonGame({ emit, code }) {
               <strong>{onlinePlayerIds.length}</strong>/{salon.players.length}
             </span>
           </span>
+          {/* Affordance Quitter visible en permanence pendant le jeu — sans ça, un user
+              entré via QR n'a aucun moyen de sortir avant l'endgame. */}
+          <button
+            type="button"
+            className="salon-quit-btn"
+            onClick={() => handleLeave()}
+            title="Quitter le salon"
+            aria-label="Quitter le salon"
+          >
+            ×
+          </button>
         </div>
       </div>
 

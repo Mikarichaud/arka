@@ -35,6 +35,13 @@ export default function Roulette({ challenges = [], targetIndex, isSpinning, onS
   const [landed, setLanded] = useState(false);
   const METALS = (Array.isArray(palette) && palette.length === SLICE_COUNT) ? palette : DEFAULT_METALS;
 
+  // Dès qu'une nouvelle cible arrive (avant même que isSpinning ne passe à true
+  // côté client — il y a un délai de sync multi-device), on retire l'or de la case
+  // précédente pour ne pas spoiler la nouvelle.
+  useEffect(() => {
+    setLanded(false);
+  }, [targetIndex]);
+
   useEffect(() => {
     if (!isSpinning || targetIndex === null || targetIndex === undefined) return;
 
