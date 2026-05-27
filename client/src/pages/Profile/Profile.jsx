@@ -139,7 +139,11 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = () => { logout(); navigate('/'); };
+  // Ordre important : navigate AVANT logout pour que Profile soit déjà unmounted
+  // quand `user` passe à null. Sinon ProtectedRoute redirige vers /login dans la
+  // même frame, ce qui empile deux transitions dans AnimatePresence et donne une
+  // page blanche en bout de course.
+  const handleLogout = () => { navigate('/', { replace: true }); logout(); };
 
   if (!user) return null;
 
