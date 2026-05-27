@@ -70,15 +70,68 @@ router.get('/stats', protect, requireOwner, async (req, res, next) => {
     ]);
 
     // ─── Sockets temps réel (en mémoire) ──────────────
+    // On commence par compter, puis on enrichit chaque salon avec les pseudos
+    // online via une lookup Mongo unique (un seul .find avec $in sur les codes).
     let socketsConnected = 0;
-    const activeSalonRooms = [];
+    const activeCodes = [];
+    const onlineByCode = new Map(); // code → Set<playerId>
     for (const [code, playerMap] of activeSockets.entries()) {
       const onlineCount = playerMap.size;
       socketsConnected += onlineCount;
-      if (onlineCount > 0) activeSalonRooms.push({ code, onlineCount });
+      if (onlineCount > 0) {
+        activeCodes.push(code);
+        onlineByCode.set(code, new Set(playerMap.keys()));
+      }
     }
-    // Tri descendant par nb joueurs
-    activeSalonRooms.sort((a, b) => b.onlineCount - a.onlineCount);
+
+    let activeSalonRooms = [];
+    if (activeCodes.length > 0) {
+      const salons = await Salon.find({ code: { $in: activeCodes } })
+        .select('code name hostUserId players status currentGame.phase')
+        .lean();
+      // Collecte userIds pour résoudre les emails (info owner pour la modération)
+      const userIds = new Set();
+      for (const s of salons) {
+        for (const p of s.players || []) {
+          if (p.userId) userIds.add(String(p.userId));
+        }
+      }
+      const usersById = new Map();
+      if (userIds.size > 0) {
+        const users = await User.find({ _id: { $in: Array.from(userIds) } })
+          .select('username email tier role')
+          .lean();
+        for (const u of users) usersById.set(String(u._id), u);
+      }
+      activeSalonRooms = salons.map((s) => {
+        const onlineIds = onlineByCode.get(s.code) || new Set();
+        const players = (s.players || [])
+          .filter((p) => onlineIds.has(p.playerId))
+          .map((p) => {
+            const u = p.userId ? usersById.get(String(p.userId)) : null;
+            return {
+              playerId: p.playerId,
+              pseudo: p.pseudo,
+              isHost: p.isHost,
+              userId: p.userId || null,
+              username: u?.username || null,
+              email: u?.email || null,
+              tier: u?.tier || null,
+              role: u?.role || null,
+            };
+          });
+        return {
+          code: s.code,
+          name: s.name,
+          status: s.status,
+          phase: s.currentGame?.phase || null,
+          onlineCount: players.length,
+          players,
+        };
+      });
+      // Tri descendant par nb joueurs online
+      activeSalonRooms.sort((a, b) => b.onlineCount - a.onlineCount);
+    }
 
     // ─── MRR estimé (à partir des abonnements actifs) ─
     // Note : on n'a pas le prix exact stocké côté user, on estime à 4.99€/mois en moyenne.

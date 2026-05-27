@@ -243,20 +243,32 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 }
 
-.admin-rooms-row {
+/* Carte d'un salon actif (avec sa liste de pseudos online) */
+.admin-rooms-card {
+  background: var(--surface-bg);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.admin-rooms-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-rooms-meta {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
-  padding: 6px 4px;
-  font-size: 0.85rem;
-  border-bottom: 1px dashed var(--surface-border);
+  flex-wrap: wrap;
 }
-
-.admin-rooms-row:last-child { border-bottom: none; }
 
 .admin-rooms-code {
   font-family: var(--font-titre);
@@ -270,10 +282,101 @@
 }
 .admin-rooms-code:hover { text-decoration: underline; }
 
+.admin-rooms-name {
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+}
+
+.admin-rooms-phase {
+  padding: 1px 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-radius: var(--radius-pill);
+  background: var(--vert-valide);
+  color: white;
+}
+
 .admin-rooms-count {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  color: var(--gris-doux);
+  color: var(--text-secondary);
   font-weight: 700;
+  font-size: 0.85rem;
+}
+
+/* Liste des pseudos online dans un salon */
+.admin-rooms-players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-rooms-player {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 0.85rem;
+  flex-wrap: wrap;
+}
+
+.admin-player-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--vert-valide);
+  box-shadow: 0 0 0 2px rgba(45, 198, 83, 0.2);
+  flex-shrink: 0;
+}
+
+.admin-player-dot.is-host {
+  background: var(--or-etoile);
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.25);
+}
+
+.admin-player-pseudo {
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.admin-player-username {
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+}
+
+.admin-player-email {
+  color: var(--text-secondary);
+  font-size: 0.76rem;
+  margin-left: auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.admin-player-badge {
+  padding: 1px 7px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-radius: var(--radius-pill);
+}
+
+.admin-player-badge--host { background: var(--or-etoile); color: var(--nuit-goudes); }
+.admin-player-badge--premium { background: var(--bleu-azur); color: white; }
+.admin-player-badge--gate { background: var(--rouge-defi); color: white; }
+.admin-player-badge--anon {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-secondary);
+}
+[data-theme="dark"] .admin-player-badge--anon {
+  background: rgba(255, 255, 255, 0.08);
 }

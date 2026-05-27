@@ -189,21 +189,53 @@ export default function Dashboard() {
 
             {data.salons.activeRooms.length > 0 && (
               <div className="admin-rooms">
-                <h3 className="admin-rooms-title">Salons actifs</h3>
+                <h3 className="admin-rooms-title">Salons actifs · qui est au comptoir</h3>
                 <ul className="admin-rooms-list">
                   {data.salons.activeRooms.map((r) => (
-                    <li key={r.code} className="admin-rooms-row">
-                      <button
-                        type="button"
-                        className="admin-rooms-code"
-                        onClick={() => navigator.clipboard.writeText(r.code).catch(() => {})}
-                        title="Cliquer pour copier"
-                      >
-                        {r.code}
-                      </button>
-                      <span className="admin-rooms-count">
-                        <Icon name="football" size={12} /> {r.onlineCount} en ligne
-                      </span>
+                    <li key={r.code} className="admin-rooms-card">
+                      <div className="admin-rooms-head">
+                        <div className="admin-rooms-meta">
+                          <button
+                            type="button"
+                            className="admin-rooms-code"
+                            onClick={() => navigator.clipboard.writeText(r.code).catch(() => {})}
+                            title="Cliquer pour copier"
+                          >
+                            {r.code}
+                          </button>
+                          {r.name && <span className="admin-rooms-name">{r.name}</span>}
+                          {r.phase && <span className="admin-rooms-phase">{r.phase}</span>}
+                        </div>
+                        <span className="admin-rooms-count">
+                          <Icon name="football" size={12} /> {r.onlineCount} en ligne
+                        </span>
+                      </div>
+                      {Array.isArray(r.players) && r.players.length > 0 && (
+                        <ul className="admin-rooms-players">
+                          {r.players.map((p) => (
+                            <li key={p.playerId} className="admin-rooms-player">
+                              <span className={`admin-player-dot ${p.isHost ? 'is-host' : ''}`} />
+                              <span className="admin-player-pseudo">{p.pseudo}</span>
+                              {p.isHost && <span className="admin-player-badge admin-player-badge--host">Host</span>}
+                              {p.username && p.username !== p.pseudo && (
+                                <span className="admin-player-username">@{p.username}</span>
+                              )}
+                              {p.role === 'gate' && (
+                                <span className="admin-player-badge admin-player-badge--gate">Gaté</span>
+                              )}
+                              {p.tier === 'premium' && p.role !== 'gate' && (
+                                <span className="admin-player-badge admin-player-badge--premium">Premium</span>
+                              )}
+                              {!p.userId && (
+                                <span className="admin-player-badge admin-player-badge--anon">Anonyme</span>
+                              )}
+                              {p.email && (
+                                <span className="admin-player-email" title={p.email}>{p.email}</span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
                     </li>
                   ))}
                 </ul>
