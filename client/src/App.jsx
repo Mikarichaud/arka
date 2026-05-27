@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigationType 
 import { AnimatePresence, motion } from 'framer-motion';
 import Home from './pages/Home/Home';
 import Auth from './pages/Auth/Auth';
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
 import SessionSetup from './pages/Session/SessionSetup';
 import PackLibrary from './pages/Packs/PackLibrary';
 import Editor from './pages/Editor/Editor';
@@ -72,6 +74,8 @@ function AnimatedRoutes() {
           <Routes location={location}>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Auth />} />
+            <Route path="/login/forgot" element={<ForgotPassword />} />
+            <Route path="/login/reset" element={<ResetPassword />} />
             <Route path="/session/setup" element={<SessionSetup />} />
             <Route path="/session/pack" element={<Navigate to="/session/setup" replace />} />
             <Route path="/packs" element={<PackLibrary />} />

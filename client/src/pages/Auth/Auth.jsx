@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import useAuthStore from '../../store/authStore';
@@ -103,6 +103,12 @@ export default function Auth() {
           <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={isLoading}>
             {isLoading ? 'Chargement...' : mode === 'login' ? 'Allez !' : 'Créer mon compte'}
           </button>
+
+          {mode === 'login' && (
+            <Link to="/login/forgot" className="auth-forgot-link">
+              Mot de passe oublié, hé bé ?
+            </Link>
+          )}
         </form>
       </div>
     </Layout>
