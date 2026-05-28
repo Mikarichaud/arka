@@ -2,8 +2,6 @@ import { createContext, useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Home from './pages/Home/Home';
-import Auth from './pages/Auth/Auth';
-import ForgotPassword from './pages/Auth/ForgotPassword';
 import ResetPassword from './pages/Auth/ResetPassword';
 import SessionSetup from './pages/Session/SessionSetup';
 import PackLibrary from './pages/Packs/PackLibrary';
@@ -23,6 +21,8 @@ import SalonLobby from './pages/Salon/SalonLobby';
 import MesSalons from './pages/Salon/MesSalons';
 import SalonHistory from './pages/Salon/SalonHistory';
 import ProtectedRoute from './components/ProtectedRoute';
+import AuthModal from './components/AuthModal/AuthModal';
+import AuthRouteRedirect from './components/AuthModal/AuthRouteRedirect';
 import { FEATURES_UNLOCKED } from './utils/permissions';
 
 export const NavDirectionContext = createContext(1);
@@ -73,8 +73,8 @@ function AnimatedRoutes() {
         >
           <Routes location={location}>
             <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Auth />} />
-            <Route path="/login/forgot" element={<ForgotPassword />} />
+            <Route path="/login" element={<AuthRouteRedirect mode="login" />} />
+            <Route path="/login/forgot" element={<AuthRouteRedirect mode="forgot" />} />
             <Route path="/login/reset" element={<ResetPassword />} />
             <Route path="/session/setup" element={<SessionSetup />} />
             <Route path="/session/pack" element={<Navigate to="/session/setup" replace />} />
@@ -108,6 +108,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <AuthModal />
     </BrowserRouter>
   );
 }

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
   password: { type: String, required: true, minlength: 6 },
   avatar: { type: String, default: null },
+  postalCode: { type: String, default: null }, // code postal français (5 chiffres), pour le badge de provenance
   tier: { type: String, enum: ['free', 'premium'], default: 'free' },
   role: { type: String, enum: ['user', 'gate'], default: 'user' },
   subscription: {

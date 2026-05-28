@@ -4,7 +4,9 @@ import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
+import ProvenanceBadge from '../../components/ProvenanceBadge/ProvenanceBadge';
 import useAuthStore from '../../store/authStore';
+import useAuthModalStore from '../../store/authModalStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { FEATURES_UNLOCKED } from '../../utils/permissions';
 import api from '../../services/api';
@@ -69,12 +71,21 @@ function StatCard({ icon, value, label }) {
 export default function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout, setUser } = useAuthStore();
+  const { user, setUser } = useAuthStore();
+  const openAuthModal = useAuthModalStore((s) => s.open);
   const [sub, setSub] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [ownedCosmetics, setOwnedCosmetics] = useState([]);
   const [activatingSlug, setActivatingSlug] = useState(null);
+
+  // Mode édition de la carte d'identité (avatar + pseudo + email + code postal)
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [pseudoDraft, setPseudoDraft] = useState('');
+  const [emailDraft, setEmailDraft] = useState('');
+  const [postalDraft, setPostalDraft] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileError, setProfileError] = useState('');
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -123,6 +134,55 @@ export default function Profile() {
     }
   };
 
+  const startEditProfile = () => {
+    setPseudoDraft(user?.username || '');
+    setEmailDraft(user?.email || '');
+    setPostalDraft(user?.postalCode || '');
+    setProfileError('');
+    setEditingProfile(true);
+  };
+
+  const cancelEditProfile = () => {
+    setEditingProfile(false);
+    setProfileError('');
+  };
+
+  const saveProfile = async () => {
+    const pseudo = pseudoDraft.trim();
+    const postal = postalDraft.trim();
+    const email = emailDraft.trim().toLowerCase();
+    if (!pseudo) { setProfileError('Mets un pseudo, té !'); return; }
+    if (postal && !/^\d{5}$/.test(postal)) { setProfileError('Code postal : 5 chiffres, té.'); return; }
+
+    // Champs non sensibles (pseudo + code postal) : PUT direct.
+    const updates = {};
+    if (pseudo !== user.username) updates.username = pseudo;
+    if (postal !== (user.postalCode || '')) updates.postalCode = postal || null;
+
+    const emailChanged = email && email !== user.email;
+
+    setSavingProfile(true);
+    setProfileError('');
+    try {
+      if (Object.keys(updates).length > 0) {
+        const { data } = await api.put(`/users/${user._id}`, updates);
+        setUser(data.user);
+      }
+      setEditingProfile(false);
+      // Email sensible (sert au reset password) → re-auth par mot de passe via modale.
+      if (emailChanged) openAuthModal('changeEmail', { payload: { newEmail: email } });
+    } catch (err) {
+      setProfileError(err.response?.data?.message || 'Ça a pas marché, réessaie.');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const onPseudoKeyDown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); saveProfile(); }
+    if (e.key === 'Escape') { e.preventDefault(); cancelEditProfile(); }
+  };
+
   const handleActivateSkin = async (category, slug) => {
     if (!user) return;
     const currentSlug = user.activeSkins?.[category];
@@ -138,12 +198,6 @@ export default function Profile() {
       setActivatingSlug(null);
     }
   };
-
-  // Ordre important : navigate AVANT logout pour que Profile soit déjà unmounted
-  // quand `user` passe à null. Sinon ProtectedRoute redirige vers /login dans la
-  // même frame, ce qui empile deux transitions dans AnimatePresence et donne une
-  // page blanche en bout de course.
-  const handleLogout = () => { navigate('/', { replace: true }); logout(); };
 
   if (!user) return null;
 
@@ -164,25 +218,98 @@ export default function Profile() {
         <h1 className="profile-title">Mon Profil</h1>
       </div>
 
-      {/* Identité */}
+      {/* Identité — affichage ou mode édition de la carte */}
       <motion.div
-        className="profile-identity card"
+        className={`profile-identity card ${editingProfile ? 'is-editing' : ''}`}
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
+        <button
+          className="profile-edit-card-btn"
+          onClick={editingProfile ? cancelEditProfile : startEditProfile}
+          title={editingProfile ? 'Fermer' : 'Modifier mes infos'}
+          aria-label={editingProfile ? 'Fermer' : 'Modifier mes infos'}
+        >
+          <Icon name={editingProfile ? 'cross' : 'pencil'} size={16} />
+        </button>
+
         <Avatar
           user={user}
           isPremium={isPremium}
           onUpload={handleAvatarUpload}
           uploading={uploadingAvatar}
         />
+
         <div className="profile-identity-info">
-          <span className="profile-username">
-            {user.username}
-            {isPremium && !FEATURES_UNLOCKED && <Icon name="star" size={16} style={{ marginLeft: 8 }} />}
-          </span>
-          <span className="profile-email">{user.email}</span>
+          {editingProfile ? (
+            <>
+              <span className="profile-edit-label">Modifier mes infos</span>
+              <div className="profile-edit-field">
+                <label>Pseudo</label>
+                <input
+                  className="input profile-edit-input"
+                  value={pseudoDraft}
+                  onChange={(e) => setPseudoDraft(e.target.value)}
+                  onKeyDown={onPseudoKeyDown}
+                  maxLength={30}
+                  autoFocus
+                  disabled={savingProfile}
+                  placeholder="Ton pseudo"
+                  aria-label="Pseudo"
+                />
+              </div>
+              <div className="profile-edit-field">
+                <label>Email</label>
+                <input
+                  className="input profile-edit-input"
+                  type="email"
+                  value={emailDraft}
+                  onChange={(e) => setEmailDraft(e.target.value)}
+                  disabled={savingProfile}
+                  placeholder="ton@email.fr"
+                  aria-label="Email"
+                />
+              </div>
+              <div className="profile-edit-field">
+                <label>Code postal</label>
+                <input
+                  className="input profile-edit-input"
+                  value={postalDraft}
+                  onChange={(e) => setPostalDraft(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                  inputMode="numeric"
+                  maxLength={5}
+                  disabled={savingProfile}
+                  placeholder="Code postal"
+                  aria-label="Code postal"
+                />
+              </div>
+              {profileError && <span className="profile-pseudo-error">{profileError}</span>}
+              <div className="profile-edit-actions">
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={cancelEditProfile}
+                  disabled={savingProfile}
+                >Annuler</button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={saveProfile}
+                  disabled={savingProfile}
+                >{savingProfile ? '...' : 'Enregistrer'}</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <span className="profile-username">
+                {user.username}
+                {isPremium && !FEATURES_UNLOCKED && <Icon name="star" size={16} style={{ marginLeft: 4 }} />}
+              </span>
+              <span className="profile-email">{user.email}</span>
+              {user.postalCode && (
+                <ProvenanceBadge postalCode={user.postalCode} size={15} />
+              )}
+            </>
+          )}
         </div>
       </motion.div>
 
@@ -346,8 +473,24 @@ export default function Profile() {
         )}
       </motion.div>
 
+      {/* Mon compte */}
+      <motion.div
+        className="profile-section"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.24 }}
+      >
+        <h2 className="profile-section-title">Mon compte</h2>
+        <div className="profile-account-actions">
+          <button className="btn btn-ghost" onClick={() => openAuthModal('changePassword')}>
+            <Icon name="lock" size={16} style={{ marginRight: 8 }} />
+            Changer mon mot de passe
+          </button>
+        </div>
+      </motion.div>
+
       {/* Déconnexion */}
-      <button className="btn btn-ghost profile-logout" onClick={handleLogout}>
+      <button className="btn btn-ghost profile-logout" onClick={() => openAuthModal('logout')}>
         Déconnexion
       </button>
 

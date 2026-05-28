@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
+import PasswordInput from '../../components/PasswordInput/PasswordInput';
 import api from '../../services/api';
 import './Auth.css';
 
@@ -64,9 +65,7 @@ export default function ResetPassword() {
               Choisis un nouveau mot de passe. 6 caractères minimum, sois pas radin.
             </p>
 
-            <input
-              className="input"
-              type="password"
+            <PasswordInput
               placeholder="Nouveau mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -76,9 +75,7 @@ export default function ResetPassword() {
               disabled={!token}
             />
 
-            <input
-              className="input"
-              type="password"
+            <PasswordInput
               placeholder="Confirmer le mot de passe"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}

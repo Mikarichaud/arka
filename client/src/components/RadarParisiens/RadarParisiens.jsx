@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Icon from '../Icon/Icon';
 import { fumigenesVariants } from '../../styles/motion';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { isParisien } from '../../utils/provenance';
 import './RadarParisiens.css';
 
 const COMPOSED_PATTERNS = [/^Jean-/i, /^Marie-/i, /^Pierre-/i, /^Anne-/i, /^Paul-/i, /^Louis-/i];
@@ -32,6 +33,9 @@ const NO_PARIS_MESSAGES = [
 function detectReasons(player, history) {
   const reasons = [];
   const name = player.name || '';
+
+  // Preuve formelle : un code postal de région parisienne, pas la peine de chercher plus loin.
+  if (isParisien(player.postalCode)) reasons.push('Code postal qui pue le RER');
 
   if (COMPOSED_PATTERNS.some((p) => p.test(name))) reasons.push('Prénom à rallonge');
   if (BOURGEOIS_PATTERN.test(name)) reasons.push('Sent le 16ème');

@@ -8,6 +8,7 @@ import ChallengeCard from '../../components/ChallengeCard/ChallengeCard';
 import PastisTimer from '../../components/PastisTimer/PastisTimer';
 import PlayerCard from '../../components/PlayerCard/PlayerCard';
 import Icon from '../../components/Icon/Icon';
+import RadarParisiens from '../../components/RadarParisiens/RadarParisiens';
 import SalonMediaUpload from '../../components/SalonMediaUpload/SalonMediaUpload';
 import useSalonStore from '../../store/salonStore';
 import useAuthStore from '../../store/authStore';
@@ -61,6 +62,12 @@ export default function SalonGame({ emit, code }) {
   const isHost = !!me?.isHost;
   const sortedPlayers = useMemo(
     () => [...(salon?.players || [])].sort((a, b) => (b.score || 0) - (a.score || 0)),
+    [salon?.players],
+  );
+
+  // Joueurs pour le Radar à Parisiens : nom + code postal (preuve formelle si CP parisien)
+  const radarPlayers = useMemo(
+    () => (salon?.players || []).map((p) => ({ name: p.pseudo, postalCode: p.postalCode })),
     [salon?.players],
   );
 
@@ -285,6 +292,8 @@ export default function SalonGame({ emit, code }) {
               <strong>{onlinePlayerIds.length}</strong>/{salon.players.length}
             </span>
           </span>
+          {/* Radar à Parisiens — épingle les vrais Parisiens via leur code postal */}
+          <RadarParisiens players={radarPlayers} history={game?.history || []} />
           {/* Affordance Quitter visible en permanence pendant le jeu — sans ça, un user
               entré via QR n'a aucun moyen de sortir avant l'endgame. */}
           <button
@@ -317,6 +326,8 @@ export default function SalonGame({ emit, code }) {
                   <PlayerCard
                     player={{ name: p.pseudo, score: p.score || 0 }}
                     rank={i + 1}
+                    postalCode={p.postalCode}
+                    pirate={!p.userId}
                   />
                   <span className="salon-endgame-podium-dot" title={online ? 'Debout au comptoir' : 'Parti faire un tour'} />
                 </div>
@@ -618,6 +629,8 @@ export default function SalonGame({ emit, code }) {
                         player={{ name: p.pseudo, score: p.score || 0 }}
                         rank={i + 1}
                         isActive={p.playerId === currentPlayer?.playerId}
+                        postalCode={p.postalCode}
+                        pirate={!p.userId}
                       />
                     ))}
                   </div>

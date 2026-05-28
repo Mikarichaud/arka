@@ -57,6 +57,9 @@
 .player-name {
   font-weight: 700;
   font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .player-turn {

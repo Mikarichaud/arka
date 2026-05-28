@@ -455,6 +455,225 @@ const icons = {
     </svg>
   ),
 
+  /* ── Provenance : arrondissements de Marseille ─────────────── */
+
+  // 1er — Vieux-Port : voilier sur l'eau
+  'arr-13001': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <line x1="12" y1="4" x2="12" y2="14" stroke="#0D1B3E" strokeWidth="1.2"/>
+      <path d="M12 4 L18 13 L12 13 Z" fill="#0057A8"/>
+      <path d="M12 5 L7 13 L12 13 Z" fill="#E0C070"/>
+      <path d="M5 14 L19 14 L17 18 L7 18 Z" fill="#8a6a20"/>
+      <path d="M2 20 Q5 18 8 20 T14 20 T20 20 T22 20" stroke="#0057A8" strokeWidth="1.4" fill="none"/>
+    </svg>
+  ),
+
+  // 2e — Le Panier / La Major : cathédrale à dôme
+  'arr-13002': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="5" y="11" width="14" height="9" fill="#E0C070"/>
+      <path d="M9 11 V6 a3 3 0 0 1 6 0 V11 Z" fill="#0057A8"/>
+      <circle cx="12" cy="3.5" r="1.2" fill="#C9A84C"/>
+      <rect x="10.5" y="14" width="3" height="6" fill="#0D1B3E"/>
+    </svg>
+  ),
+
+  // 3e — Belle de Mai / Friche : cheminée d'usine
+  'arr-13003': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="13" width="18" height="7" fill="#0057A8"/>
+      <rect x="9" y="6" width="4" height="14" fill="#E63946"/>
+      <rect x="8.5" y="6" width="5" height="2" fill="#0D1B3E"/>
+      <path d="M13 7 Q17 6 16 3 Q19 4 18 8" fill="#C9A84C" opacity="0.6"/>
+    </svg>
+  ),
+
+  // 4e — La Blancarde : horloge de gare
+  'arr-13004': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" fill="#E0C070" stroke="#0D1B3E" strokeWidth="1"/>
+      <line x1="12" y1="12" x2="12" y2="6.5" stroke="#0D1B3E" strokeWidth="1.5" strokeLinecap="round"/>
+      <line x1="12" y1="12" x2="16" y2="12" stroke="#E63946" strokeWidth="1.5" strokeLinecap="round"/>
+      <circle cx="12" cy="12" r="1.2" fill="#0D1B3E"/>
+    </svg>
+  ),
+
+  // 5e — La Plaine : verre de pastis
+  'arr-13005': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M8 4 H16 L14.5 12 H9.5 Z" fill="#E0C070"/>
+      <rect x="11" y="12" width="2" height="6" fill="#0D1B3E"/>
+      <rect x="8" y="18" width="8" height="1.6" rx="0.8" fill="#0D1B3E"/>
+      <circle cx="11.5" cy="7" r="1.4" fill="#fff" opacity="0.5"/>
+    </svg>
+  ),
+
+  // 6e — Castellane : fontaine
+  'arr-13006': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="5.5" r="2.5" fill="#C9A84C"/>
+      <rect x="10.5" y="8" width="3" height="9" fill="#E0C070"/>
+      <rect x="4" y="17" width="16" height="3" rx="1.2" fill="#0057A8"/>
+      <path d="M12 8 q-3 4 -4 9 M12 8 q3 4 4 9" stroke="#0057A8" strokeWidth="1" fill="none" opacity="0.6"/>
+    </svg>
+  ),
+
+  // 7e — Endoume / Vallon des Auffes : pont en arche
+  'arr-13007': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M3 16 V12 Q12 5 21 12 V16" fill="none" stroke="#C9A84C" strokeWidth="2.4"/>
+      <line x1="8" y1="16" x2="8" y2="13" stroke="#C9A84C" strokeWidth="1.4"/>
+      <line x1="16" y1="16" x2="16" y2="13" stroke="#C9A84C" strokeWidth="1.4"/>
+      <path d="M2 20 Q6 18 10 20 T18 20 T22 20" stroke="#0057A8" strokeWidth="1.4" fill="none"/>
+    </svg>
+  ),
+
+  // 8e — Le Prado / Vélodrome : ballon de foot (OM)
+  'arr-13008': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="9" fill="#fff" stroke="#0057A8" strokeWidth="1.6"/>
+      <polygon points="12,7 15.4,9.5 14,13.6 10,13.6 8.6,9.5" fill="#0057A8"/>
+      <line x1="12" y1="3" x2="12" y2="7" stroke="#0057A8" strokeWidth="1"/>
+      <line x1="20" y1="9.5" x2="15.4" y2="9.5" stroke="#0057A8" strokeWidth="1"/>
+      <line x1="4" y1="9.5" x2="8.6" y2="9.5" stroke="#0057A8" strokeWidth="1"/>
+    </svg>
+  ),
+
+  // 9e — Les Calanques : falaise + mer
+  'arr-13009': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M2 18 L8 8 L13 15 L17 5 L22 18 Z" fill="#E0C070"/>
+      <path d="M2 18 Q7 16 12 18 T22 18 L22 21 L2 21 Z" fill="#0057A8"/>
+    </svg>
+  ),
+
+  // 10e — Saint-Loup : boules de pétanque
+  'arr-13010': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="9" cy="14" r="5.5" fill="#8a94a3"/>
+      <circle cx="7" cy="12" r="1.6" fill="#fff" opacity="0.5"/>
+      <circle cx="17" cy="16" r="3.6" fill="#6b7280"/>
+      <circle cx="14" cy="7" r="1.8" fill="#E63946"/>
+    </svg>
+  ),
+
+  // 11e — La Valentine : garrigue + soleil
+  'arr-13011': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="18" cy="6" r="3" fill="#FCD34D"/>
+      <path d="M2 20 Q8 10 14 16 Q18 12 22 20 Z" fill="#2DC653" opacity="0.85"/>
+      <path d="M6 20 l1 -4 M8 20 l-1 -3" stroke="#0D1B3E" strokeWidth="0.8" strokeLinecap="round"/>
+    </svg>
+  ),
+
+  // 12e — Saint-Barnabé → "Saint-Barth" : palmier + soleil couchant (classe tropical)
+  'arr-13012': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="11" r="6" fill="#FCD34D" opacity="0.45"/>
+      <circle cx="12" cy="11" r="3.6" fill="#F59E0B"/>
+      <path d="M12 20 Q11.4 14 12 11" stroke="#8a6a20" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+      <path d="M12 11 Q8 8 4.5 9.5 M12 11 Q16 8 19.5 9.5 M12 11 Q9.5 6.5 8.5 4 M12 11 Q14.5 6.5 15.5 4" stroke="#2DC653" strokeWidth="1.6" fill="none" strokeLinecap="round"/>
+      <path d="M3 20 H21" stroke="#0057A8" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  ),
+
+  // 13e — Château-Gombert : moulin provençal
+  'arr-13013': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="9" y="12" width="6" height="8" fill="#E0C070"/>
+      <polygon points="12,7 8.2,12 15.8,12" fill="#E63946"/>
+      <line x1="12" y1="9.5" x2="6" y2="5.5" stroke="#8a6a20" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="12" y1="9.5" x2="18" y2="5.5" stroke="#8a6a20" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="12" y1="9.5" x2="7" y2="14" stroke="#8a6a20" strokeWidth="1.4" strokeLinecap="round"/>
+      <line x1="12" y1="9.5" x2="17" y2="14" stroke="#8a6a20" strokeWidth="1.4" strokeLinecap="round"/>
+      <circle cx="12" cy="9.5" r="1" fill="#0D1B3E"/>
+    </svg>
+  ),
+
+  // 14e — Sainte-Marthe / Le Merlan : tours des quartiers Nord
+  'arr-13014': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="7" width="5" height="13" fill="#0057A8"/>
+      <rect x="9.5" y="10" width="4.5" height="10" fill="#E0C070"/>
+      <rect x="15.5" y="4" width="5" height="16" fill="#0057A8"/>
+      <rect x="4.5" y="9" width="1.2" height="1.2" fill="#fff" opacity="0.7"/>
+      <rect x="17" y="7" width="1.2" height="1.2" fill="#fff" opacity="0.7"/>
+    </svg>
+  ),
+
+  // 15e — Les Aygalades : cascade
+  'arr-13015': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="3" y="3" width="18" height="5" fill="#E0C070"/>
+      <path d="M7 8 V16 M10 8 V18 M13 8 V16 M16 8 V18" stroke="#0057A8" strokeWidth="1.6" strokeLinecap="round"/>
+      <ellipse cx="12" cy="19" rx="9" ry="2.4" fill="#0057A8"/>
+    </svg>
+  ),
+
+  // 16e — L'Estaque : barque de pêcheur
+  'arr-13016': () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <line x1="12" y1="4" x2="12" y2="13" stroke="#0D1B3E" strokeWidth="1.2"/>
+      <path d="M12 5 L17 11 L12 11 Z" fill="#fff" stroke="#0057A8" strokeWidth="0.5"/>
+      <path d="M3 13 L21 13 L18 18 L6 18 Z" fill="#E63946"/>
+      <path d="M2 20 Q7 18 12 20 T22 20" stroke="#0057A8" strokeWidth="1.4" fill="none"/>
+    </svg>
+  ),
+
+  /* ── Provenance : autres zones ─────────────────────────────── */
+
+  // Parisien : béret + baguette (la cible)
+  paris: () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <ellipse cx="12" cy="8" rx="7" ry="3.4" fill="#0D1B3E"/>
+      <circle cx="12" cy="5.6" r="1" fill="#E63946"/>
+      <rect x="4" y="14" width="16" height="3" rx="1.5" fill="#E0C070" transform="rotate(8 12 15.5)"/>
+      <line x1="8" y1="14.6" x2="8.8" y2="15.4" stroke="#8a6a20" strokeWidth="0.7"/>
+      <line x1="11" y1="15" x2="11.8" y2="15.8" stroke="#8a6a20" strokeWidth="0.7"/>
+      <line x1="14" y1="15.4" x2="14.8" y2="16.2" stroke="#8a6a20" strokeWidth="0.7"/>
+    </svg>
+  ),
+
+  // Le Nord : flocon
+  nord: () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <g stroke="#0057A8" strokeWidth="1.6" strokeLinecap="round">
+        <line x1="12" y1="3" x2="12" y2="21"/>
+        <line x1="4.2" y1="7.5" x2="19.8" y2="16.5"/>
+        <line x1="19.8" y1="7.5" x2="4.2" y2="16.5"/>
+        <path d="M12 6 L10 4 M12 6 L14 4 M12 18 L10 20 M12 18 L14 20"/>
+      </g>
+      <circle cx="12" cy="12" r="1.6" fill="#E0C070"/>
+    </svg>
+  ),
+
+  // Le Pays : soleil de Provence sur l'horizon
+  pays: () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <g stroke="#FCD34D" strokeWidth="1.4" strokeLinecap="round">
+        <line x1="12" y1="1.5" x2="12" y2="4"/>
+        <line x1="4" y1="5" x2="5.6" y2="6.6"/>
+        <line x1="20" y1="5" x2="18.4" y2="6.6"/>
+        <line x1="2" y1="11" x2="4.5" y2="11"/>
+        <line x1="22" y1="11" x2="19.5" y2="11"/>
+      </g>
+      <circle cx="12" cy="10.5" r="4.5" fill="#F59E0B"/>
+      <path d="M2 19 H22" stroke="#0057A8" strokeWidth="1.6" strokeLinecap="round"/>
+    </svg>
+  ),
+
+  // Pirate : Jolly Roger (joueur anonyme en salon)
+  pirate: () => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M12 3 C7.5 3 5 6 5 9.5 C5 12 6.5 13.5 8 14 L8 16 L16 16 L16 14 C17.5 13.5 19 12 19 9.5 C19 6 16.5 3 12 3 Z" fill="#0D1B3E"/>
+      <circle cx="9.5" cy="9.5" r="1.6" fill="#fff"/>
+      <circle cx="14.5" cy="9.5" r="1.6" fill="#fff"/>
+      <path d="M11 13 L13 13" stroke="#fff" strokeWidth="1.2" strokeLinecap="round"/>
+      <line x1="5" y1="18" x2="19" y2="21" stroke="#8a6a20" strokeWidth="1.8" strokeLinecap="round"/>
+      <line x1="19" y1="18" x2="5" y2="21" stroke="#8a6a20" strokeWidth="1.8" strokeLinecap="round"/>
+    </svg>
+  ),
+
 };
 
 let _counter = 0;

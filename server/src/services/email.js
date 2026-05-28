@@ -51,36 +51,40 @@ function buildResetHtml({ resetUrl, pseudo }) {
       <td align="center">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;background-color:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
           <tr>
-            <td style="background-color:#0057A8;padding:24px 28px;text-align:center;">
-              <h1 style="margin:0;color:#ffffff;font-size:28px;letter-spacing:0.04em;text-transform:uppercase;font-weight:800;">La Roulade Marseillaise</h1>
+            <td style="background-color:#0057A8;padding:26px 28px 22px 28px;text-align:center;">
+              <div style="font-size:34px;line-height:1;margin-bottom:8px;">🐟 ⚓ ☀️</div>
+              <h1 style="margin:0;color:#ffffff;font-size:27px;letter-spacing:0.04em;text-transform:uppercase;font-weight:800;">La Roulade Marseillaise</h1>
             </td>
           </tr>
           <tr>
             <td style="padding:30px 28px 6px 28px;">
-              <h2 style="margin:0 0 18px 0;color:#0D1117;font-size:22px;line-height:1.3;">Té${safePseudo ? ' ' + safePseudo : ''}, t'as paumé ton mot de passe ?</h2>
-              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.55;color:#1a1a2e;">Hé bé, c'est pas grave. Ça arrive même aux meilleurs joueurs de pétanque.</p>
-              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.55;color:#1a1a2e;">Clique là-dessous pour en remettre un neuf, on va pas y passer la journée :</p>
+              <h2 style="margin:0 0 18px 0;color:#0D1117;font-size:22px;line-height:1.3;">Té${safePseudo ? ' ' + safePseudo : ''}, t'as paumé ton mot de passe ? 🐟</h2>
+              <p style="margin:0 0 16px 0;font-size:16px;line-height:1.55;color:#1a1a2e;">Hé bé, c'est pas plus grave que de perdre au tirage à la pétanque. Ça arrive même aux meilleurs pointeurs du Vieux-Port.</p>
+              <p style="margin:0 0 24px 0;font-size:16px;line-height:1.55;color:#1a1a2e;">Clique sur le cochonnet doré là-dessous pour en remettre un neuf — on va pas y passer l'apéro :</p>
             </td>
           </tr>
           <tr>
-            <td align="center" style="padding:0 28px 28px 28px;">
-              <a href="${safeUrl}" style="display:inline-block;background-color:#C9A84C;color:#0D1117;font-weight:800;font-size:16px;letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;padding:14px 32px;border-radius:50px;border:2px solid #C9A84C;">Refais ton mot de passe</a>
+            <td align="center" style="padding:0 28px 26px 28px;">
+              <a href="${safeUrl}" style="display:inline-block;background-color:#C9A84C;color:#0D1117;font-weight:800;font-size:16px;letter-spacing:0.04em;text-transform:uppercase;text-decoration:none;padding:14px 32px;border-radius:50px;border:2px solid #C9A84C;">🎯 Refais ton mot de passe</a>
             </td>
           </tr>
           <tr>
-            <td style="padding:0 28px 24px 28px;">
-              <p style="margin:0 0 12px 0;font-size:13px;color:#6a7280;line-height:1.5;">Ce lien marche pendant <strong style="color:#0D1117;">1 heure pile</strong>. Après, tu redemandes et puis voilà.</p>
-              <p style="margin:0 0 12px 0;font-size:13px;color:#6a7280;line-height:1.5;">Si le bouton fonctionne pas, colle ce lien dans ta barre d'adresse :</p>
+            <td style="padding:0 28px 8px 28px;">
+              <div style="background-color:#F5F5F0;border-left:3px solid #C9A84C;border-radius:6px;padding:12px 14px;margin-bottom:18px;">
+                <p style="margin:0;font-size:13px;color:#1a1a2e;line-height:1.5;">⏱️ Ce lien tient <strong>1 heure pile</strong>, le temps d'une partie de pétanque. Après il file se baigner aux Calanques et tu redemandes, voilà.</p>
+              </div>
+              <p style="margin:0 0 8px 0;font-size:13px;color:#6a7280;line-height:1.5;">Si le bouton fait la sieste, colle ce lien dans ta barre d'adresse :</p>
               <p style="margin:0 0 18px 0;font-size:12px;color:#0057A8;word-break:break-all;line-height:1.4;"><a href="${safeUrl}" style="color:#0057A8;text-decoration:underline;">${safeUrl}</a></p>
-              <p style="margin:0;font-size:13px;color:#6a7280;line-height:1.5;">Si c'est pas toi qui as fait cette demande, balance ce mail à la poubelle et passe à autre chose. Ton compte va bien, té.</p>
+              <p style="margin:0 0 18px 0;font-size:13px;color:#6a7280;line-height:1.5;">Si c'est pas toi qui as demandé ça, balance ce mail à la poubelle et va te chercher un pastis. Ton compte est bien gardé, té — c'est peut-être un Parisien qui s'est trompé d'adresse. 😏</p>
             </td>
           </tr>
           <tr>
-            <td style="background-color:#F5F5F0;padding:18px 28px;text-align:center;border-top:1px solid #e8e8df;">
-              <p style="margin:0;font-size:12px;color:#6a7280;">Allez santé,<br/><strong style="color:#0057A8;">La Roulade Marseillaise</strong></p>
+            <td style="background-color:#0057A8;padding:18px 28px;text-align:center;">
+              <p style="margin:0;font-size:13px;color:#ffffff;">Allez, à très vite sur le carreau ! 🟡<br/><strong style="color:#C9A84C;">La Roulade Marseillaise</strong></p>
             </td>
           </tr>
         </table>
+        <p style="margin:14px 0 0 0;font-size:11px;color:#9aa0aa;text-align:center;">Fait avec amour entre le Vélodrome et les Calanques. 🌊</p>
       </td>
     </tr>
   </table>
@@ -89,25 +93,30 @@ function buildResetHtml({ resetUrl, pseudo }) {
 }
 
 function buildResetText({ resetUrl, pseudo }) {
-  return `Hé bé !
+  return `Hé bé${pseudo ? ' ' + pseudo : ''} ! 🐟
 
-Tu m'as dit que t'avais paumé ton mot de passe${pseudo ? ' (' + pseudo + ')' : ''} pour
-La Roulade Marseillaise. C'est pas grave, ça arrive même
-aux meilleurs joueurs de pétanque.
+Tu m'as dit que t'avais paumé ton mot de passe pour
+La Roulade Marseillaise. C'est pas plus grave que de
+perdre au tirage à la pétanque — ça arrive même aux
+meilleurs pointeurs du Vieux-Port.
 
-Clique sur ce lien pour en remettre un neuf, on va pas y
-passer la journée :
+Clique sur ce lien pour en remettre un neuf, on va pas
+y passer l'apéro :
 
 ${resetUrl}
 
-Ce lien marche pendant 1 heure pile. Après, tu redemandes
-et puis voilà.
+⏱️ Ce lien tient 1 heure pile, le temps d'une partie de
+pétanque. Après il file se baigner aux Calanques et tu
+redemandes, voilà.
 
-Si c'est pas toi qui as fait cette demande, balance ce mail
-à la poubelle et passe à autre chose. Ton compte va bien, té.
+Si c'est pas toi qui as demandé ça, balance ce mail à la
+poubelle et va te chercher un pastis. Ton compte est bien
+gardé, té — c'est peut-être un Parisien qui s'est trompé
+d'adresse.
 
-Allez santé,
+Allez, à très vite sur le carreau !
 La Roulade Marseillaise
+🌊 Fait avec amour entre le Vélodrome et les Calanques.
 `;
 }
 
@@ -126,7 +135,7 @@ async function sendPasswordReset({ to, pseudo, resetUrl }) {
   return tx.sendMail({
     from: fromAddress(),
     to,
-    subject: 'Té, t\'as paumé ton mot de passe ?',
+    subject: '🐟 Té, t\'as paumé ton mot de passe ?',
     text: buildResetText({ resetUrl, pseudo }),
     html: buildResetHtml({ resetUrl, pseudo }),
   });

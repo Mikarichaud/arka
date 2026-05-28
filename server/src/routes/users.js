@@ -4,6 +4,9 @@ const { protect } = require('../middlewares/auth');
 const User = require('../models/User');
 const GameHistory = require('../models/GameHistory');
 
+const USERNAME_REGEX = /^[a-zA-Z0-9_\-.]{3,30}$/;
+const POSTAL_CODE_REGEX = /^\d{5}$/;
+
 router.get('/:id', protect, async (req, res, next) => {
   try {
     const isMe = req.user._id.toString() === req.params.id;
@@ -23,10 +26,28 @@ router.put('/:id', protect, async (req, res, next) => {
     if (req.user._id.toString() !== req.params.id) {
       return res.status(403).json({ message: 'Té, c\'est pas ton profil !' });
     }
-    const { username, avatar } = req.body;
+    const { username, avatar, postalCode } = req.body;
     const updates = {};
-    if (typeof username === 'string' && username.trim()) {
-      updates.username = username.trim();
+    if (postalCode !== undefined) {
+      if (postalCode === null || postalCode === '') {
+        updates.postalCode = null; // permet d'effacer
+      } else if (typeof postalCode !== 'string' || !POSTAL_CODE_REGEX.test(postalCode.trim())) {
+        return res.status(400).json({ message: 'Code postal : 5 chiffres, té.' });
+      } else {
+        updates.postalCode = postalCode.trim();
+      }
+    }
+    if (username !== undefined) {
+      if (typeof username !== 'string' || !USERNAME_REGEX.test(username.trim())) {
+        return res.status(400).json({ message: 'Pseudo : 3 à 30 caractères, lettres/chiffres/_/-/.' });
+      }
+      const trimmed = username.trim();
+      // Vérifie l'unicité (hors soi-même) avant l'update pour un message clair
+      const taken = await User.findOne({ username: trimmed, _id: { $ne: req.params.id } });
+      if (taken) {
+        return res.status(409).json({ message: 'Ce pseudo est déjà pris, té !', code: 'USERNAME_TAKEN' });
+      }
+      updates.username = trimmed;
     }
     if (avatar !== undefined) {
       if (!req.user.isPremiumActive()) {
@@ -34,8 +55,16 @@ router.put('/:id', protect, async (req, res, next) => {
       }
       updates.avatar = avatar;
     }
-    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-    res.json({ user });
+    try {
+      const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+      res.json({ user });
+    } catch (e) {
+      // Filet de sécurité : course possible sur l'index unique
+      if (e.code === 11000) {
+        return res.status(409).json({ message: 'Ce pseudo est déjà pris, té !', code: 'USERNAME_TAKEN' });
+      }
+      throw e;
+    }
   } catch (err) { next(err); }
 });
 

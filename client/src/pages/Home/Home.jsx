@@ -5,6 +5,7 @@ import Icon from '../../components/Icon/Icon';
 import HomeRoulette from '../../components/HomeRoulette/HomeRoulette';
 import SEO, { SITE_URL, SITE_NAME } from '../../components/SEO/SEO';
 import useAuthStore from '../../store/authStore';
+import useAuthModalStore from '../../store/authModalStore';
 import useSettingsStore from '../../store/settingsStore';
 import { hasPremiumAccess, FEATURES_UNLOCKED } from '../../utils/permissions';
 
@@ -31,7 +32,8 @@ import './Home.css';
 export default function Home() {
   const navigate = useNavigate();
   const { theme, toggleTheme, soundEnabled, toggleSound } = useSettingsStore();
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
+  const openAuthModal = useAuthModalStore((s) => s.open);
 
   return (
     <Layout className="home-page">
@@ -125,7 +127,7 @@ export default function Home() {
                     Premium
                   </button>
                 )}
-                <button className="home-user-btn" onClick={logout}>
+                <button className="home-user-btn" onClick={() => openAuthModal('logout')}>
                   Déconnexion
                 </button>
               </div>
@@ -134,7 +136,7 @@ export default function Home() {
             <>
               <button
                 className="btn btn-ghost home-ghost-btn"
-                onClick={() => navigate('/login')}
+                onClick={() => openAuthModal('login')}
               >
                 Se connecter
               </button>

@@ -16,6 +16,7 @@ const playerSchema = new mongoose.Schema({
   playerId: { type: String, required: true },           // uuid serveur
   pseudo: { type: String, required: true, maxlength: 20 },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null, index: true },
+  postalCode: { type: String, default: null },           // dénormalisé au join (badge provenance). null = anonyme/non renseigné
   score: { type: Number, default: 0 },
   connectionToken: { type: String, required: true },
   isHost: { type: Boolean, default: false },

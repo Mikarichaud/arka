@@ -59,6 +59,7 @@ async function publicSalon(salon, viewerToken = null) {
       playerId: p.playerId,
       pseudo: p.pseudo,
       userId: p.userId,
+      postalCode: p.postalCode || null,   // pour le badge de provenance (null = anonyme → pirate)
       score: p.score,
       isHost: p.isHost,
       joinedAt: p.joinedAt,
@@ -90,6 +91,7 @@ router.post('/', protect, requirePremium, async (req, res, next) => {
         playerId,
         pseudo: hostPseudo,
         userId: host._id,
+        postalCode: host.postalCode || null,
         score: 0,
         connectionToken,
         isHost: true,
@@ -152,6 +154,7 @@ router.post('/:code/join', joinLimiter, optionalAuth, async (req, res, next) => 
       playerId,
       pseudo: trimmedPseudo,
       userId: req.user?._id || null,
+      postalCode: req.user?.postalCode || null,
       score: 0,
       connectionToken,
       isHost: false,

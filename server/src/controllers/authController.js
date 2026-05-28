@@ -10,10 +10,11 @@ const signToken = (id) =>
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9_\-.]{3,30}$/;
+const POSTAL_CODE_REGEX = /^\d{5}$/;
 
 const register = async (req, res, next) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, postalCode } = req.body;
     if (!username || !email || !password) {
       return res.status(400).json({ message: 'Oh fada, remplis tous les champs !' });
     }
@@ -26,13 +27,21 @@ const register = async (req, res, next) => {
     if (typeof password !== 'string' || password.length < 6 || password.length > 100) {
       return res.status(400).json({ message: 'Mot de passe : 6 à 100 caractères.' });
     }
+    if (typeof postalCode !== 'string' || !POSTAL_CODE_REGEX.test(postalCode.trim())) {
+      return res.status(400).json({ message: 'Code postal : 5 chiffres, té (c\'est pour ton badge de quartier).' });
+    }
     const normalizedEmail = email.trim().toLowerCase();
     const trimmedUsername = username.trim();
     const existing = await User.findOne({ $or: [{ email: normalizedEmail }, { username: trimmedUsername }] });
     if (existing) {
       return res.status(409).json({ message: 'Ce pseudo ou email est déjà pris, té !' });
     }
-    const user = await User.create({ username: trimmedUsername, email: normalizedEmail, password });
+    const user = await User.create({
+      username: trimmedUsername,
+      email: normalizedEmail,
+      password,
+      postalCode: postalCode.trim(),
+    });
     const token = signToken(user._id);
     res.status(201).json({ token, user });
   } catch (err) {
@@ -131,4 +140,63 @@ const resetPassword = async (req, res, next) => {
   } catch (err) { next(err); }
 };
 
-module.exports = { register, login, getMe, forgotPassword, resetPassword };
+// POST /api/auth/change-email { newEmail, currentPassword }
+// Re-auth : on exige le mot de passe actuel pour changer l'email (l'email sert au
+// reset password, donc on protège ce changement). Check unicité.
+const changeEmail = async (req, res, next) => {
+  try {
+    const { newEmail, currentPassword } = req.body;
+    if (typeof newEmail !== 'string' || !EMAIL_REGEX.test(newEmail.trim())) {
+      return res.status(400).json({ message: 'Email pas valide, hé bé.' });
+    }
+    if (typeof currentPassword !== 'string' || !currentPassword) {
+      return res.status(400).json({ message: 'Mot de passe requis.' });
+    }
+    const normalized = newEmail.trim().toLowerCase();
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    if (!(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ message: 'Ton mot de passe est pas bon, té.', code: 'BAD_CURRENT_PASSWORD' });
+    }
+    if (normalized === user.email) {
+      return res.status(400).json({ message: 'C\'est déjà ton email, oh fada.' });
+    }
+    const taken = await User.findOne({ email: normalized, _id: { $ne: user._id } });
+    if (taken) {
+      return res.status(409).json({ message: 'Cet email est déjà pris.', code: 'EMAIL_TAKEN' });
+    }
+    user.email = normalized;
+    await user.save();
+    res.json({ ok: true, user, message: 'Email changé, et voilà !' });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(409).json({ message: 'Cet email est déjà pris.', code: 'EMAIL_TAKEN' });
+    }
+    next(err);
+  }
+};
+
+// POST /api/auth/change-password { currentPassword, newPassword }
+// Pour un user connecté qui connaît son mot de passe actuel. Différent du reset
+// (qui passe par un token email pour un user qui l'a oublié).
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (typeof currentPassword !== 'string' || typeof newPassword !== 'string') {
+      return res.status(400).json({ message: 'Champs manquants.' });
+    }
+    if (newPassword.length < 6 || newPassword.length > 100) {
+      return res.status(400).json({ message: 'Nouveau mot de passe : 6 à 100 caractères.' });
+    }
+    const user = await User.findById(req.user._id).select('+password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur introuvable.' });
+    if (!(await user.comparePassword(currentPassword))) {
+      return res.status(401).json({ message: 'Ton mot de passe actuel est pas bon, té.', code: 'BAD_CURRENT_PASSWORD' });
+    }
+    user.password = newPassword; // pre-save hook bcrypte
+    await user.save();
+    res.json({ ok: true, message: 'Mot de passe changé, et voilà !' });
+  } catch (err) { next(err); }
+};
+
+module.exports = { register, login, getMe, forgotPassword, resetPassword, changePassword, changeEmail };

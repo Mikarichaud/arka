@@ -102,6 +102,8 @@ app.use('/api/auth/login', loginLimiter);
 app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth/forgot-password', forgotPasswordLimiter);
 app.use('/api/auth/reset-password', resetPasswordLimiter);
+app.use('/api/auth/change-password', resetPasswordLimiter);
+app.use('/api/auth/change-email', resetPasswordLimiter);
 app.use('/api/media/upload', uploadLimiter);
 
 app.use('/api/auth', authRoutes);

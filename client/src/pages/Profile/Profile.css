@@ -18,7 +18,38 @@
   align-items: center;
   gap: 16px;
   padding: 20px;
+  position: relative;
 }
+.profile-identity.card.is-editing {
+  align-items: flex-start;
+}
+
+/* Crayon / croix en haut-droite de la carte d'identité */
+.profile-edit-card-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--gris-doux);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition-fast), color var(--transition-fast), background var(--transition-fast);
+}
+.profile-identity:hover .profile-edit-card-btn { opacity: 1; }
+.profile-edit-card-btn:hover {
+  opacity: 1;
+  color: var(--bleu-azur);
+  background: rgba(0, 87, 168, 0.1);
+}
+[data-theme="dark"] .profile-edit-card-btn { background: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .profile-edit-card-btn:hover { background: rgba(255, 255, 255, 0.14); }
 
 .profile-avatar-wrap {
   position: relative;
@@ -90,6 +121,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .profile-username {
@@ -97,7 +130,50 @@
   font-size: 1.1rem;
   display: flex;
   align-items: center;
+  gap: 4px;
 }
+
+/* ── Mode édition de la carte ── */
+.profile-edit-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--bleu-azur);
+  margin-bottom: 2px;
+}
+
+.profile-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.profile-edit-field label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--gris-doux);
+}
+.profile-edit-input {
+  font-size: 0.95rem;
+  padding: 8px 12px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.profile-pseudo-error {
+  font-size: 0.78rem;
+  color: var(--rouge-defi);
+  font-weight: 600;
+}
+
+.profile-edit-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.profile-edit-actions .btn { min-width: 96px; }
 
 .profile-email {
   font-size: 0.82rem;
@@ -305,6 +381,17 @@
   background: linear-gradient(135deg, rgba(230, 57, 70, 0.15), rgba(230, 57, 70, 0.25));
 }
 .profile-gate-pill--owner svg { color: var(--rouge-defi); }
+
+/* ── Mon compte ── */
+.profile-account-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.profile-account-actions .btn {
+  width: 100%;
+  justify-content: center;
+}
 
 /* ── Déconnexion ── */
 .profile-logout {
