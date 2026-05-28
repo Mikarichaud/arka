@@ -181,6 +181,98 @@ router.get('/stats', protect, requireOwner, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ─── Fichier des joueurs : un user par ligne, avec stats croisées ─────────────
+// Owner uniquement. Sert l'onglet "Joueurs" du dashboard (tableau triable).
+// Croise les stats du doc User avec : salons hébergés (hostUserId), parties
+// locales sauvegardées (Session.createdBy) et présence live (activeSockets).
+router.get('/users', protect, requireOwner, async (req, res, next) => {
+  try {
+    // Croisements DB en parallèle (1 group par source, pas de N+1).
+    const [users, hostAgg, sessionAgg] = await Promise.all([
+      User.find()
+        .select('username email avatar postalCode tier role createdAt subscription purchasedPacks purchasedSkins customPacks stats')
+        .lean(),
+      Salon.aggregate([
+        { $match: { hostUserId: { $ne: null } } },
+        { $group: { _id: '$hostUserId', count: { $sum: 1 } } },
+      ]),
+      Session.aggregate([
+        { $match: { createdBy: { $ne: null } } },
+        { $group: { _id: '$createdBy', count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const hostedByUser = new Map(hostAgg.map((r) => [String(r._id), r.count]));
+    const sessionsByUser = new Map(sessionAgg.map((r) => [String(r._id), r.count]));
+
+    // Présence live : userIds online dérivés de activeSockets (en mémoire).
+    const activeCodes = [];
+    const onlineByCode = new Map();
+    for (const [code, playerMap] of activeSockets.entries()) {
+      if (playerMap.size > 0) {
+        activeCodes.push(code);
+        onlineByCode.set(code, new Set(playerMap.keys()));
+      }
+    }
+    const onlineUserIds = new Set();
+    if (activeCodes.length > 0) {
+      const salons = await Salon.find({ code: { $in: activeCodes } })
+        .select('code players')
+        .lean();
+      for (const s of salons) {
+        const onlineIds = onlineByCode.get(s.code) || new Set();
+        for (const p of s.players || []) {
+          if (p.userId && onlineIds.has(p.playerId)) onlineUserIds.add(String(p.userId));
+        }
+      }
+    }
+
+    const ownerEmail = (process.env.OWNER_EMAIL || '').toLowerCase();
+
+    const rows = users.map((u) => {
+      const id = String(u._id);
+      const completed = u.stats?.totalChallengesCompleted || 0;
+      const refused = u.stats?.totalChallengesRefused || 0;
+      const denom = completed + refused;
+      // null = pas encore assez de défis pour juger la "forme".
+      const formRate = denom > 0 ? Math.round((completed / denom) * 100) : null;
+      return {
+        id,
+        username: u.username,
+        email: u.email,
+        avatar: u.avatar || null,
+        postalCode: u.postalCode || null,
+        tier: u.tier,
+        role: u.role,
+        isOwner: !!ownerEmail && u.email === ownerEmail,
+        createdAt: u.createdAt,
+        subscription: {
+          status: u.subscription?.status || null,
+          currentPeriodEnd: u.subscription?.currentPeriodEnd || null,
+          cancelAtPeriodEnd: !!u.subscription?.cancelAtPeriodEnd,
+        },
+        online: onlineUserIds.has(id),
+        counts: {
+          games: u.stats?.totalGames || 0,
+          completed,
+          refused,
+          formRate,
+          customPacks: (u.customPacks || []).length,
+          purchasedPacks: (u.purchasedPacks || []).length,
+          purchasedSkins: (u.purchasedSkins || []).length,
+          salonsHosted: hostedByUser.get(id) || 0,
+          sessionsSaved: sessionsByUser.get(id) || 0,
+        },
+      };
+    });
+
+    // Tri par défaut : derniers inscrits en tête (le client re-trie ensuite).
+    rows.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    res.json({ users: rows, total: rows.length });
+  } catch (err) { next(err); }
+});
+
 // ─── Galerie owner : toutes les photos/vidéos classées par pseudo ─────────────
 // Aggrège 3 sources : (1) parties archivées des salons, (2) partie en cours d'un
 // salon (currentGame.history), (3) parties locales (Session). Owner uniquement.

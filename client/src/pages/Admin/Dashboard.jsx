@@ -7,6 +7,7 @@ import SEO from '../../components/SEO/SEO';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import useAuthStore from '../../store/authStore';
 import AdminGallery from './AdminGallery';
+import AdminUsers from './AdminUsers';
 import api from '../../services/api';
 import './Dashboard.css';
 
@@ -36,7 +37,7 @@ export default function Dashboard() {
   const [error, setError] = useState('');
   const [lastFetchAt, setLastFetchAt] = useState(null);
   const [paused, setPaused] = useState(false);
-  const [tab, setTab] = useState('stats'); // stats | gallery
+  const [tab, setTab] = useState('stats'); // stats | users | gallery
   const pollTimer = useRef(null);
 
   const fetchStats = async (silent = false) => {
@@ -126,6 +127,13 @@ export default function Dashboard() {
           Stats
         </button>
         <button
+          className={`admin-tab ${tab === 'users' ? 'is-active' : ''}`}
+          onClick={() => setTab('users')}
+        >
+          <Icon name="wave" size={14} style={{ marginRight: 6 }} />
+          Joueurs
+        </button>
+        <button
           className={`admin-tab ${tab === 'gallery' ? 'is-active' : ''}`}
           onClick={() => setTab('gallery')}
         >
@@ -142,6 +150,8 @@ export default function Dashboard() {
 
       {tab === 'gallery' ? (
         <AdminGallery />
+      ) : tab === 'users' ? (
+        <AdminUsers />
       ) : loading && !data ? (
         <div className="admin-grid">
           <LoadingPlaceholder variant="card" />
