@@ -1,6 +1,16 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+// On ne réécrit lastSeenAt en DB que si la dernière trace date de > 10 min,
+// pour éviter une écriture à chaque requête authentifiée. Fire-and-forget.
+const LAST_SEEN_THROTTLE_MS = 10 * 60 * 1000;
+const touchLastSeen = (user) => {
+  const now = Date.now();
+  if (user.lastSeenAt && now - new Date(user.lastSeenAt).getTime() < LAST_SEEN_THROTTLE_MS) return;
+  user.lastSeenAt = new Date(now);
+  User.updateOne({ _id: user._id }, { lastSeenAt: user.lastSeenAt }).catch(() => {});
+};
+
 const protect = async (req, res, next) => {
   const header = req.headers.authorization;
   if (!header || !header.startsWith('Bearer ')) {
@@ -13,6 +23,7 @@ const protect = async (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Utilisateur introuvable.' });
     }
+    touchLastSeen(req.user);
     next();
   } catch {
     res.status(401).json({ message: 'Token invalide, oh fada !' });

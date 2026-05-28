@@ -190,7 +190,7 @@ router.get('/users', protect, requireOwner, async (req, res, next) => {
     // Croisements DB en parallèle (1 group par source, pas de N+1).
     const [users, hostAgg, sessionAgg] = await Promise.all([
       User.find()
-        .select('username email avatar postalCode tier role createdAt subscription purchasedPacks purchasedSkins customPacks stats')
+        .select('username email avatar postalCode tier role createdAt lastSeenAt subscription purchasedPacks purchasedSkins customPacks stats')
         .lean(),
       Salon.aggregate([
         { $match: { hostUserId: { $ne: null } } },
@@ -246,6 +246,7 @@ router.get('/users', protect, requireOwner, async (req, res, next) => {
         role: u.role,
         isOwner: !!ownerEmail && u.email === ownerEmail,
         createdAt: u.createdAt,
+        lastSeenAt: u.lastSeenAt || null,
         subscription: {
           status: u.subscription?.status || null,
           currentPeriodEnd: u.subscription?.currentPeriodEnd || null,

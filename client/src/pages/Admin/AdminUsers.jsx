@@ -12,6 +12,27 @@ function fmtDate(iso) {
   return dateFmt.format(new Date(iso));
 }
 
+// Temps relatif court façon "il y a 3 min / 2 h / 5 j". "Jamais" si pas de trace.
+function fmtAgo(iso) {
+  if (!iso) return 'Jamais';
+  const s = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return "à l'instant";
+  const m = Math.round(s / 60);
+  if (m < 60) return `il y a ${m} min`;
+  const h = Math.round(m / 60);
+  if (h < 24) return `il y a ${h} h`;
+  const d = Math.round(h / 24);
+  if (d < 30) return `il y a ${d} j`;
+  return fmtDate(iso);
+}
+
+// En ligne maintenant ou vu il y a < 5 min = "frais".
+function seenClass(u) {
+  if (u.online) return 'is-online';
+  if (!u.lastSeenAt) return 'is-never';
+  return Date.now() - new Date(u.lastSeenAt).getTime() < 5 * 60 * 1000 ? 'is-fresh' : '';
+}
+
 // Classe couleur du taux de forme : vert costaud, rouge "mou comme une panisse".
 function formClass(rate) {
   if (rate === null || rate === undefined) return 'is-na';
@@ -41,6 +62,7 @@ const SORTERS = {
   forme: (u) => (u.counts.formRate === null ? -1 : u.counts.formRate),
   parties: (u) => u.counts.games,
   contrib: (u) => u.counts.customPacks + u.counts.salonsHosted + u.counts.sessionsSaved,
+  vu: (u) => (u.online ? Infinity : new Date(u.lastSeenAt || 0).getTime()),
   inscrit: (u) => new Date(u.createdAt || 0).getTime(),
 };
 
@@ -138,6 +160,7 @@ export default function AdminUsers() {
                 <th className="num">Défis ✓/✗</th>
                 <th>Abo</th>
                 <th className="is-sortable" onClick={() => toggleSort('contrib')}>Crée{sortIcon('contrib')}</th>
+                <th className="is-sortable num" onClick={() => toggleSort('vu')}>Dernière connexion{sortIcon('vu')}</th>
                 <th className="is-sortable num" onClick={() => toggleSort('inscrit')}>Inscrit{sortIcon('inscrit')}</th>
               </tr>
             </thead>
@@ -184,6 +207,11 @@ export default function AdminUsers() {
                         <span title="Packs persos créés"><Icon name="trophy" size={12} /> {u.counts.customPacks}</span>
                         <span title="Salons hébergés"><Icon name="anchor" size={12} /> {u.counts.salonsHosted}</span>
                         <span title="Parties locales sauvées"><Icon name="football" size={12} /> {u.counts.sessionsSaved}</span>
+                      </span>
+                    </td>
+                    <td className="num">
+                      <span className={`admin-users-seen ${seenClass(u)}`}>
+                        {u.online ? 'En ligne' : fmtAgo(u.lastSeenAt)}
                       </span>
                     </td>
                     <td className="num admin-users-muted">{fmtDate(u.createdAt)}</td>

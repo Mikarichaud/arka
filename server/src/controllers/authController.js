@@ -62,6 +62,8 @@ const login = async (req, res, next) => {
     if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Identifiant ou mot de passe incorrect.' });
     }
+    user.lastSeenAt = new Date();
+    await User.updateOne({ _id: user._id }, { lastSeenAt: user.lastSeenAt });
     const token = signToken(user._id);
     res.json({ token, user });
   } catch (err) {

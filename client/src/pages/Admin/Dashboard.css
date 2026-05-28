@@ -527,3 +527,8 @@
   font-weight: 600;
 }
 .admin-users-contrib span { display: inline-flex; align-items: center; gap: 3px; }
+
+.admin-users-seen { font-weight: 600; color: var(--text-secondary); }
+.admin-users-seen.is-online { color: var(--vert-valide); font-weight: 800; }
+.admin-users-seen.is-fresh { color: var(--text-primary); font-weight: 700; }
+.admin-users-seen.is-never { color: var(--text-secondary); font-style: italic; opacity: 0.7; }

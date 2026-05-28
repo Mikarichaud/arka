@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
     totalChallengesRefused: { type: Number, default: 0 },
   },
   customPacks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Pack' }],
+  lastSeenAt: { type: Date, default: null }, // dernière activité (login + requêtes authentifiées, throttlé)
   // Reset password : on stocke le HASH du token (jamais le token en clair).
   // select: false pour qu'ils ne sortent jamais via User.find() classique.
   passwordResetTokenHash: { type: String, default: null, select: false },
