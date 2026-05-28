@@ -7,7 +7,7 @@ const router = express.Router();
 const Session = require('../models/Session');
 const Pack = require('../models/Pack');
 
-const SITE_URL = process.env.CLIENT_URL || 'https://arka.michaelrichaud.fr';
+const SITE_URL = process.env.CLIENT_URL || 'https://roulademarseillaise.fr';
 
 // Pages publiques fixes (priorité haute, mise à jour quotidienne)
 const STATIC_PAGES = [

@@ -12,4 +12,4 @@ Disallow: /salons
 
 # Pages publiques (cosmétique : le crawler les trouvera quand même via les liens internes)
 # Sitemap dynamique servi par le backend
-Sitemap: https://arka.michaelrichaud.fr/sitemap.xml
+Sitemap: https://roulademarseillaise.fr/sitemap.xml

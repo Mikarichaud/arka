@@ -2,7 +2,11 @@
 
 Commandes à lancer **une seule fois** sur le VPS au premier déploiement.
 Le template OVH "Debian 12 - Docker" inclut déjà Docker Engine + Docker Compose v2.
-Domaine cible : **arka.michaelrichaud.fr**.
+Domaine cible : **roulademarseillaise.fr** (canonique). L'ancien `arka.michaelrichaud.fr`
+reste configuré et redirige en 301.
+
+> 📌 Ce doc décrit le **premier déploiement** (historique, fait sur arka). Pour la
+> **bascule de domaine vers roulademarseillaise.fr**, suivre [`migrate-domain.md`](./migrate-domain.md).
 
 ---
 

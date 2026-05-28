@@ -2,7 +2,7 @@
 
 **Application web mobile-first de jeu de défis en tour par tour. Ambiance 100 % marseillaise : design, sons, textes, humour.**
 
-- **Domaine** : [arka.michaelrichaud.fr](https://arka.michaelrichaud.fr)
+- **Domaine** : [roulademarseillaise.fr](https://roulademarseillaise.fr) (l'ancien `arka.michaelrichaud.fr` redirige en 301)
 - **Éditeur** : ARKA
 - **Statut** : en production
 - **Distribution** : PWA web (installable sur iOS / Android sans passer par l'App Store ou le Play Store)

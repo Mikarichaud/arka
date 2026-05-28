@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 
 // Domaine canonique de prod. Si tu changes de domaine, c'est ici (utilisé pour
 // les URLs absolues OG/Twitter + canonical).
-const SITE_URL = 'https://arka.michaelrichaud.fr';
+const SITE_URL = 'https://roulademarseillaise.fr';
 // TODO: créer une vraie OG image 1200x630 (preview WhatsApp/iMessage parfait).
 // Pour l'instant on utilise l'icône PWA 512x512 — acceptée par tous les crawlers
 // mais aspect carré → coupée en bandeau sur certaines plateformes.
