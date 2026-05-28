@@ -17,11 +17,19 @@ set -e
 
 EMAIL="postmaster@roulademarseillaise.fr"
 
+VPS_V4="51.83.40.95"
+VPS_V6="2001:41d0:305:2100::9420"
+
 echo "→ Vérification que le DNS du nouveau domaine pointe bien vers ce VPS..."
-echo "  roulademarseillaise.fr → $(getent hosts roulademarseillaise.fr | awk '{print $1}' | tr '\n' ' ')"
-echo "  www.roulademarseillaise.fr → $(getent hosts www.roulademarseillaise.fr | awk '{print $1}' | tr '\n' ' ')"
-echo "  (doit afficher 51.83.40.95). Ctrl-C dans les 5s si ce n'est pas le cas."
-sleep 5
+echo "  Attendu pour les DEUX : A=$VPS_V4  |  AAAA=$VPS_V6"
+for host in roulademarseillaise.fr www.roulademarseillaise.fr; do
+  v4=$(getent ahostsv4 "$host" | awk '{print $1}' | sort -u | tr '\n' ' ')
+  v6=$(getent ahostsv6 "$host" | awk '{print $1}' | sort -u | tr '\n' ' ')
+  echo "  $host → A: ${v4:-(aucun)} | AAAA: ${v6:-(aucun)}"
+done
+echo "  ⚠️  Let's Encrypt valide via IPv6 (AAAA) en priorité : A ET AAAA doivent pointer le VPS."
+echo "  Ctrl-C dans les 8s si une valeur ne correspond pas."
+sleep 8
 
 echo "→ Demande du certificat à Let's Encrypt (webroot, stack en cours)..."
 docker compose -f docker-compose.prod.yml run --rm --entrypoint "\
