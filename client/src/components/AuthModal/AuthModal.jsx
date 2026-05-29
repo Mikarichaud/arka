@@ -6,6 +6,8 @@ import PasswordInput from '../PasswordInput/PasswordInput';
 import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { openLegal } from '../../native';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
 import './AuthModal.css';
@@ -31,6 +33,7 @@ export default function AuthModal() {
 
   const isOpen = Boolean(mode);
   useEscapeClose(isOpen, close);
+  useBodyScrollLock(isOpen);
 
   // Reset des champs/erreurs à chaque (ré)ouverture ou changement de mode
   useEffect(() => {
@@ -229,8 +232,8 @@ export default function AuthModal() {
                     />
                     <span>
                       J'accepte les{' '}
-                      <a href="/terms" target="_blank" rel="noopener noreferrer">CGU</a>{' '}et la{' '}
-                      <a href="/privacy" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>.
+                      <a href="/terms" onClick={(e) => { e.preventDefault(); openLegal('/terms'); }}>CGU</a>{' '}et la{' '}
+                      <a href="/privacy" onClick={(e) => { e.preventDefault(); openLegal('/privacy'); }}>politique de confidentialité</a>.
                     </span>
                   </label>
                   {error && <p className="authmodal-error">{error}</p>}

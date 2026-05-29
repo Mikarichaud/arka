@@ -131,6 +131,11 @@
   gap: 12px;
 }
 
+/* Phase idle : on centre la roulette dans l'espace dispo et le bouton "Tourner"
+   reste en bas (zone du pouce) → plus de gros vide entre les deux. */
+.game-page--idle .game-roulette-area { flex: 1; justify-content: center; }
+.game-page--idle .game-content { flex: 0 0 auto; }
+
 .game-comment {
   font-style: italic;
   color: var(--gris-doux);

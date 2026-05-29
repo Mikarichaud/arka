@@ -133,9 +133,11 @@ h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }
 .btn-back {
   background: none;
   border: none;
-  padding: 4px 0;
+  /* Zone tactile ≥44px (Apple HIG) sans décaler le texte : padding + min-height. */
+  padding: 4px 12px 4px 0;
+  min-height: 44px;
   font-family: var(--font-corps);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
@@ -248,3 +250,100 @@ h1, h2, h3 { font-family: var(--font-titre); letter-spacing: 0.03em; }
     font-size: 1.05rem;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+   App native (Capacitor) — classe .native posée par src/native.js.
+   N'affecte JAMAIS le web (où body n'a pas la classe .native).
+   ════════════════════════════════════════════════════════════════════════ */
+
+/* 1) Edge-to-edge : la status bar flotte (overlay), contentInset=never → le fond
+   de chaque page passe derrière. On décale le contenu sous la status bar / l'encoche
+   et au-dessus de la barre home. Les pages salon gèrent déjà leur safe-area en
+   interne (via env(safe-area-inset-*)) → on les exclut pour ne pas doubler. */
+body.native .layout-page:not(.home-page):not(.salon-page):not(.salon-game-page):not(.salon-history-page):not(.mes-salons-page) {
+  padding-top: max(14px, env(safe-area-inset-top));
+}
+/* Bas : safe-area pour les pages standard, SAUF les pages-onglets (library/profile)
+   qui réservent l'espace de la BottomNav plus bas. */
+body.native .layout-page:not(.home-page):not(.salon-page):not(.salon-game-page):not(.salon-history-page):not(.mes-salons-page):not(.library-page):not(.profile-page) {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+/* Home gère déjà sa safe-area via .home-header → exclue ci-dessus (sinon double). */
+
+/* Jeu local : plein écran par design (latéral 0) → on redonne un padding latéral
+   sur le natif pour que les chips de score et les boutons ne collent pas aux bords. */
+body.native .game-page:not(.salon-game-page) {
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+/* 2) Supprime les comportements « page web » qui trahissent le wrap. */
+body.native,
+body.native * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+body.native {
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* …mais on garde la saisie/sélection dans les champs. */
+body.native input,
+body.native textarea,
+body.native [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ── Barre d'onglets bas (web + natif) : réserve l'espace sur les 4 pages racine
+   pour que le contenu ne passe pas sous la barre. ── */
+body.has-bottomnav .home-page,
+body.has-bottomnav .library-page,
+body.has-bottomnav .mes-salons-page,
+body.has-bottomnav .profile-page {
+  padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* ── Éléments révélés au :hover → forcés visibles sur écran tactile (pas de survol) ── */
+@media (hover: none) {
+  .profile-edit-card-btn { opacity: 1; }
+  .gallery-item-overlay { opacity: 1; }
+  .sound-btn { opacity: 1; }
+}
+
+/* ── Headers compacts (P3) ── */
+/* Sur les pages-onglets, le "← Retour" fait doublon avec la barre d'onglets → masqué. */
+body.has-bottomnav .btn-back { display: none; }
+
+/* Gros titres Bebas allégés sur petit écran (sélecteur à 2 classes → gagne sur les
+   règles de page à 1 classe, quel que soit l'ordre d'import). */
+@media (max-width: 480px) {
+  .library-page .library-title,
+  .profile-page .profile-title,
+  .mes-salons-page .salon-title,
+  .setup-page .setup-title {
+    font-size: 1.85rem;
+  }
+}
+
+/* ── Modales : verrou du scroll de fond + pas de chaînage d'overscroll ── */
+body.scroll-locked { overflow: hidden; }
+.authmodal-overlay,
+.paywall-overlay,
+.confirm-overlay,
+.salon-modal-backdrop,
+.history-lightbox,
+.salon-media-lightbox,
+.authmodal {
+  overscroll-behavior: contain;
+}
+
+/* 3) Pas de barres de scroll visibles (look natif). */
+body.native { scrollbar-width: none; -ms-overflow-style: none; }
+body.native::-webkit-scrollbar,
+body.native *::-webkit-scrollbar { width: 0; height: 0; display: none; }
+
+/* 4) Pas de scroll horizontal parasite. `clip` coupe le débordement latéral sans
+   créer de conteneur de scroll (le scroll vertical bulle toujours, et la transition
+   "Vague de la Corniche" reste gérée par le wrapper parent, pas par .layout-page). */
+body.native .layout-page { overflow-x: clip; }

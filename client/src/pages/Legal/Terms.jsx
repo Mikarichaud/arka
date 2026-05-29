@@ -91,7 +91,7 @@ export default function Terms() {
         <h2>7. Suppression de compte</h2>
         <p>
           Tu peux supprimer ton compte à tout moment depuis <strong>Profil → Mon compte</strong>.
-          La suppression est définitive (voir la <a href="/privacy">politique de confidentialité</a>).
+          La suppression est définitive (voir la <a href="/privacy" onClick={(e) => { e.preventDefault(); navigate('/privacy'); }}>politique de confidentialité</a>).
         </p>
 
         <h2>8. Responsabilité</h2>

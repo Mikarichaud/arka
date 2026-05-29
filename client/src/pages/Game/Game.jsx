@@ -15,6 +15,7 @@ import useGameStore from '../../store/gameStore';
 import useAuthStore from '../../store/authStore';
 import useSettingsStore from '../../store/settingsStore';
 import { hasPremiumAccess, STORE_BUILD } from '../../utils/permissions';
+import { haptic } from '../../native';
 import { useSound } from '../../hooks/useSound';
 import { useActiveSkin } from '../../hooks/useActiveSkin';
 import { fumigenesSoft } from '../../styles/motion';
@@ -51,6 +52,7 @@ export default function Game() {
 
   const handleSpin = async () => {
     if (isSpinning) return;
+    haptic('medium');
     play('spin');
     setPhase('spinning');
     setLastPoints(null);
@@ -126,7 +128,7 @@ export default function Game() {
   const isCompact = phase === 'challenge' || phase === 'vote' || phase === 'result';
 
   return (
-    <Layout className={`game-page ${isCompact ? 'game-page--compact' : ''}`}>
+    <Layout className={`game-page ${isCompact ? 'game-page--compact' : ''} ${phase === 'idle' ? 'game-page--idle' : ''}`}>
       {/* Header scores */}
       <div className="game-scores">
         <div className="game-scores-chips">

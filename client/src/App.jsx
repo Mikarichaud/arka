@@ -1,6 +1,8 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigationType } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
+import { syncStatusBar, hideSplash } from './native';
+import BottomNav from './components/BottomNav/BottomNav';
 import Home from './pages/Home/Home';
 import ResetPassword from './pages/Auth/ResetPassword';
 import SessionSetup from './pages/Session/SessionSetup';
@@ -36,6 +38,15 @@ const NO_SLIDE = ['/game', '/gallery', '/salon/'];
 function AnimatedRoutes() {
   const location = useLocation();
   const navType = useNavigationType();
+
+  // À chaque changement d'écran : on remonte en haut + on resynchronise la status bar.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    syncStatusBar();
+  }, [location.pathname]);
+
+  // App montée → on masque le splash natif (qui restait affiché pendant le chargement web).
+  useEffect(() => { hideSplash(); }, []);
   // POP = navigation back/forward du browser → animation back (-1)
   // REPLACE avec state.dir='back' = un Quitter explicite qui doit s'animer comme back
   // (sinon l'animation default = forward, ce qui est faux pour un retour).
@@ -58,7 +69,7 @@ function AnimatedRoutes() {
 
   return (
     <NavDirectionContext.Provider value={direction}>
-      <AnimatePresence mode="wait" custom={direction}>
+      <AnimatePresence mode="wait" custom={direction} initial={false}>
         <motion.div
           key={location.pathname}
           custom={direction}
@@ -112,6 +123,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <AnimatedRoutes />
+      <BottomNav />
       <AuthModal />
     </BrowserRouter>
   );

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon';
 import { fumigenesVariants } from '../../styles/motion';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import './PaywallModal.css';
 
@@ -11,6 +12,7 @@ export default function PaywallModal({ pack, onClose }) {
   // Mode lancement OU build magasin : la modale ne s'ouvre jamais (pas de commerce).
   const open = Boolean(pack) && !FEATURES_UNLOCKED && !STORE_BUILD;
   useEscapeClose(open, onClose);
+  useBodyScrollLock(open);
 
   return (
     <AnimatePresence>

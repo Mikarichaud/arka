@@ -16,6 +16,7 @@ import { useActiveSkin } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { useSound } from '../../hooks/useSound';
 import { clearSalonCreds, loadSalonCreds } from '../../services/salonStorage';
+import { haptic } from '../../native';
 import { fumigenesSoft } from '../../styles/motion';
 import './Salon.css';
 import './SalonGame.css';
@@ -92,7 +93,7 @@ export default function SalonGame({ emit, code }) {
     if (spinTimerRef.current) clearTimeout(spinTimerRef.current);
     spinTimerRef.current = setTimeout(() => {
       setLocalSpinning(true);
-      if (navigator.vibrate) navigator.vibrate(60);
+      haptic('medium');
       play('spin');
     }, delay);
     return () => {
@@ -130,10 +131,8 @@ export default function SalonGame({ emit, code }) {
   // Vibration : quand c'est à moi de jouer et qu'on entre en idle (début de tour),
   // un petit buzz pour réveiller le phone. Aussi quand on entre en 'challenge' si c'est moi.
   useEffect(() => {
-    if (!navigator.vibrate) return;
     if (!isMe) return;
-    if (phase === 'idle') navigator.vibrate(200);
-    if (phase === 'challenge') navigator.vibrate([80, 60, 80]);
+    if (phase === 'idle' || phase === 'challenge') haptic('heavy');
   }, [phase, isMe]);
 
   // Affichage emojis : pop queue de 2.5s.

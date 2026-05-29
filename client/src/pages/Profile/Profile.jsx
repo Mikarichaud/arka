@@ -9,6 +9,7 @@ import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { openLegal } from '../../native';
 import { fumigenesVariants } from '../../styles/motion';
 import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import api from '../../services/api';
@@ -519,9 +520,9 @@ export default function Profile() {
       </button>
 
       <div className="profile-legal-links">
-        <a href="/terms" target="_blank" rel="noopener noreferrer">CGU</a>
+        <a href="/terms" onClick={(e) => { e.preventDefault(); openLegal('/terms'); }}>CGU</a>
         <span>·</span>
-        <a href="/privacy" target="_blank" rel="noopener noreferrer">Confidentialité</a>
+        <a href="/privacy" onClick={(e) => { e.preventDefault(); openLegal('/privacy'); }}>Confidentialité</a>
       </div>
 
       {/* Modale de confirmation suppression de compte */}

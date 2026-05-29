@@ -3,6 +3,16 @@
   "appName": "La Roulade Marseillaise",
   "webDir": "dist",
   "ios": {
-    "contentInset": "always"
+    "contentInset": "never"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchAutoHide": false,
+      "backgroundColor": "#F5F5F0",
+      "showSpinner": false
+    },
+    "Keyboard": {
+      "resize": "native"
+    }
   }
 }

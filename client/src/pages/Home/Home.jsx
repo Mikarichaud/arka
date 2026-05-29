@@ -7,7 +7,7 @@ import SEO, { SITE_URL, SITE_NAME } from '../../components/SEO/SEO';
 import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import useSettingsStore from '../../store/settingsStore';
-import { hasPremiumAccess, FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
+import { FEATURES_UNLOCKED } from '../../utils/permissions';
 
 const HOME_JSON_LD = [
   {
@@ -82,74 +82,15 @@ export default function Home() {
           >
             Lancer une partie
           </button>
-          {/* Salons : logged-in = un seul CTA Mes salons (qui héberge Créer + Rejoindre + ses groupes).
-              Anonyme = juste Rejoindre via code/QR. */}
-          {user ? (
+          {/* Salons / Packs / Profil sont désormais dans la barre d'onglets en bas.
+              On garde juste l'accès connexion pour les visiteurs déconnectés. */}
+          {!user && (
             <button
-              className="btn btn-ghost home-ghost-btn home-salon-cta"
-              onClick={() => navigate('/salons')}
+              className="btn btn-ghost home-ghost-btn"
+              onClick={() => openAuthModal('login')}
             >
-              <Icon name="trophy" size={16} style={{ marginRight: 6 }} />
-              Mes salons
+              Se connecter
             </button>
-          ) : (
-            <button
-              className="btn btn-ghost home-ghost-btn home-salon-cta"
-              onClick={() => navigate('/salon/join')}
-            >
-              <Icon name="anchor" size={16} style={{ marginRight: 6 }} />
-              Rejoindre un salon
-            </button>
-          )}
-          <button
-            className="btn btn-ghost home-ghost-btn"
-            onClick={() => navigate('/packs')}
-          >
-            Packs & cosmétiques
-          </button>
-
-          {user ? (
-            <div className="home-user-bar">
-              <button
-                className="home-user-info"
-                onClick={() => navigate('/profile')}
-              >
-                <Icon name="wave" size={14} />
-                <span className="home-user-name">{user.username}</span>
-                {hasPremiumAccess(user) && !FEATURES_UNLOCKED && <Icon name="star" size={13} />}
-              </button>
-              <div className="home-user-actions">
-                {!hasPremiumAccess(user) && !FEATURES_UNLOCKED && !STORE_BUILD && (
-                  <button
-                    className="home-user-btn home-user-btn--gold"
-                    onClick={() => navigate('/premium')}
-                  >
-                    Premium
-                  </button>
-                )}
-                <button className="home-user-btn" onClick={() => openAuthModal('logout')}>
-                  Déconnexion
-                </button>
-              </div>
-            </div>
-          ) : (
-            <>
-              <button
-                className="btn btn-ghost home-ghost-btn"
-                onClick={() => openAuthModal('login')}
-              >
-                Se connecter
-              </button>
-              {!FEATURES_UNLOCKED && !STORE_BUILD && (
-                <button
-                  className="btn btn-ghost home-ghost-btn home-premium-cta"
-                  onClick={() => navigate('/premium')}
-                >
-                  <Icon name="star" size={16} style={{ marginRight: 6 }} />
-                  Découvrir Premium
-                </button>
-              )}
-            </>
           )}
         </motion.section>
       </div>

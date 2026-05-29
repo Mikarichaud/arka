@@ -139,8 +139,8 @@ Modération **owner-only** (décidé).
 
 ## 5. Assets & fiche App Store Connect
 
-- [ ] **Icône app** 1024×1024 (sans alpha) — dérivable de tes icônes PWA existantes
-- [ ] **Splash screen** (via `@capacitor/splash-screen`)
+- [x] **Icône app** 1024×1024 (opaque) — générée (roulette Vélodrome, fond crème). Source : `client/assets/icon-source.svg`
+- [x] **Splash screen** (`@capacitor/splash-screen` + assets clair/sombre générés)
 - [ ] **Screenshots** par taille requise : 6.7" (iPhone 15/16 Pro Max), 6.5", et iPad si support iPad
 - [ ] **Nom** (30 car.), **sous-titre** (30 car.), **mots-clés**, **description**
 - [ ] **Catégorie** : Jeux / Divertissement
@@ -152,14 +152,24 @@ Modération **owner-only** (décidé).
 
 ---
 
-## 6. Bonus natifs (optionnels V1, fort impact)
+## 6. Finitions natives (anti-« wrappé »)
 
-- [ ] **Push notifications natives** (`@capacitor/push-notifications` + APNs) →
-  « X t'a invité dans son salon » (ta TODO PWA). Demande config APNs + backend d'envoi.
-- [ ] **Universal Links** : le **QR de salon** ouvre directement l'app (au lieu du
-  navigateur). Nécessite `apple-app-site-association` servi par nginx + entitlement.
-- [ ] **Haptics natifs** (`@capacitor/haptics`) pour le « carreau » et le spin synchro.
-- [ ] **StatusBar / SafeArea** (`@capacitor/status-bar`) — cohérence encoche.
+- [x] **Edge-to-edge + StatusBar** (`@capacitor/status-bar`) : `contentInset: never`,
+  status bar en overlay, **style adaptatif** clair/sombre selon la luminance du fond de
+  l'écran (`src/native.js`, resync à chaque navigation via `App.jsx`). Le fond de l'app
+  passe sous la status bar → fini le bandeau noir. Classe `body.native` ajoutée.
+- [x] **Safe-areas** : padding top/bottom `env(safe-area-inset-*)` sur les pages (hors
+  salon qui gère déjà) → contenu décollé de l'encoche / barre home (`global.css`, scope `.native`).
+- [x] **Tells web supprimés** : `-webkit-tap-highlight-color`, `touch-callout`,
+  `user-select: none` (sauf champs) sur `.native`.
+- [x] **Icône app + splash** (`@capacitor/assets`) : source vectorielle `client/assets/icon-source.svg`
+  (roulette palette **Vélodrome** — bleu OM / blanc / or, fond crème). Génère AppIcon 1024 +
+  Splash clair/sombre dans `ios/.../Assets.xcassets`. Splash piloté par `@capacitor/splash-screen`
+  (`launchAutoHide:false` + `hideSplash()` au montage de l'app → masque le chargement à froid).
+- [x] **Haptics natifs** (`@capacitor/haptics`) : helper `haptic()` dans `native.js` (impact natif iOS
+  + fallback `navigator.vibrate` web). Câblé sur le spin (jeu local + salon) et le buzz « à toi de jouer ».
+- [ ] **Push notifications natives** (`@capacitor/push-notifications` + APNs) — V2.
+- [ ] **Universal Links** (QR salon ouvre l'app, `apple-app-site-association`) — V2.
 
 ---
 
