@@ -7,8 +7,16 @@ const { startLifecycle } = require('./src/sockets/lifecycle');
 
 const PORT = process.env.PORT || 5004;
 
+// Origines autorisées en prod (Socket.IO) : site web + apps natives Capacitor
+// (iOS = capacitor://localhost, Android = http://localhost).
+const PROD_ORIGINS = [
+  process.env.CLIENT_URL,
+  'capacitor://localhost',
+  'http://localhost',
+].filter(Boolean);
+
 const corsOptions = process.env.NODE_ENV === 'production'
-  ? { origin: process.env.CLIENT_URL, credentials: true }
+  ? { origin: PROD_ORIGINS, credentials: true }
   : { origin: true, credentials: true };
 
 const httpServer = http.createServer(app);

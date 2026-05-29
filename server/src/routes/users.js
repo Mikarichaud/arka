@@ -3,6 +3,11 @@ const router = express.Router();
 const { protect } = require('../middlewares/auth');
 const User = require('../models/User');
 const GameHistory = require('../models/GameHistory');
+const Pack = require('../models/Pack');
+const Challenge = require('../models/Challenge');
+const Session = require('../models/Session');
+const Salon = require('../models/Salon');
+const stripe = require('../services/stripe');
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_\-.]{3,30}$/;
 const POSTAL_CODE_REGEX = /^\d{5}$/;
@@ -91,6 +96,50 @@ router.put('/me/active-skin', protect, async (req, res, next) => {
 
     await user.save();
     res.json({ user });
+  } catch (err) { next(err); }
+});
+
+// Suppression de compte (RGPD + exigence App Store). Suppression dure + nettoyage :
+// abo Stripe annulé, packs persos + défis supprimés, sessions/galeries supprimées,
+// salons hébergés fermés, entrées joueur déliées (userId=null) dans les autres salons.
+// Les pseudos déjà dénormalisés dans l'historique des soirées restent (pas de PII).
+router.delete('/me', protect, async (req, res, next) => {
+  try {
+    const userId = req.user._id;
+
+    // 1. Annule l'abonnement Stripe si actif (best-effort : peut déjà être annulé/introuvable).
+    const subId = req.user.subscription?.stripeSubscriptionId;
+    if (subId) {
+      try { await stripe.subscriptions.cancel(subId); } catch (e) { /* ignore */ }
+    }
+
+    // 2. Packs persos + leurs défis.
+    const packs = await Pack.find({ author: userId }).select('_id');
+    const packIds = packs.map((p) => p._id);
+    if (packIds.length) {
+      await Challenge.deleteMany({ pack: { $in: packIds } });
+      await Pack.deleteMany({ _id: { $in: packIds } });
+    }
+
+    // 3. Sessions/galeries de l'user + historique legacy.
+    await Session.deleteMany({ createdBy: userId });
+    await GameHistory.deleteMany({ user: userId });
+
+    // 4. Salons : ferme ceux qu'il héberge, délie ses entrées joueur ailleurs.
+    await Salon.updateMany(
+      { hostUserId: userId, status: { $ne: 'ended' } },
+      { $set: { status: 'ended' } }
+    );
+    await Salon.updateMany(
+      { 'players.userId': userId },
+      { $set: { 'players.$[p].userId': null } },
+      { arrayFilters: [{ 'p.userId': userId }] }
+    );
+
+    // 5. Le compte lui-même.
+    await User.findByIdAndDelete(userId);
+
+    res.json({ ok: true, message: 'Compte supprimé. Adieu, té !' });
   } catch (err) { next(err); }
 });
 

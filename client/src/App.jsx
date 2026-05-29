@@ -12,6 +12,8 @@ import History from './pages/History/History';
 import Premium from './pages/Premium/Premium';
 import PremiumSuccess from './pages/Premium/PremiumSuccess';
 import Profile from './pages/Profile/Profile';
+import Privacy from './pages/Legal/Privacy';
+import Terms from './pages/Legal/Terms';
 import GatePacks from './pages/Gate/GatePacks';
 import GateCosmetics from './pages/Gate/GateCosmetics';
 import AdminDashboard from './pages/Admin/Dashboard';
@@ -23,7 +25,7 @@ import SalonHistory from './pages/Salon/SalonHistory';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/AuthModal/AuthModal';
 import AuthRouteRedirect from './components/AuthModal/AuthRouteRedirect';
-import { FEATURES_UNLOCKED } from './utils/permissions';
+import { FEATURES_UNLOCKED, STORE_BUILD } from './utils/permissions';
 
 export const NavDirectionContext = createContext(1);
 export const useNavDirection = () => useContext(NavDirectionContext);
@@ -84,8 +86,8 @@ function AnimatedRoutes() {
             <Route path="/game" element={<Game />} />
             <Route path="/gallery/:shareLink" element={<Gallery />} />
             <Route path="/history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-            <Route path="/premium" element={FEATURES_UNLOCKED ? <Navigate to="/" replace /> : <Premium />} />
-            <Route path="/premium/success" element={FEATURES_UNLOCKED ? <Navigate to="/" replace /> : <PremiumSuccess />} />
+            <Route path="/premium" element={(FEATURES_UNLOCKED || STORE_BUILD) ? <Navigate to="/" replace /> : <Premium />} />
+            <Route path="/premium/success" element={(FEATURES_UNLOCKED || STORE_BUILD) ? <Navigate to="/" replace /> : <PremiumSuccess />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
             <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />
@@ -96,6 +98,8 @@ function AnimatedRoutes() {
             <Route path="/salons" element={<ProtectedRoute><MesSalons /></ProtectedRoute>} />
             <Route path="/salon/:code/history" element={<ProtectedRoute><SalonHistory /></ProtectedRoute>} />
             <Route path="/salon/:code" element={<SalonLobby />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/shop" element={<Navigate to="/packs?tab=cosmetics" replace />} />
           </Routes>
         </motion.div>

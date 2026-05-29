@@ -132,6 +132,28 @@
 }
 .authmodal-link:hover { text-decoration: underline; }
 
+.authmodal-terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  text-align: left;
+}
+.authmodal-terms input {
+  margin-top: 2px;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--bleu-azur);
+}
+.authmodal-terms a {
+  color: var(--bleu-azur);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
 .authmodal-logout-icon {
   display: flex;
   justify-content: center;

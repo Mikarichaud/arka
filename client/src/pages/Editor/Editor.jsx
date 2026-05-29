@@ -7,7 +7,7 @@ import Icon from '../../components/Icon/Icon';
 import LoadingPlaceholder from '../../components/LoadingPlaceholder/LoadingPlaceholder';
 import useAuthStore from '../../store/authStore';
 import { useCategories } from '../../hooks/useCategories';
-import { hasPremiumAccess } from '../../utils/permissions';
+import { hasPremiumAccess, STORE_BUILD } from '../../utils/permissions';
 import api from '../../services/api';
 import './Editor.css';
 
@@ -30,7 +30,8 @@ export default function Editor() {
   const { id: editingId } = useParams();
   const { user } = useAuthStore();
   const { categories } = useCategories();
-  const isPremium = hasPremiumAccess(user);
+  // Sur le build magasin, on traite comme Premium (features ouvertes, upsells masqués).
+  const isPremium = hasPremiumAccess(user) || STORE_BUILD;
   const isEditMode = Boolean(editingId);
   const minChallenges = isPremium ? PREMIUM_MIN : FREE_CHALLENGES;
   const maxChallenges = isPremium ? PREMIUM_MAX : FREE_CHALLENGES;

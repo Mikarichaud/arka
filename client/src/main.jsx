@@ -10,8 +10,11 @@ import '@fontsource/nunito/800.css';
 import '@fontsource/pacifico';
 import './styles/global.css';
 import App from './App.jsx';
+import { STORE_BUILD } from './utils/permissions';
 
-if (import.meta.env.PROD) {
+// Service worker PWA : uniquement sur le web en prod. Désactivé sur le build natif
+// (Capacitor / WKWebView) où il entre en conflit avec la coquille native.
+if (import.meta.env.PROD && !STORE_BUILD) {
   registerSW({ immediate: true });
 }
 

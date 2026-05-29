@@ -8,7 +8,7 @@ Application web mobile-first de jeu de défis en tour par tour. Une roulette fic
 - **Mode local** : jeu physique, tous les joueurs dans la même pièce, un seul écran (pseudo-multi sur un device). Chaque joueur joue à son tour.
 - **Mode Salon** : multijoueur temps réel synchronisé, chaque joueur sur son propre téléphone. Création Premium-only (les gatés admin passent automatiquement), invitation par QR/code. Salon **persistant** (groupe qui survit aux soirées et accumule l'historique des parties), accessible via la page **Mes salons** (`/salons`). Salon privé, max 10 joueurs.
 
-**Statut** : en production sur **arka.michaelrichaud.fr**. Toutes les phases code livrées (1-9). Restent post-déploiement : Stripe LIVE, OG image dédiée, Search Console submission, Phase 8.2 contenu/backlinks.
+**Statut** : en production sur **roulademarseillaise.fr** (l'ancien domaine **arka.michaelrichaud.fr** redirige en 301). Toutes les phases code livrées (1-9). Chantier en cours : **mise sur l'App Store iOS** via un wrap **Capacitor** (cf. `APP_STORE.md`). Restent aussi : Stripe LIVE, OG image dédiée, Search Console submission, Phase 8.2 contenu/backlinks.
 
 ---
 
@@ -28,7 +28,8 @@ Application web mobile-first de jeu de défis en tour par tour. Une roulette fic
 | PWA | vite-plugin-pwa |
 | SEO | react-helmet-async + sitemap dynamique server-side |
 | Sécurité | helmet + express-rate-limit + CSP nginx, `npm audit` 0 vuln |
-| Déploiement | Docker Compose + Nginx + Certbot Let's Encrypt sur VPS OVH Debian 12 |
+| App native | Capacitor (iOS) — wrap de la PWA, bundle `dist` + API distante (cf. `APP_STORE.md`) |
+| Déploiement | Docker Compose + Nginx + Certbot Let's Encrypt sur VPS OVH Debian 12, domaine roulademarseillaise.fr |
 
 ---
 
@@ -66,6 +67,7 @@ la-roulade-marseillaise/
 │   │   │   ├── SEO/                       # <SEO> centralisé (Helmet + OG + Twitter + JSON-LD)
 │   │   │   └── VotePanel/
 │   │   ├── pages/
+│   │   │   ├── Admin/                     # /admin owner : Dashboard + AdminUsers + AdminReports + AdminGallery
 │   │   │   ├── Auth/                      # ResetPassword (reset via token email) — login/register passés en modale globale
 │   │   │   ├── Editor/                    # Éditeur de packs perso (protégé)
 │   │   │   ├── Gallery/                   # /gallery/:shareLink — public (SEO)
@@ -73,6 +75,7 @@ la-roulade-marseillaise/
 │   │   │   ├── Gate/                      # /gate/packs + /gate/cosmetics — admin
 │   │   │   ├── History/                   # /history — protégé
 │   │   │   ├── Home/                      # Landing + section À propos indexable
+│   │   │   ├── Legal/                     # Privacy + Terms (CGU/EULA) — pages publiques
 │   │   │   ├── Packs/                     # PackLibrary unifiée packs + cosmétiques
 │   │   │   ├── Premium/                   # Pricing + success
 │   │   │   ├── Profile/                   # Stats, abonnement, portail Stripe
@@ -121,7 +124,8 @@ la-roulade-marseillaise/
 │   │   │   ├── GameHistory.js             # legacy
 │   │   │   ├── Category.js                # catégories dynamiques (replace enum theme)
 │   │   │   ├── Cosmetic.js                # Stripe Products auto-sync
-│   │   │   └── Salon.js                   # groupe persistant + currentGame + games[]
+│   │   │   ├── Salon.js                   # groupe persistant + currentGame + games[]
+│   │   │   └── Report.js                  # signalements UGC (modération owner)
 │   │   ├── routes/
 │   │   │   ├── auth.js                    # register + login + me + forgot/reset/change password + change email
 │   │   │   ├── admin.js                   # owner only : stats + users + gallery
@@ -160,13 +164,19 @@ la-roulade-marseillaise/
 │   └── package.json                       # overrides ws:^8.20.1 (CVE patch)
 │
 ├── scripts/
-│   ├── init-ssl.sh                        # Let's Encrypt premier cert
+│   ├── init-ssl.sh                        # Let's Encrypt premier cert (arka)
+│   ├── issue-roulade-cert.sh              # cert roulademarseillaise.fr (+www) — bascule domaine
+│   ├── migrate-domain.md                  # runbook bascule arka → roulademarseillaise.fr
 │   ├── deploy.sh                          # git pull + rebuild + restart
 │   └── setup-vps.md                       # Doc complète setup VPS Debian
 │
 ├── docker-compose.yml                     # Dev (server + client)
 ├── docker-compose.prod.yml                # Prod (server + client + certbot)
 ├── .env.production.example
+├── client/capacitor.config.json           # config wrap natif iOS (appId fr.roulademarseillaise.app)
+├── APP_STORE.md                           # roadmap + checklist mise sur l'App Store iOS
+├── FEATURES.md                            # journal des features livrées (extrait de CLAUDE.md)
+├── OVERVIEW.md
 └── CLAUDE.md
 ```
 
@@ -297,6 +307,12 @@ Toggle global `soundEnabled` dans `useSettingsStore` (persisté localStorage `ro
 - **Provenance / code postal** : `User.postalCode` (5 chiffres FR, **obligatoire à l'inscription**) alimente un **badge de provenance** marseillais. `client/src/utils/provenance.js` → `getProvenance(cp)` mappe le CP vers une zone : **Marseille** (16 arrondissements, chacun son quartier + monument), **Paris** ("Parisien démasqué", la cible du Radar), **Aix** ("le voisin chic" 131xx), **Le Pays** (PACA proche), **Le Nord** (le reste, "ramène une laine"). Composant `<ProvenanceBadge postalCode variant="full|icon" pirate>` (`PIRATE_PROVENANCE` pour les anonymes en salon, sans CP). Rendu dans PlayerCard, Profile, RadarParisiens et SalonGame. Le `postalCode` est **dénormalisé dans `Salon.players[]` au join** (badge sans round-trip user). `RadarParisiens` traite un CP parisien (`isParisien()`) comme preuve formelle ("Code postal qui pue le RER").
 - **Reset / changement de mot de passe & email** : flux email via Nodemailer + SMTP OVH (`server/src/services/email.js`, `sendPasswordReset`). `POST /auth/forgot-password` (toujours 200, anti-enumeration) stocke le **hash SHA-256** d'un token aléatoire + expiry 1h sur le user (`passwordResetTokenHash`/`passwordResetExpiresAt`, `select: false`), jamais le token en clair. `POST /auth/reset-password` valide le hash + expiry. `POST /auth/change-password` et `POST /auth/change-email` (protect) exigent le mot de passe actuel (re-auth) ; le changement d'email vérifie l'unicité. Si `hasSmtpConfig()` est faux, l'envoi est skippé silencieusement (la réponse reste identique).
 - **`User.lastSeenAt`** : timestamp de dernière activité. Écrit au login + **throttlé dans le middleware `protect`** (réécriture seulement si > 10 min depuis la dernière trace, en fire-and-forget → pas une écriture DB par requête). C'est une vraie "dernière connexion / activité" (le JWT persistant 1j rend le login rare). Affiché dans l'onglet Joueurs du dashboard admin. Pas de backfill : les comptes existants affichent "Jamais" jusqu'à leur prochaine requête authentifiée.
+- **Suppression de compte (RGPD + App Store)** : `DELETE /api/users/me` (protect) = **suppression dure + nettoyage** : annule l'abo Stripe si actif, supprime packs persos + défis, sessions/galeries (`createdBy`) + `GameHistory`, ferme (`status='ended'`) les salons hébergés, délie les entrées joueur (`players.userId → null`) ailleurs, puis supprime le doc User. Les pseudos déjà dénormalisés dans l'historique des soirées restent (pas de PII). Côté client : bouton « Supprimer mon compte » dans Profil (section Mon compte) + modale de confirmation, puis `logout()` + redirect Home.
+- **Modération UGC owner-only (règle Apple 1.2)** : modèle `Report` (médias de salon signalés). `POST /api/salons/:code/report` (membre via connectionToken / userId / host) crée un signalement, bouton « Signaler » dans la lightbox de la galerie d'historique salon (`SalonHistory`). L'owner modère via `/admin` → onglet **Signalements** (`AdminReports.jsx`) : `GET /api/admin/reports` + `POST /api/admin/reports/:id/resolve` avec action `delete` (retire l'URL de l'historique salon + `cloudinary.uploader.destroy` best-effort, résout tous les reports du même média) ou `dismiss`. Pas de blocage entre joueurs (assumé owner-only).
+- **Pages légales + EULA** : pages publiques `/privacy` (`Privacy.jsx`) et `/terms` (`Terms.jsx`) dans `pages/Legal/`, contact `postmaster@roulademarseillaise.fr`, placeholders société à compléter (`[RAISON SOCIALE]`, `[SIRET]`, `[ADRESSE]`, `[directeur de publication]`). CGU = charte UGC + **tolérance zéro + traitement sous 24h** (exigé par Apple). Case à cocher **obligatoire** à l'inscription (`AuthModal`) avec liens. Liens d'accès dans Profil + ajout au sitemap.
+- **Build magasin (`STORE_BUILD`) — conformité App Store 3.1.1** : flag `STORE_BUILD` (`utils/permissions.js`, depuis `VITE_STORE_BUILD`), **indépendant de `FEATURES_UNLOCKED`**. Quand true, **tout le commerce est masqué** (routes `/premium`, boutique cosmétiques + boutons Acheter, `PaywallModal`, upsells Editor/EndGame, section abonnement + portail Stripe du Profil). Le **web reste inchangé** (commerce visible). Build dédié : `npm run build:store` (= `VITE_STORE_BUILD=true VITE_FEATURES_UNLOCKED=true VITE_API_URL=https://roulademarseillaise.fr/api vite build`).
+- **Wrap natif Capacitor** : l'app iOS embarque le build statique (`dist`) et **tape l'API distante** (jamais d'URL distante chargée → évite le rejet 4.2). Intégrations : API en URL absolue via `VITE_API_URL` (injecté par `build:store`), Socket.IO dérive l'origine serveur de `VITE_API_URL` (`useSalonSocket.js`), **CORS prod élargi** à `capacitor://localhost` (iOS) + `http://localhost` (Android) dans `app.js` ET `server.js`, **service worker désactivé** sur natif (`!STORE_BUILD` dans `main.jsx`). Config dans `client/capacitor.config.json` (appId `fr.roulademarseillaise.app`). Roadmap complète + checklist review dans **`APP_STORE.md`**.
+- **Bascule de domaine** : canonique = **roulademarseillaise.fr** (+ `www` → apex), `arka.michaelrichaud.fr` → 301. Nginx : 4 blocs serveur (HTTP ACME, app roulade, www→apex, arka→roulade). Certs séparés (arka conservé pour servir la redirection). Procédure dans `scripts/migrate-domain.md`, émission du cert via `scripts/issue-roulade-cert.sh`.
 - **Pièges CSS connus** : pas de classes globales avec des noms génériques (`.history-list` était partagé entre EndGame.css et History.css → conflit). Préfixer par le composant (`.endgame-history-list`).
 
 ---
@@ -380,6 +396,23 @@ Toggle global `soundEnabled` dans `useSettingsStore` (persisté localStorage `ro
   asset: Mixed,                                             // pour 'roulette' : { metals: [{hi,base,lo}×8] }
   isActive: Boolean,                                        // visible dans le shop. soft-delete via false
   publishAt: Date | null,
+  createdAt: Date
+}
+```
+
+### Report (modération UGC — owner only)
+```js
+{
+  salonCode: String,                   // salon où le média a été signalé
+  mediaUrl: String,                    // URL Cloudinary signalée
+  targetPseudo: String,                // pseudo de l'uploadeur présumé
+  reporterUserId: ObjectId → User | null,
+  reporterPseudo: String,
+  reason: String (max 300),
+  status: 'pending' | 'resolved' | 'dismissed',
+  resolution: 'media-deleted' | 'dismissed' | null,
+  resolvedBy: ObjectId → User | null,
+  resolvedAt: Date | null,
   createdAt: Date
 }
 ```
@@ -485,6 +518,7 @@ GET    /api/users/:id                    # (protect) — projection publique si 
 PUT    /api/users/:id                    # (protect) — whitelist stricte { username, avatar }, avatar uniquement si isPremiumActive()
 PUT    /api/users/me/active-skin         # body: { category, slug | null } - active/désactive cosmétique (protect, ownership)
 GET    /api/users/:id/history            # (protect) — vérifie req.user._id === req.params.id (anti-IDOR)
+DELETE /api/users/me                     # (protect) — suppression dure du compte + nettoyage (Stripe, packs, sessions, salons)
 ```
 
 ### Packs
@@ -564,6 +598,7 @@ GET    /api/salons/share/:shareLink             # infos publiques pour la page j
 POST   /api/salons/:code/join                   # body: { pseudo } — retourne { playerId, connectionToken, salonState }
 POST   /api/salons/:code/resume                 # (protect) retourne creds (connectionToken) pour un user logged-in déjà membre du salon
 POST   /api/salons/:code/media/upload           # (requireSalonMember via connectionToken) upload Cloudinary, attaché au tour courant
+POST   /api/salons/:code/report                 # (membre via connectionToken/userId/host) signaler un média → modération owner
 GET    /api/salons/me                           # (protect) TOUS les salons où je suis membre (players.userId === me), pas juste host. Retourne { isHost, gameCount, myLastSeenAt }
 GET    /api/salons/:code/history                # (membre logged OU connectionToken OU host) — historique enrichi : games + stats par joueur + galerie media
 DELETE /api/salons/:code                        # (protect, host only) destruction explicite → status='ended', historique préservé
@@ -605,6 +640,8 @@ Server → Client (broadcast room) :
 GET    /api/admin/stats               # stats live agrégées (users, abos, packs, sessions, salons, sockets)
 GET    /api/admin/users               # fichier des joueurs : 1 user/ligne + stats croisées (taux de forme, salons hôte, parties locales, lastSeenAt, online)
 GET    /api/admin/gallery             # tous les médias (photos/vidéos) classés par pseudo, 3 sources (salons archivés + live + sessions locales)
+GET    /api/admin/reports             # liste des signalements UGC (pending en tête) + counts
+POST   /api/admin/reports/:id/resolve # body { action: 'delete' | 'dismiss' } — delete = retire le média partout + Cloudinary destroy
 ```
 
 ### SEO (hors `/api`)
@@ -693,6 +730,8 @@ NODE_ENV=development
 ```
 VITE_API_URL=/api
 VITE_APP_NAME=La Roulade Marseillaise
+VITE_FEATURES_UNLOCKED=true     # mode lancement : toutes les features Premium ouvertes
+# VITE_STORE_BUILD=true         # build natif iOS/Android uniquement (commerce masqué) — via `npm run build:store`
 ```
 
 ### Stripe en développement local

@@ -13,7 +13,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import useAuthStore from '../../store/authStore';
-import { FEATURES_UNLOCKED } from '../../utils/permissions';
+import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
 import './PackLibrary.css';
@@ -34,7 +34,8 @@ export default function PackLibrary() {
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const { user, setUser } = useAuthStore();
-  const initialTab = params.get('tab') === 'cosmetics' ? 'cosmetics' : 'packs';
+  // Boutique masquée sur le build magasin (App Store 3.1.1) → on retombe sur 'packs'.
+  const initialTab = (params.get('tab') === 'cosmetics' && !STORE_BUILD) ? 'cosmetics' : 'packs';
   const [tab, setTab] = useState(initialTab);
 
   const [packs, setPacks] = useState([]);
@@ -209,7 +210,8 @@ export default function PackLibrary() {
         <h1 className="library-title">{tab === 'cosmetics' ? 'La Boutique' : 'Les Packs'}</h1>
       </div>
 
-      {/* Onglets Packs / Cosmétiques */}
+      {/* Onglets Packs / Cosmétiques — boutique masquée sur le build magasin */}
+      {!STORE_BUILD && (
       <div className="library-tabs">
         <button
           className={`library-tab ${tab === 'packs' ? 'active' : ''}`}
@@ -226,6 +228,7 @@ export default function PackLibrary() {
           Cosmétiques
         </button>
       </div>
+      )}
 
       {tab === 'packs' && (
         <>

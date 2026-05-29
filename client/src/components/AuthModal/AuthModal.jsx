@@ -24,6 +24,7 @@ export default function AuthModal() {
   const [forgotEmail, setForgotEmail] = useState('');
   const [pw, setPw] = useState({ current: '', next: '', confirm: '' });
   const [emailPw, setEmailPw] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [busy, setBusy] = useState(false);
@@ -40,6 +41,7 @@ export default function AuthModal() {
     setForgotEmail('');
     setPw({ current: '', next: '', confirm: '' });
     setEmailPw('');
+    setAcceptedTerms(false);
   }, [mode]);
 
   if (!isOpen) return null;
@@ -62,6 +64,10 @@ export default function AuthModal() {
     setError('');
     if (!/^\d{5}$/.test(form.postalCode.trim())) {
       setError('Code postal : 5 chiffres (c\'est pour ton badge de quartier).');
+      return;
+    }
+    if (!acceptedTerms) {
+      setError('Tu dois accepter les CGU et la politique de confidentialité, té.');
       return;
     }
     setBusy(true);
@@ -215,6 +221,18 @@ export default function AuthModal() {
                     placeholder="Mot de passe" autoComplete="new-password"
                     value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
                   />
+                  <label className="authmodal-terms">
+                    <input
+                      type="checkbox"
+                      checked={acceptedTerms}
+                      onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    />
+                    <span>
+                      J'accepte les{' '}
+                      <a href="/terms" target="_blank" rel="noopener noreferrer">CGU</a>{' '}et la{' '}
+                      <a href="/privacy" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>.
+                    </span>
+                  </label>
                   {error && <p className="authmodal-error">{error}</p>}
                   <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={busy || isLoading}>
                     {busy ? 'Chargement…' : 'Créer mon compte'}

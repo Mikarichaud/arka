@@ -6,7 +6,10 @@ const router = express.Router();
 const { protect, optionalAuth, requirePremium, requireSalonMember } = require('../middlewares/auth');
 const Salon = require('../models/Salon');
 const User = require('../models/User');
+const Report = require('../models/Report');
 const cloudinary = require('../services/cloudinary');
+
+const CLOUDINARY_URL_RE = /^https:\/\/res\.cloudinary\.com\//;
 
 // Anti-spam join : un script ne doit pas pouvoir saturer un salon en quelques secondes.
 const joinLimiter = rateLimit({
@@ -363,6 +366,48 @@ router.post('/:code/media/upload', requireSalonMember, upload.single('file'), as
     },
   );
   stream.end(req.file.buffer);
+});
+
+// POST /api/salons/:code/report — signaler un média de salon. Membre du salon
+// (via connectionToken OU userId OU host OU owner). Le signalement part en
+// modération owner-only (dashboard /admin → onglet Signalements).
+router.post('/:code/report', optionalAuth, async (req, res, next) => {
+  try {
+    const code = (req.params.code || '').toUpperCase();
+    const token = req.headers['x-salon-token'] || req.body?.connectionToken;
+    const { mediaUrl, targetPseudo, reason } = req.body || {};
+    if (!mediaUrl || !CLOUDINARY_URL_RE.test(mediaUrl)) {
+      return res.status(400).json({ message: 'Média invalide.' });
+    }
+    const salon = await Salon.findOne({ code });
+    if (!salon) return res.status(404).json({ message: 'Salon introuvable.' });
+
+    const byToken = token ? salon.findPlayerByToken(token) : null;
+    const byUser = req.user && salon.players.find((p) => String(p.userId) === String(req.user._id));
+    const isHostUser = req.user && String(salon.hostUserId) === String(req.user._id);
+    if (!byToken && !byUser && !isHostUser && !req.user?.isOwner?.()) {
+      return res.status(403).json({ message: 'Réservé aux membres du salon.' });
+    }
+
+    const reporter = byToken || byUser || null;
+    const reporterPseudo = reporter?.pseudo || req.user?.username || null;
+
+    // Dédup léger : un même signaleur ne crée pas 10 fois le même signalement en attente.
+    const dup = await Report.findOne({ salonCode: code, mediaUrl, status: 'pending', reporterPseudo });
+    if (dup) {
+      return res.status(200).json({ ok: true, message: 'Déjà signalé, té. Merci !' });
+    }
+
+    await Report.create({
+      salonCode: code,
+      mediaUrl,
+      targetPseudo: targetPseudo || null,
+      reporterUserId: req.user?._id || reporter?.userId || null,
+      reporterPseudo,
+      reason: typeof reason === 'string' ? reason.trim().slice(0, 300) : null,
+    });
+    res.status(201).json({ ok: true, message: 'Merci, c\'est signalé au patron de l\'instance.' });
+  } catch (err) { next(err); }
 });
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
 import CosmeticCard from '../../components/CosmeticCard/CosmeticCard';
@@ -8,7 +8,9 @@ import ProvenanceBadge from '../../components/ProvenanceBadge/ProvenanceBadge';
 import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
-import { FEATURES_UNLOCKED } from '../../utils/permissions';
+import { useEscapeClose } from '../../hooks/useEscapeClose';
+import { fumigenesVariants } from '../../styles/motion';
+import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import api from '../../services/api';
 import './Profile.css';
 
@@ -71,7 +73,7 @@ function StatCard({ icon, value, label }) {
 export default function Profile() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setUser } = useAuthStore();
+  const { user, setUser, logout } = useAuthStore();
   const openAuthModal = useAuthModalStore((s) => s.open);
   const [sub, setSub] = useState(null);
   const [portalLoading, setPortalLoading] = useState(false);
@@ -86,6 +88,11 @@ export default function Profile() {
   const [postalDraft, setPostalDraft] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileError, setProfileError] = useState('');
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  useEscapeClose(showDelete, () => { if (!deleting) setShowDelete(false); });
 
   useEffect(() => {
     if (!user) { navigate('/login'); return; }
@@ -207,6 +214,19 @@ export default function Profile() {
     : null;
   const isCanceling = isPremium && sub?.cancelAtPeriodEnd;
 
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      await api.delete('/users/me');
+      logout();
+      navigate('/');
+    } catch (err) {
+      setDeleteError(err.response?.data?.message || 'Erreur lors de la suppression. Réessaie, té.');
+      setDeleting(false);
+    }
+  };
+
   return (
     <Layout className="profile-page">
 
@@ -313,8 +333,8 @@ export default function Profile() {
         </div>
       </motion.div>
 
-      {/* Abonnement — masqué en mode lancement (tout est gratuit pour tout le monde) */}
-      {!FEATURES_UNLOCKED && (
+      {/* Abonnement — masqué en mode lancement ET sur le build magasin (App Store 3.1.1) */}
+      {!FEATURES_UNLOCKED && !STORE_BUILD && (
       <motion.div
         className="profile-section"
         initial={{ opacity: 0, y: 16 }}
@@ -486,6 +506,10 @@ export default function Profile() {
             <Icon name="lock" size={16} style={{ marginRight: 8 }} />
             Changer mon mot de passe
           </button>
+          <button className="btn btn-ghost profile-delete-trigger" onClick={() => setShowDelete(true)}>
+            <Icon name="cross" size={16} style={{ marginRight: 8 }} />
+            Supprimer mon compte
+          </button>
         </div>
       </motion.div>
 
@@ -493,6 +517,61 @@ export default function Profile() {
       <button className="btn btn-ghost profile-logout" onClick={() => openAuthModal('logout')}>
         Déconnexion
       </button>
+
+      <div className="profile-legal-links">
+        <a href="/terms" target="_blank" rel="noopener noreferrer">CGU</a>
+        <span>·</span>
+        <a href="/privacy" target="_blank" rel="noopener noreferrer">Confidentialité</a>
+      </div>
+
+      {/* Modale de confirmation suppression de compte */}
+      <AnimatePresence>
+        {showDelete && (
+          <motion.div
+            className="confirm-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => !deleting && setShowDelete(false)}
+          >
+            <motion.div
+              className="confirm-modal"
+              variants={fumigenesVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="confirm-icon-wrap">
+                <Icon name="cross" size={36} />
+              </div>
+              <h3 className="confirm-title">Supprimer ton compte ?</h3>
+              <p className="confirm-desc">
+                Tout part : ton profil, tes packs persos, tes parties et galeries, et tes salons
+                hébergés. C'est définitif et irréversible, oh fada — aucun retour en arrière possible.
+              </p>
+              {deleteError && <p className="profile-pseudo-error">{deleteError}</p>}
+              <div className="confirm-actions">
+                <button
+                  className="btn btn-danger"
+                  style={{ width: '100%' }}
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                >
+                  {deleting ? 'Suppression...' : 'Oui, supprimer définitivement'}
+                </button>
+                <button
+                  className="btn btn-ghost btn-sm"
+                  onClick={() => setShowDelete(false)}
+                  disabled={deleting}
+                >
+                  Annuler
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </Layout>
   );

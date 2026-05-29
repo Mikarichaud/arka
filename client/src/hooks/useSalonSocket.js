@@ -3,6 +3,13 @@ import { io } from 'socket.io-client';
 import useSalonStore from '../store/salonStore';
 import { playSound } from './useSound';
 
+// URL du serveur Socket.IO. Sur le web, VITE_API_URL est relatif ('/api') → on se
+// connecte en same-origin (undefined). Sur le build natif (Capacitor), VITE_API_URL
+// est absolu (https://roulademarseillaise.fr/api) → on dérive l'origine du serveur,
+// sinon le socket taperait sur capacitor://localhost.
+const API_URL = import.meta.env.VITE_API_URL || '';
+const SOCKET_URL = /^https?:\/\//.test(API_URL) ? new URL(API_URL).origin : undefined;
+
 // Map des codes d'erreur serveur → messages marseillais affichés en toast.
 // Étendre au fur et à mesure que de nouveaux codes apparaissent côté server.
 const ERROR_MESSAGES = {
@@ -40,7 +47,7 @@ export function useSalonSocket(code, connectionToken) {
   useEffect(() => {
     if (!code || !connectionToken) return undefined;
 
-    const socket = io({
+    const socket = io(SOCKET_URL, {
       path: '/api/socket.io',
       transports: ['websocket', 'polling'],
       reconnection: true,

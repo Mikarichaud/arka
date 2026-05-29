@@ -328,3 +328,41 @@
   text-align: center;
   max-width: 600px;
 }
+.history-lightbox-report {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 10px;
+  padding: 5px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.history-lightbox-report:hover {
+  background: var(--rouge-defi);
+  border-color: var(--rouge-defi);
+}
+
+.salon-report-desc { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 12px; }
+.salon-report-reason { width: 100%; min-height: 70px; resize: vertical; margin-bottom: 14px; }
+.salon-report-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  background: var(--nuit-goudes);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  font-weight: 600;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  cursor: pointer;
+  max-width: 90vw;
+  text-align: center;
+}

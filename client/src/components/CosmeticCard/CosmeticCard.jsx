@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import Icon from '../Icon/Icon';
 import RoulettePreview from '../RoulettePreview/RoulettePreview';
+import { STORE_BUILD } from '../../utils/permissions';
 import './CosmeticCard.css';
 
 export function formatPrice(cents) {
@@ -52,7 +53,7 @@ export default function CosmeticCard({
         </span>
       );
     }
-    if (onBuy) {
+    if (onBuy && !STORE_BUILD) {
       return (
         <button
           className="btn btn-gold btn-sm cosmetic-card-buy"
@@ -85,7 +86,7 @@ export default function CosmeticCard({
         {layout === 'vertical' && cosmetic.description && (
           <p className="cosmetic-card-desc">{cosmetic.description}</p>
         )}
-        {layout === 'vertical' && !cosmetic.owned && !onActivate && (
+        {layout === 'vertical' && !cosmetic.owned && !onActivate && !STORE_BUILD && (
           <span className="cosmetic-card-price">{formatPrice(cosmetic.priceCents)}</span>
         )}
       </div>

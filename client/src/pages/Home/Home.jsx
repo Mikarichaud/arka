@@ -7,7 +7,7 @@ import SEO, { SITE_URL, SITE_NAME } from '../../components/SEO/SEO';
 import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import useSettingsStore from '../../store/settingsStore';
-import { hasPremiumAccess, FEATURES_UNLOCKED } from '../../utils/permissions';
+import { hasPremiumAccess, FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 
 const HOME_JSON_LD = [
   {
@@ -119,7 +119,7 @@ export default function Home() {
                 {hasPremiumAccess(user) && !FEATURES_UNLOCKED && <Icon name="star" size={13} />}
               </button>
               <div className="home-user-actions">
-                {!hasPremiumAccess(user) && !FEATURES_UNLOCKED && (
+                {!hasPremiumAccess(user) && !FEATURES_UNLOCKED && !STORE_BUILD && (
                   <button
                     className="home-user-btn home-user-btn--gold"
                     onClick={() => navigate('/premium')}
@@ -140,7 +140,7 @@ export default function Home() {
               >
                 Se connecter
               </button>
-              {!FEATURES_UNLOCKED && (
+              {!FEATURES_UNLOCKED && !STORE_BUILD && (
                 <button
                   className="btn btn-ghost home-ghost-btn home-premium-cta"
                   onClick={() => navigate('/premium')}

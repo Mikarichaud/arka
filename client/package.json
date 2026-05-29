@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:store": "VITE_STORE_BUILD=true VITE_FEATURES_UNLOCKED=true VITE_API_URL=https://roulademarseillaise.fr/api vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4",
     "@fontsource/bebas-neue": "^5.2.7",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/pacifico": "^5.2.7",

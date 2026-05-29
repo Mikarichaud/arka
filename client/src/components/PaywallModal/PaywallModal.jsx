@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../Icon/Icon';
 import { fumigenesVariants } from '../../styles/motion';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
-import { FEATURES_UNLOCKED } from '../../utils/permissions';
+import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import './PaywallModal.css';
 
 export default function PaywallModal({ pack, onClose }) {
   const navigate = useNavigate();
-  // Mode lancement : la modale ne s'ouvre jamais (tout est gratuit).
-  const open = Boolean(pack) && !FEATURES_UNLOCKED;
+  // Mode lancement OU build magasin : la modale ne s'ouvre jamais (pas de commerce).
+  const open = Boolean(pack) && !FEATURES_UNLOCKED && !STORE_BUILD;
   useEscapeClose(open, onClose);
 
   return (

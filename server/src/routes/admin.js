@@ -8,7 +8,16 @@ const User = require('../models/User');
 const Pack = require('../models/Pack');
 const Session = require('../models/Session');
 const Salon = require('../models/Salon');
+const Report = require('../models/Report');
+const cloudinary = require('../services/cloudinary');
 const { activeSockets } = require('../sockets');
+
+// Extrait { resourceType, publicId } d'une URL Cloudinary (pour supprimer l'asset).
+function parseCloudinaryUrl(url) {
+  const m = String(url).match(/\/(image|video)\/upload\/(?:v\d+\/)?(.+)\.[a-z0-9]+$/i);
+  if (!m) return null;
+  return { resourceType: m[1], publicId: m[2] };
+}
 
 router.get('/stats', protect, requireOwner, async (req, res, next) => {
   try {
@@ -374,6 +383,72 @@ router.get('/gallery', protect, requireOwner, async (req, res, next) => {
         total: all.length,
       },
     });
+  } catch (err) { next(err); }
+});
+
+// ─── Modération UGC (owner only) : signalements de médias de salon ────────────
+// GET liste (pending en tête) + counts.
+router.get('/reports', protect, requireOwner, async (req, res, next) => {
+  try {
+    const reports = await Report.find()
+      .sort({ status: 1, createdAt: -1 }) // 'pending' < 'resolved'/'dismissed' alphabétiquement
+      .limit(500)
+      .lean();
+    const pendingCount = reports.filter((r) => r.status === 'pending').length;
+    res.json({ reports, pendingCount, total: reports.length });
+  } catch (err) { next(err); }
+});
+
+// Résoudre un signalement : action 'delete' (retire le média partout + Cloudinary)
+// ou 'dismiss' (rejette). Owner only.
+router.post('/reports/:id/resolve', protect, requireOwner, async (req, res, next) => {
+  try {
+    const { action } = req.body || {};
+    if (!['delete', 'dismiss'].includes(action)) {
+      return res.status(400).json({ message: 'Action invalide.' });
+    }
+    const report = await Report.findById(req.params.id);
+    if (!report) return res.status(404).json({ message: 'Signalement introuvable.' });
+
+    if (action === 'delete') {
+      const url = report.mediaUrl;
+      // 1. Retire l'URL de l'historique du salon (partie en cours + parties archivées).
+      const salon = await Salon.findOne({ code: report.salonCode });
+      if (salon) {
+        const stripFromHistory = (history) => {
+          for (const entry of history || []) {
+            if (Array.isArray(entry.media) && entry.media.includes(url)) {
+              entry.media = entry.media.filter((u) => u !== url);
+            }
+          }
+        };
+        stripFromHistory(salon.currentGame?.history);
+        for (const game of salon.games || []) stripFromHistory(game.history);
+        salon.markModified('currentGame');
+        salon.markModified('games');
+        await salon.save();
+      }
+      // 2. Supprime l'asset Cloudinary (best-effort).
+      const parsed = parseCloudinaryUrl(url);
+      if (parsed) {
+        try {
+          await cloudinary.uploader.destroy(parsed.publicId, { resource_type: parsed.resourceType });
+        } catch (e) { /* asset déjà absent / erreur réseau : on continue */ }
+      }
+      // 3. Marque ce signalement + tous les autres en attente sur le même média.
+      await Report.updateMany(
+        { mediaUrl: url, status: 'pending' },
+        { $set: { status: 'resolved', resolution: 'media-deleted', resolvedBy: req.user._id, resolvedAt: new Date() } }
+      );
+    } else {
+      report.status = 'dismissed';
+      report.resolution = 'dismissed';
+      report.resolvedBy = req.user._id;
+      report.resolvedAt = new Date();
+      await report.save();
+    }
+
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

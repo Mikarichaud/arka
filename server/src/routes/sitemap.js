@@ -16,6 +16,8 @@ const STATIC_PAGES = [
   { loc: '/packs',    priority: '0.8', changefreq: 'weekly' },
   { loc: '/packs?tab=cosmetics', priority: '0.7', changefreq: 'weekly' },
   { loc: '/login',    priority: '0.3', changefreq: 'yearly' },
+  { loc: '/privacy',  priority: '0.3', changefreq: 'yearly' },
+  { loc: '/terms',    priority: '0.3', changefreq: 'yearly' },
 ];
 
 function xmlEscape(s) {

@@ -392,6 +392,21 @@
   width: 100%;
   justify-content: center;
 }
+.profile-delete-trigger {
+  color: var(--rouge-defi) !important;
+}
+.profile-legal-links {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+.profile-legal-links a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+}
 
 /* ── Déconnexion ── */
 .profile-logout {

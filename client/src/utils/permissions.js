@@ -8,6 +8,13 @@
 // Doit rester aligné avec FEATURES_UNLOCKED côté serveur.
 export const FEATURES_UNLOCKED = import.meta.env.VITE_FEATURES_UNLOCKED === 'true';
 
+// Build « magasin » (app native iOS/Android). Quand true, TOUTE l'UI commerciale est
+// masquée (page /premium, boutique cosmétiques, boutons Acheter/Passer Premium, Stripe)
+// pour respecter la règle App Store 3.1.1 : pas de vente de biens numériques hors IAP.
+// Activé au build natif via VITE_STORE_BUILD=true. Le web (STORE_BUILD=false) garde
+// son commerce. Indépendant de FEATURES_UNLOCKED.
+export const STORE_BUILD = import.meta.env.VITE_STORE_BUILD === 'true';
+
 export function isGate(user) {
   return user?.role === 'gate';
 }
