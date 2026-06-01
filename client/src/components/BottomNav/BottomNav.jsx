@@ -23,7 +23,9 @@ export default function BottomNav() {
   const user = useAuthStore((s) => s.user);
   const openAuthModal = useAuthModalStore((s) => s.open);
 
-  const visible = SHOW_ON.includes(location.pathname);
+  // Visible sur les écrans racine + la page de jointure publique (destination de
+  // l'onglet Salons pour les anonymes) → pas de "Retour", on navigue par les onglets.
+  const visible = SHOW_ON.includes(location.pathname) || location.pathname.startsWith('/salon/join');
 
   // Toggle une classe sur body → les pages réservent l'espace du bas via global.css.
   useEffect(() => {
@@ -33,7 +35,11 @@ export default function BottomNav() {
 
   if (!visible) return null;
 
-  const isActive = (to) => (to === '/' ? location.pathname === '/' : location.pathname.startsWith(to));
+  const isActive = (tab) => {
+    if (tab.to === '/') return location.pathname === '/';
+    if (location.pathname.startsWith(tab.to)) return true;
+    return !!tab.anonTo && location.pathname.startsWith(tab.anonTo);
+  };
 
   const go = (tab) => {
     if (tab.protected && !user) {
@@ -47,7 +53,7 @@ export default function BottomNav() {
   return (
     <nav className="bottomnav" aria-label="Navigation principale">
       {TABS.map((tab) => {
-        const active = isActive(tab.to);
+        const active = isActive(tab);
         return (
           <button
             key={tab.to}

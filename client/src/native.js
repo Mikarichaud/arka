@@ -2,6 +2,7 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { Browser } from '@capacitor/browser';
+import { Keyboard } from '@capacitor/keyboard';
 
 const PUBLIC_URL = 'https://roulademarseillaise.fr';
 
@@ -62,6 +63,10 @@ export function initNative() {
   document.body.classList.add('native');
   StatusBar.setOverlaysWebView({ overlay: true }).catch(() => {});
   syncStatusBar();
+  // Clavier ouvert (resize:native fait monter la WebView) → on masque la barre
+  // d'onglets, sinon elle flotte juste au-dessus du clavier.
+  Keyboard.addListener('keyboardWillShow', () => document.body.classList.add('keyboard-open')).catch(() => {});
+  Keyboard.addListener('keyboardWillHide', () => document.body.classList.remove('keyboard-open')).catch(() => {});
   // Filet de sécurité : si l'app ne monte pas (hideSplash jamais appelé), on masque
   // quand même le splash au bout de 4s pour ne pas rester bloqué dessus.
   setTimeout(hideSplash, 4000);

@@ -281,7 +281,9 @@ export default function Game() {
                 ))}
               </div>
 
-              {lastPoints !== null && (
+              {/* Photo : réservée aux comptes (l'upload exige une auth). Les anonymes
+                  n'ont rien (sinon l'appel renvoie 401 → éjection vers /login). */}
+              {lastPoints !== null && user && (
                 (hasPremiumAccess(user) || STORE_BUILD) ? (
                   <MediaUpload onUploaded={addMediaToLastEntry} />
                 ) : (

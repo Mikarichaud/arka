@@ -300,9 +300,16 @@ body.native [contenteditable] {
 body.has-bottomnav .home-page,
 body.has-bottomnav .library-page,
 body.has-bottomnav .mes-salons-page,
-body.has-bottomnav .profile-page {
+body.has-bottomnav .profile-page,
+body.has-bottomnav .salon-page {
   padding-bottom: calc(60px + env(safe-area-inset-bottom));
 }
+
+/* ── Pile de transition entre pages : les deux écrans (sortant + entrant) occupent
+   la MÊME cellule grid → superposés pour un crossfade simultané, sans position
+   absolue (le scroll du body reste normal). ── */
+.route-stack { display: grid; grid-template-columns: 1fr; }
+.route-stack > * { grid-area: 1 / 1; min-width: 0; }
 
 /* ── Éléments révélés au :hover → forcés visibles sur écran tactile (pas de survol) ── */
 @media (hover: none) {
@@ -325,6 +332,9 @@ body.has-bottomnav .btn-back { display: none; }
     font-size: 1.85rem;
   }
 }
+
+/* Clavier ouvert (natif) → on cache la barre d'onglets (sinon elle flotte au-dessus du clavier). */
+body.keyboard-open .bottomnav { display: none; }
 
 /* ── Modales : verrou du scroll de fond + pas de chaînage d'overscroll ── */
 body.scroll-locked { overflow: hidden; }

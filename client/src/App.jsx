@@ -55,21 +55,25 @@ function AnimatedRoutes() {
 
   const noSlide = NO_SLIDE.some((p) => location.pathname.startsWith(p));
 
+  // Transition : fondu + petit glissement (28px) directionnel. Les deux pages se
+  // superposent (CSS grid, cf .route-stack) et s'animent EN MÊME TEMPS (pas de
+  // mode="wait") → crossfade fluide, sans temps mort.
   const variants = noSlide
     ? {
         initial: { opacity: 0 },
         animate: { opacity: 1 },
-        exit: { opacity: 0 },
+        exit: { opacity: 0, pointerEvents: 'none' },
       }
     : {
-        initial: (dir) => ({ x: dir > 0 ? '60vw' : '-60vw', opacity: 0 }),
-        animate: { x: 0, opacity: 1 },
-        exit: (dir) => ({ x: dir > 0 ? '-60vw' : '60vw', opacity: 0 }),
+        initial: (dir) => ({ opacity: 0, x: dir > 0 ? 28 : -28 }),
+        animate: { opacity: 1, x: 0 },
+        exit: (dir) => ({ opacity: 0, x: dir > 0 ? -28 : 28, pointerEvents: 'none' }),
       };
 
   return (
     <NavDirectionContext.Provider value={direction}>
-      <AnimatePresence mode="wait" custom={direction} initial={false}>
+      <div className="route-stack">
+      <AnimatePresence custom={direction} initial={false}>
         <motion.div
           key={location.pathname}
           custom={direction}
@@ -79,8 +83,8 @@ function AnimatedRoutes() {
           exit="exit"
           transition={{
             type: 'tween',
-            ease: [0.25, 0.46, 0.45, 0.94],
-            duration: noSlide ? 0.2 : 0.38,
+            ease: [0.22, 0.61, 0.36, 1],
+            duration: 0.26,
           }}
           style={{ minHeight: '100dvh' }}
         >
@@ -115,6 +119,7 @@ function AnimatedRoutes() {
           </Routes>
         </motion.div>
       </AnimatePresence>
+      </div>
     </NavDirectionContext.Provider>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation, useNavigationType, useParams } from 'react-router-dom';
+import { useNavigate, useNavigationType, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Layout from '../../components/Layout/Layout';
 import Icon from '../../components/Icon/Icon';
@@ -13,7 +13,6 @@ const CODE_ALPHABET = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;
 
 export default function SalonJoin() {
   const navigate = useNavigate();
-  const location = useLocation();
   const navType = useNavigationType();
   const { shareLink } = useParams();
   const { user } = useAuthStore();
@@ -104,7 +103,7 @@ export default function SalonJoin() {
       <div className="salon-header">
         <button
           className="btn-back"
-          onClick={() => (location.key !== 'default' ? navigate(-1) : navigate('/'))}
+          onClick={() => navigate('/')}
         >← Retour</button>
         <h1 className="salon-title">Rejoindre un Salon</h1>
         <p className="salon-subtitle">
