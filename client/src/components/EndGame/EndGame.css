@@ -3,9 +3,10 @@
   min-height: 100dvh;
   background: linear-gradient(135deg, #0d1b3e 0%, #0057A8 60%, #C9A84C 100%);
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 24px 16px 40px;
+  flex-direction: column;
+  align-items: center;
+  /* Décale sous la status bar (edge-to-edge) et au-dessus de la barre home. */
+  padding: max(32px, calc(env(safe-area-inset-top) + 20px)) 16px max(40px, calc(env(safe-area-inset-bottom) + 28px));
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -40,7 +41,8 @@
   gap: 20px;
   position: relative;
   z-index: 1;
-  margin-top: 8px;
+  /* Centre verticalement la carte dans l'espace dispo (retombe en haut si trop haute). */
+  margin: auto 0;
 }
 
 /* ── Header ── */

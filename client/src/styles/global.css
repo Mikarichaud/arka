@@ -39,8 +39,10 @@ body {
   background-color: var(--surface-bg);
   color: var(--text-primary);
   min-height: 100dvh;
-  overscroll-behavior: none;
-  overflow-x: hidden; /* nécessaire pour la vague de la Corniche */
+  /* contain = garde le rebond natif iOS (sinon l'app paraît "figée" en overscroll)
+     mais bloque le scroll-chaining / pull-to-refresh. */
+  overscroll-behavior: contain;
+  overflow-x: hidden;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
@@ -304,12 +306,6 @@ body.has-bottomnav .profile-page,
 body.has-bottomnav .salon-page {
   padding-bottom: calc(60px + env(safe-area-inset-bottom));
 }
-
-/* ── Pile de transition entre pages : les deux écrans (sortant + entrant) occupent
-   la MÊME cellule grid → superposés pour un crossfade simultané, sans position
-   absolue (le scroll du body reste normal). ── */
-.route-stack { display: grid; grid-template-columns: 1fr; }
-.route-stack > * { grid-area: 1 / 1; min-width: 0; }
 
 /* ── Éléments révélés au :hover → forcés visibles sur écran tactile (pas de survol) ── */
 @media (hover: none) {

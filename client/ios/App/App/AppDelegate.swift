@@ -56,5 +56,13 @@ class MainViewController: CAPBridgeViewController {
         super.viewDidLoad()
         webView?.scrollView.showsVerticalScrollIndicator = false
         webView?.scrollView.showsHorizontalScrollIndicator = false
+        // Rebond élastique vertical même quand le contenu tient dans l'écran
+        // (sinon l'app paraît "figée" en overscroll).
+        webView?.scrollView.bounces = true
+        webView?.scrollView.alwaysBounceVertical = true
+        // Fond du scrollView transparent → la zone de rebond affiche le
+        // "underPageBackgroundColor" qu'iOS dérive de la couleur de la page
+        // (s'adapte par écran + dark mode), au lieu d'un fond noir.
+        webView?.scrollView.backgroundColor = .clear
     }
 }

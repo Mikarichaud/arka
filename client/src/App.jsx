@@ -32,12 +32,11 @@ import { FEATURES_UNLOCKED, STORE_BUILD } from './utils/permissions';
 export const NavDirectionContext = createContext(1);
 export const useNavDirection = () => useContext(NavDirectionContext);
 
-// Pages sans slide (jeu plein écran, galerie, salons)
-const NO_SLIDE = ['/game', '/gallery', '/salon/'];
-
 function AnimatedRoutes() {
   const location = useLocation();
   const navType = useNavigationType();
+  // POP / Quitter explicite (state.dir='back') → glissement inverse.
+  const dir = (navType === 'POP' || location.state?.dir === 'back') ? -1 : 1;
 
   // À chaque changement d'écran : on remonte en haut + on resynchronise la status bar.
   useEffect(() => {
@@ -47,45 +46,26 @@ function AnimatedRoutes() {
 
   // App montée → on masque le splash natif (qui restait affiché pendant le chargement web).
   useEffect(() => { hideSplash(); }, []);
-  // POP = navigation back/forward du browser → animation back (-1)
-  // REPLACE avec state.dir='back' = un Quitter explicite qui doit s'animer comme back
-  // (sinon l'animation default = forward, ce qui est faux pour un retour).
-  const isBack = navType === 'POP' || location.state?.dir === 'back';
-  const direction = isBack ? -1 : 1;
 
-  const noSlide = NO_SLIDE.some((p) => location.pathname.startsWith(p));
-
-  // Transition : fondu + petit glissement (28px) directionnel. Les deux pages se
-  // superposent (CSS grid, cf .route-stack) et s'animent EN MÊME TEMPS (pas de
-  // mode="wait") → crossfade fluide, sans temps mort.
-  const variants = noSlide
-    ? {
-        initial: { opacity: 0 },
-        animate: { opacity: 1 },
-        exit: { opacity: 0, pointerEvents: 'none' },
-      }
-    : {
-        initial: (dir) => ({ opacity: 0, x: dir > 0 ? 28 : -28 }),
-        animate: { opacity: 1, x: 0 },
-        exit: (dir) => ({ opacity: 0, x: dir > 0 ? -28 : 28, pointerEvents: 'none' }),
-      };
+  // Transition unique (une seule couche, Layout est statique) : fondu + glissement
+  // directionnel. Sortie accélérée pour limiter le temps mort du mode="wait".
+  const variants = {
+    initial: (d) => ({ opacity: 0, x: d * 36 }),
+    animate: { opacity: 1, x: 0 },
+    exit: (d) => ({ opacity: 0, x: d * -28, transition: { duration: 0.14, ease: 'easeIn' } }),
+  };
 
   return (
-    <NavDirectionContext.Provider value={direction}>
-      <div className="route-stack">
-      <AnimatePresence custom={direction} initial={false}>
+    <NavDirectionContext.Provider value={dir}>
+      <AnimatePresence mode="wait" custom={dir} initial={false}>
         <motion.div
           key={location.pathname}
-          custom={direction}
+          custom={dir}
           variants={variants}
           initial="initial"
           animate="animate"
           exit="exit"
-          transition={{
-            type: 'tween',
-            ease: [0.22, 0.61, 0.36, 1],
-            duration: 0.26,
-          }}
+          transition={{ type: 'tween', ease: [0.22, 0.61, 0.36, 1], duration: 0.28 }}
           style={{ minHeight: '100dvh' }}
         >
           <Routes location={location}>
@@ -119,7 +99,6 @@ function AnimatedRoutes() {
           </Routes>
         </motion.div>
       </AnimatePresence>
-      </div>
     </NavDirectionContext.Provider>
   );
 }
