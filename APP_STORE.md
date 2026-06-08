@@ -141,14 +141,78 @@ Modération **owner-only** (décidé).
 
 - [x] **Icône app** 1024×1024 (opaque) — générée (roulette Vélodrome, fond crème). Source : `client/assets/icon-source.svg`
 - [x] **Splash screen** (`@capacitor/splash-screen` + assets clair/sombre générés)
-- [ ] **Screenshots** par taille requise : 6.7" (iPhone 15/16 Pro Max), 6.5", et iPad si support iPad
-- [ ] **Nom** (30 car.), **sous-titre** (30 car.), **mots-clés**, **description**
-- [ ] **Catégorie** : Jeux / Divertissement
-- [ ] **Age rating** : questionnaire → références alcool (pastis/apéro) + humour adulte +
-  pack 18+ → probablement **12+ ou 17+**
-- [ ] **App Privacy (nutrition label)** : déclarer email, localisation grossière (CP),
-  contenu utilisateur (photos), identifiants. Lier à la Privacy Policy.
-- [ ] **URL support** + **URL marketing** (le site fait l'affaire)
+- [ ] **Screenshots** par taille requise : 6.7" (iPhone 15/16 Pro Max) + 6.5". **iPhone seul** (`TARGETED_DEVICE_FAMILY = "1"`) → pas d'iPad.
+- [x] **Textes de la fiche** rédigés (voir §5.1 ci-dessous)
+- [x] **Catégorie** : Principale **Jeux**, Secondaire **Divertissement**
+- [x] **Age rating décidé** : **12+** (alcool léger + humour léger ; pas de pack 18+ en V1) — voir §5.2
+- [x] **App Privacy décidé** : voir §5.3
+- [ ] Recopier §5.1/5.2/5.3 dans App Store Connect
+- [ ] **URL support** + **URL marketing** : `https://roulademarseillaise.fr`
+
+### 5.1 Fiche figée (à recopier dans App Store Connect)
+
+**Nom** (≤30) : `La Roulade Marseillaise`
+
+**Sous-titre** (≤30) : `Té champion, fais pas l'estrasse`
+
+**Catégorie** : Jeux (princ.) / Divertissement (sec.)
+
+**Mots-clés** (≤100) : `défis,soirée,apéro,jeu,amis,roulette,marseille,evjf,fête,party,gage,multijoueur,fun`
+
+**Texte promotionnel** (≤170) :
+> Oh le gaté ! La roulette tourne, elle s'arrête sur ton défi… à toi de jouer, champion. Le jeu d'apéro 100% marseillais, à plusieurs ou chacun son tél. Allez, vé !
+
+**Description** :
+```
+Oh le gaté ! Prépare l'apéro et rassemble la bande : La Roulade Marseillaise, c'est LE jeu de défis qui sent la garrigue, le mistral et le pastis.
+
+La roulette à 8 cases tourne, té, elle s'arrête sur un défi, et le joueur du tour doit le relever sous le regard du jury (les autres collègues). Réussi ? Des points, champion. Dégonflé ? La honte, fais pas l'estrasse ! Le tout avec l'accent, l'humour et les clichés de la cité phocéenne.
+
+🎡 COMMENT ON JOUE
+• On rentre les prénoms, on lance la roulette, et que le meilleur gagne
+• Chaque défi a son intensité (Facile / Moyen / Hard) et son temps imparti
+• Vote du groupe pour valider un défi, scoring à la clé
+• Bouton « C'est pas ma faute ! » pour retenter sa chance
+
+📱 DEUX FAÇONS DE JOUER
+• En local : tout le monde dans la même pièce, un seul téléphone qui tourne
+• En salon : chacun sur son tél, la roulette se lance en même temps sur tous les écrans, le vote se fait à distance
+
+🐟 DES PACKS POUR CHAQUE SOIRÉE
+Mireille (la daronne qui fait du cinéma), Virage Sud (supporters OM), Mouloud le Pêcheur (rois de l'exagération), Soirée entre amis, et plus encore. Tu peux même créer tes propres packs de défis.
+
+📸 LES SOUVENIRS DE LA SOIRÉE
+Prends des photos et vidéos pendant les défis et retrouve-les dans la galerie partagée de la soirée.
+
+Gratuit, sans pub, sans prise de tête. Allez l'OM, et bonne roulade, collègue !
+```
+
+**URL d'assistance / marketing** : `https://roulademarseillaise.fr`
+
+### 5.2 Age rating (questionnaire) → résultat **12+**
+
+| Question | Réponse |
+|---|---|
+| Alcool / tabac / drogues (références) | Oui — Peu fréquent / léger |
+| Grossièretés / humour grossier | Oui — Peu fréquent / léger |
+| Thèmes adultes / suggestifs | Aucun / léger (pas de pack 18+ en V1) |
+| Violence, contenu sexuel/nudité, jeux d'argent simulés, concours, accès web illimité | Non |
+| App pour enfants (Kids) | Non |
+
+### 5.3 App Privacy (nutrition label)
+
+**Suivi (tracking) : NON** (pas de pub, pas de SDK tiers, pas d'IDFA).
+
+**Données collectées** — toutes *liées à l'identité*, finalité *Fonctionnement de l'app* :
+| Catégorie Apple | Donnée |
+|---|---|
+| Coordonnées › Adresse e-mail | compte |
+| Identifiants › ID utilisateur | pseudo / compte |
+| Contenu utilisateur › Photos ou vidéos | médias uploadés |
+| Contenu utilisateur › Autre contenu | scores, historique, galeries |
+| Autres données › Autres | code postal (« badge de quartier ») |
+
+**Non collecté** : localisation GPS, contacts, santé, finances, navigation, diagnostics/crash, historique d'achat (pas d'IAP V1). Lier à la Privacy Policy `https://roulademarseillaise.fr/privacy`.
 
 ---
 

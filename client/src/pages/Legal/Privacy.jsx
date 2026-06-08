@@ -60,6 +60,7 @@ export default function Privacy() {
         <h2>4. Sous-traitants et hébergement</h2>
         <ul>
           <li><strong>OVH</strong> : hébergement du serveur (Union européenne).</li>
+          <li><strong>Hébergement des médias</strong> : les photos et vidéos que tu uploades sont stockées chez un prestataire tiers.</li>
         </ul>
         <p>Aucune donnée n'est vendue à des tiers à des fins publicitaires.</p>
 
