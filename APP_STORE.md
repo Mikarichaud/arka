@@ -234,6 +234,11 @@ Gratuit, sans pub, sans prise de tête. Allez l'OM, et bonne roulade, collègue 
   + fallback `navigator.vibrate` web). Câblé sur le spin (jeu local + salon) et le buzz « à toi de jouer ».
 - [ ] **Push notifications natives** (`@capacitor/push-notifications` + APNs) — V2.
 - [ ] **Universal Links** (QR salon ouvre l'app, `apple-app-site-association`) — V2.
+- [ ] **Adoption `UIScene` lifecycle** — V2 (non bloquant V1). Au lancement, le log
+  *« UIScene lifecycle will soon be required… »* apparaît : Capacitor utilise encore
+  l'`AppDelegate` classique. Un futur iOS l'exigera. Correctif : ajouter un `SceneDelegate`
+  + clé `UIApplicationSceneManifest` dans `Info.plist` (idéalement quand Capacitor publie
+  son support officiel — ne pas bricoler juste avant une soumission). Aucun impact review V1.
 
 ---
 

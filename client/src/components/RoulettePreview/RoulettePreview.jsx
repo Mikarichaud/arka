@@ -2,6 +2,12 @@
 const SLICE_COUNT = 8;
 const SLICE_ANGLE = 360 / SLICE_COUNT;
 
+// Palette par défaut : Vélodrome (bleu OM / blanc / or).
+const DEFAULT_PREVIEW_METALS = [
+  { base: '#0057A8' }, { base: '#dcdcd0' }, { base: '#0057A8' }, { base: '#C9A84C' },
+  { base: '#0057A8' }, { base: '#dcdcd0' }, { base: '#0057A8' }, { base: '#C9A84C' },
+];
+
 function arcPath(cx, cy, r, startDeg, endDeg) {
   const toRad = (d) => ((d - 90) * Math.PI) / 180;
   const s = toRad(startDeg);
@@ -14,7 +20,7 @@ function arcPath(cx, cy, r, startDeg, endDeg) {
 }
 
 export default function RoulettePreview({ palette = [], size = 140 }) {
-  const metals = palette.length === SLICE_COUNT ? palette : Array.from({ length: 8 }, () => ({ base: '#3d6080' }));
+  const metals = palette.length === SLICE_COUNT ? palette : DEFAULT_PREVIEW_METALS;
   return (
     <svg viewBox="0 0 200 200" width={size} height={size} style={{ display: 'block' }}>
       <defs>

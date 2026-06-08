@@ -6,9 +6,10 @@ import './HomeRoulette.css';
 const SLICE_COUNT = 8;
 const SLICE_ANGLE = 360 / SLICE_COUNT;
 
+// Palette par défaut : Vélodrome (bleu OM / blanc Vélodrome / or étoile).
 const DEFAULT_METALS = [
-  { base: '#3d6080' }, { base: '#8a5f20' }, { base: '#1a3a5c' }, { base: '#8a6810' },
-  { base: '#2d4d68' }, { base: '#6a3d10' }, { base: '#0e2840' }, { base: '#9a7015' },
+  { base: '#0057A8' }, { base: '#dcdcd0' }, { base: '#0057A8' }, { base: '#C9A84C' },
+  { base: '#0057A8' }, { base: '#dcdcd0' }, { base: '#0057A8' }, { base: '#C9A84C' },
 ];
 
 function arcPath(cx, cy, r, startDeg, endDeg) {

@@ -5,17 +5,30 @@ import './Roulette.css';
 const SLICE_COUNT = 8;
 const SLICE_ANGLE = 360 / SLICE_COUNT;
 
-// Palette pétanque par défaut : 8 métaux distincts alternés acier/bronze
+// Palette par défaut : Vélodrome (bleu OM / blanc Vélodrome / or étoile).
 export const DEFAULT_METALS = [
-  { hi: '#6898c8', base: '#3d6080', lo: '#1c3a52' }, // Acier azur
-  { hi: '#c89038', base: '#8a5f20', lo: '#4a2c08' }, // Bronze
-  { hi: '#2a5a8a', base: '#1a3a5c', lo: '#0a1e30' }, // Marine profond
-  { hi: '#d4a828', base: '#8a6810', lo: '#4a3808' }, // Or marseillais
-  { hi: '#4a7890', base: '#2d4d68', lo: '#122030' }, // Acier foncé
-  { hi: '#a86028', base: '#6a3d10', lo: '#3a1a05' }, // Cuivre
-  { hi: '#1a4568', base: '#0e2840', lo: '#060f18' }, // Nuit port
-  { hi: '#d8a828', base: '#9a7015', lo: '#5a4008' }, // Ambre
+  { hi: '#1e7fd4', base: '#0057A8', lo: '#003d7a' }, // Bleu OM clair
+  { hi: '#f5f5f0', base: '#dcdcd0', lo: '#a0a098' }, // Blanc Vélodrome
+  { hi: '#1e7fd4', base: '#0057A8', lo: '#003d7a' }, // Bleu OM
+  { hi: '#e8c040', base: '#C9A84C', lo: '#8a6810' }, // Or étoile
+  { hi: '#1e7fd4', base: '#0057A8', lo: '#003d7a' },
+  { hi: '#f5f5f0', base: '#dcdcd0', lo: '#a0a098' },
+  { hi: '#1e7fd4', base: '#0057A8', lo: '#003d7a' },
+  { hi: '#e8c040', base: '#C9A84C', lo: '#8a6810' },
 ];
+
+// Ancienne palette pétanque (acier/bronze) — à remettre en skin PAYANT le jour où
+// on réactive les options payantes (cf. cosmétiques). Conservée ici pour mémoire.
+// export const PETANQUE_METALS = [
+//   { hi: '#6898c8', base: '#3d6080', lo: '#1c3a52' }, // Acier azur
+//   { hi: '#c89038', base: '#8a5f20', lo: '#4a2c08' }, // Bronze
+//   { hi: '#2a5a8a', base: '#1a3a5c', lo: '#0a1e30' }, // Marine profond
+//   { hi: '#d4a828', base: '#8a6810', lo: '#4a3808' }, // Or marseillais
+//   { hi: '#4a7890', base: '#2d4d68', lo: '#122030' }, // Acier foncé
+//   { hi: '#a86028', base: '#6a3d10', lo: '#3a1a05' }, // Cuivre
+//   { hi: '#1a4568', base: '#0e2840', lo: '#060f18' }, // Nuit port
+//   { hi: '#d8a828', base: '#9a7015', lo: '#5a4008' }, // Ambre
+// ];
 
 // Génère le path SVG d'une tranche de camembert
 function arcPath(cx, cy, r, startDeg, endDeg) {

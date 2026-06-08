@@ -15,7 +15,7 @@
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Pour enregistrer les souvenirs de tes parties dans ta photothèque.</string>
 	<key>CFBundleDisplayName</key>
-        <string>La Roulade Marseillaise</string>
+        <string>Roulade Marseillaise</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
