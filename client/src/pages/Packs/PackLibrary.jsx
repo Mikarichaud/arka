@@ -13,6 +13,7 @@ import { useCategories } from '../../hooks/useCategories';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import useAuthStore from '../../store/authStore';
+import useAuthModalStore from '../../store/authModalStore';
 import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
@@ -34,6 +35,7 @@ export default function PackLibrary() {
   const location = useLocation();
   const [params, setParams] = useSearchParams();
   const { user, setUser } = useAuthStore();
+  const openAuthModal = useAuthModalStore((s) => s.open);
   // Boutique masquée sur le build magasin (App Store 3.1.1) → on retombe sur 'packs'.
   const initialTab = (params.get('tab') === 'cosmetics' && !STORE_BUILD) ? 'cosmetics' : 'packs';
   const [tab, setTab] = useState(initialTab);
@@ -334,9 +336,11 @@ export default function PackLibrary() {
                         <button
                           className="btn btn-gold btn-sm"
                           style={{ width: '100%' }}
-                          onClick={() => setPaywallPack(detail.pack)}
+                          onClick={() => user
+                            ? setPaywallPack(detail.pack)
+                            : openAuthModal('login', { redirectTo: '/packs' })}
                         >
-                          Débloquer ce pack
+                          {user ? 'Débloquer ce pack' : 'Se connecter pour débloquer'}
                         </button>
                       </div>
                     ) : (

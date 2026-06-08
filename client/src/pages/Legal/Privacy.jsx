@@ -47,7 +47,6 @@ export default function Privacy() {
           <li><strong>Compte</strong> : pseudo, adresse email, mot de passe (stocké chiffré, jamais en clair), code postal (pour le « badge de quartier »).</li>
           <li><strong>Profil</strong> : photo de profil si tu en ajoutes une.</li>
           <li><strong>Contenu de jeu</strong> : scores, historique des parties, et photos/vidéos que tu choisis d'uploader pendant les parties en salon.</li>
-          <li><strong>Paiement</strong> : si tu souscris un abonnement, les données de paiement sont traitées <strong>directement par Stripe</strong> ; nous ne stockons jamais ton numéro de carte (uniquement un identifiant client et le statut de l'abonnement).</li>
           <li><strong>Données techniques</strong> : informations de connexion strictement nécessaires (jeton d'authentification stocké localement sur ton appareil).</li>
         </ul>
 
@@ -55,14 +54,11 @@ export default function Privacy() {
         <ul>
           <li>Créer et gérer ton compte et tes parties.</li>
           <li>Afficher l'historique, les galeries et les classements des salons.</li>
-          <li>Gérer les abonnements et achats (le cas échéant).</li>
           <li>Assurer la sécurité et la modération des contenus signalés.</li>
         </ul>
 
         <h2>4. Sous-traitants et hébergement</h2>
         <ul>
-          <li><strong>Cloudinary</strong> : hébergement des photos/vidéos uploadées.</li>
-          <li><strong>Stripe</strong> : traitement des paiements et abonnements.</li>
           <li><strong>OVH</strong> : hébergement du serveur (Union européenne).</li>
         </ul>
         <p>Aucune donnée n'est vendue à des tiers à des fins publicitaires.</p>
@@ -79,8 +75,7 @@ export default function Privacy() {
         <p>
           Tu peux supprimer ton compte à tout moment depuis <strong>Profil → Mon compte →
           Supprimer mon compte</strong>. Cette action est définitive : ton profil, tes packs
-          persos, tes parties et galeries, et tes salons hébergés sont supprimés, et ton
-          éventuel abonnement est résilié.
+          persos, tes parties et galeries, et tes salons hébergés sont supprimés.
         </p>
 
         <h2>7. Tes droits (RGPD)</h2>
@@ -88,7 +83,7 @@ export default function Privacy() {
           Tu disposes d'un droit d'accès, de rectification, d'effacement, de portabilité et
           d'opposition sur tes données. La plupart s'exercent directement dans l'app (édition
           du profil, suppression de compte). Pour toute autre demande, écris-nous à{' '}
-          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>. Tu peux aussi saisir la CNIL.
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
 
         <h2>8. Cookies & stockage local</h2>

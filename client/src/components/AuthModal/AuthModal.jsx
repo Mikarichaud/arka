@@ -8,9 +8,19 @@ import useAuthModalStore from '../../store/authModalStore';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { openLegal } from '../../native';
-import { fumigenesVariants } from '../../styles/motion';
 import api from '../../services/api';
 import './AuthModal.css';
+
+// Entrée légère (pas de filter:blur → évite le flash/saccade avec le backdrop-filter
+// de l'overlay) et spring sans rebond.
+const authModalVariants = {
+  initial: { opacity: 0, scale: 0.96, y: 12 },
+  animate: {
+    opacity: 1, scale: 1, y: 0,
+    transition: { type: 'spring', stiffness: 320, damping: 30 },
+  },
+  exit: { opacity: 0, scale: 0.97, y: 8, transition: { duration: 0.15 } },
+};
 
 export default function AuthModal() {
   const navigate = useNavigate();
@@ -159,7 +169,7 @@ export default function AuthModal() {
       >
         <motion.div
           className="authmodal"
-          variants={fumigenesVariants}
+          variants={authModalVariants}
           initial="initial"
           animate="animate"
           exit="exit"
@@ -184,64 +194,84 @@ export default function AuthModal() {
                 >S'inscrire</button>
               </div>
 
-              {mode === 'login' ? (
-                <form className="authmodal-form" onSubmit={handleLoginSubmit}>
-                  <input
-                    className="input" type="text" placeholder="Pseudo ou email" autoFocus
-                    value={form.login} onChange={(e) => setForm({ ...form, login: e.target.value })} required
-                  />
-                  <PasswordInput
-                    placeholder="Mot de passe" autoComplete="current-password"
-                    value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
-                  />
-                  {error && <p className="authmodal-error">{error}</p>}
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={busy || isLoading}>
-                    {busy ? 'Chargement…' : 'Allez !'}
-                  </button>
-                  <button
-                    type="button" className="authmodal-link"
-                    onClick={() => open('forgot')}
-                  >Mot de passe oublié, hé bé ?</button>
-                </form>
-              ) : (
-                <form className="authmodal-form" onSubmit={handleRegisterSubmit}>
-                  <input
-                    className="input" type="text" placeholder="Pseudo" autoFocus
-                    value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required
-                  />
-                  <input
-                    className="input" type="email" placeholder="Email"
-                    value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required
-                  />
-                  <input
-                    className="input" type="text" inputMode="numeric" placeholder="Code postal"
-                    value={form.postalCode}
-                    onChange={(e) => setForm({ ...form, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
-                    maxLength={5} required
-                  />
-                  <span className="authmodal-hint">Pour ton badge de quartier 🐟</span>
-                  <PasswordInput
-                    placeholder="Mot de passe" autoComplete="new-password"
-                    value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
-                  />
-                  <label className="authmodal-terms">
-                    <input
-                      type="checkbox"
-                      checked={acceptedTerms}
-                      onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    />
-                    <span>
-                      J'accepte les{' '}
-                      <a href="/terms" onClick={(e) => { e.preventDefault(); openLegal('/terms'); }}>CGU</a>{' '}et la{' '}
-                      <a href="/privacy" onClick={(e) => { e.preventDefault(); openLegal('/privacy'); }}>politique de confidentialité</a>.
-                    </span>
-                  </label>
-                  {error && <p className="authmodal-error">{error}</p>}
-                  <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={busy || isLoading}>
-                    {busy ? 'Chargement…' : 'Créer mon compte'}
-                  </button>
-                </form>
-              )}
+              <div className="authmodal-form-wrap">
+                <AnimatePresence mode="wait" initial={false}>
+                  {mode === 'login' ? (
+                    <motion.form
+                      key="login"
+                      className="authmodal-form"
+                      onSubmit={handleLoginSubmit}
+                      initial={{ opacity: 0, x: -26 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -26 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      <input
+                        className="input" type="text" placeholder="Pseudo ou email" autoFocus
+                        value={form.login} onChange={(e) => setForm({ ...form, login: e.target.value })} required
+                      />
+                      <PasswordInput
+                        placeholder="Mot de passe" autoComplete="current-password"
+                        value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
+                      />
+                      {error && <p className="authmodal-error">{error}</p>}
+                      <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={busy || isLoading}>
+                        {busy ? 'Chargement…' : 'Allez !'}
+                      </button>
+                      <button
+                        type="button" className="authmodal-link"
+                        onClick={() => open('forgot')}
+                      >Mot de passe oublié, hé bé ?</button>
+                    </motion.form>
+                  ) : (
+                    <motion.form
+                      key="register"
+                      className="authmodal-form"
+                      onSubmit={handleRegisterSubmit}
+                      initial={{ opacity: 0, x: 26 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 26 }}
+                      transition={{ duration: 0.2, ease: 'easeOut' }}
+                    >
+                      <input
+                        className="input" type="text" placeholder="Pseudo" autoFocus
+                        value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} required
+                      />
+                      <input
+                        className="input" type="email" placeholder="Email"
+                        value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required
+                      />
+                      <input
+                        className="input" type="text" inputMode="numeric" placeholder="Code postal"
+                        value={form.postalCode}
+                        onChange={(e) => setForm({ ...form, postalCode: e.target.value.replace(/\D/g, '').slice(0, 5) })}
+                        maxLength={5} required
+                      />
+                      <span className="authmodal-hint">Pour ton badge de quartier 🐟</span>
+                      <PasswordInput
+                        placeholder="Mot de passe" autoComplete="new-password"
+                        value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required
+                      />
+                      <label className="authmodal-terms">
+                        <input
+                          type="checkbox"
+                          checked={acceptedTerms}
+                          onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        />
+                        <span>
+                          J'accepte les{' '}
+                          <a href="/terms" onClick={(e) => { e.preventDefault(); openLegal('/terms'); }}>CGU</a>{' '}et la{' '}
+                          <a href="/privacy" onClick={(e) => { e.preventDefault(); openLegal('/privacy'); }}>politique de confidentialité</a>.
+                        </span>
+                      </label>
+                      {error && <p className="authmodal-error">{error}</p>}
+                      <button type="submit" className="btn btn-primary" style={{ width: '100%' }} disabled={busy || isLoading}>
+                        {busy ? 'Chargement…' : 'Créer mon compte'}
+                      </button>
+                    </motion.form>
+                  )}
+                </AnimatePresence>
+              </div>
             </>
           )}
 

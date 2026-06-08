@@ -499,7 +499,7 @@
 @media (min-width: 1440px) {
   .game-turn-name { font-size: 4rem; }
 
-  .game-roulette-area .roulette-wrapper { max-width: 560px; }
+  .game-roulette-area .roulette-wrapper { max-width: min(560px, calc(100dvh - 260px)); }
 
   .game-spin-btn { font-size: 2rem; padding: 32px; }
 

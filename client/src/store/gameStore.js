@@ -30,9 +30,11 @@ const useGameStore = create(
   currentComment: randomComment(),
   exagerateurMode: false,
   gameHistory: [], // { playerName, challengeText, result, points }
+  shareLink: null, // lien galerie de la partie sauvegardée (persiste au remontage de /game)
 
   setPhase: (phase) => set({ phase }),
   setSession: (session) => set({ session }),
+  setShareLink: (shareLink) => set({ shareLink }),
   setPack: (pack) => {
     // Packs 8-24 défis : la roulette a 8 cases, donc on tire aléatoirement 8 défis
     // parmi les N du pack. Rejouer le même pack donne un nouveau tirage.
@@ -133,6 +135,7 @@ const useGameStore = create(
     currentComment: randomComment(),
     exagerateurMode: false,
     gameHistory: [],
+    shareLink: null,
   }),
     }),
     {
@@ -145,6 +148,7 @@ const useGameStore = create(
         currentChallenge: s.currentChallenge,
         gameHistory: s.gameHistory,
         exagerateurMode: s.exagerateurMode,
+        shareLink: s.shareLink,
       }),
       merge: (persisted, current) => {
         const p = persisted || {};

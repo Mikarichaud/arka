@@ -79,6 +79,14 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Conteneur du swap connexion/inscription : masque le débordement horizontal
+   pendant le slide (évite le flash de scrollbar). */
+.authmodal-form-wrap {
+  overflow: hidden;
+  margin: 0 -2px;
+  padding: 0 2px;
+}
+
 .authmodal-form {
   display: flex;
   flex-direction: column;

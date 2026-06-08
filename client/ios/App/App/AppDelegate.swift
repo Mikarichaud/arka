@@ -52,17 +52,36 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 // Contrôleur Capacitor personnalisé : masque les indicateurs de scroll natifs de la
 // WebView (look « app » plutôt que page web). Référencé dans Base.lproj/Main.storyboard.
 class MainViewController: CAPBridgeViewController {
+    private var observingThemeColor = false
+    private let fallbackBg = UIColor(red: 245.0 / 255.0, green: 245.0 / 255.0, blue: 240.0 / 255.0, alpha: 1.0)
+
     override func viewDidLoad() {
         super.viewDidLoad()
         webView?.scrollView.showsVerticalScrollIndicator = false
         webView?.scrollView.showsHorizontalScrollIndicator = false
-        // Rebond élastique vertical même quand le contenu tient dans l'écran
-        // (sinon l'app paraît "figée" en overscroll).
+        // Rebond élastique même si le contenu tient à l'écran (sinon "figé").
         webView?.scrollView.bounces = true
         webView?.scrollView.alwaysBounceVertical = true
-        // Fond du scrollView transparent → la zone de rebond affiche le
-        // "underPageBackgroundColor" qu'iOS dérive de la couleur de la page
-        // (s'adapte par écran + dark mode), au lieu d'un fond noir.
+        // Zone de rebond : scrollView transparent → on voit le fond de la WebView,
+        // qu'on synchronise à la couleur de la page via themeColor (KVO).
         webView?.scrollView.backgroundColor = .clear
+        webView?.backgroundColor = fallbackBg
+        if #available(iOS 15.0, *), let wv = webView {
+            wv.addObserver(self, forKeyPath: "themeColor", options: [.initial, .new], context: nil)
+            observingThemeColor = true
+        }
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?,
+                              change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        if #available(iOS 15.0, *), keyPath == "themeColor" {
+            webView?.backgroundColor = webView?.themeColor ?? fallbackBg
+        }
+    }
+
+    deinit {
+        if observingThemeColor, let wv = webView {
+            wv.removeObserver(self, forKeyPath: "themeColor")
+        }
     }
 }

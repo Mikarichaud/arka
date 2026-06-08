@@ -9,7 +9,7 @@ import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import { invalidateCosmetics } from '../../hooks/useActiveSkin';
 import { useEscapeClose } from '../../hooks/useEscapeClose';
-import { openLegal } from '../../native';
+import { openLegal, isNative } from '../../native';
 import { fumigenesVariants } from '../../styles/motion';
 import { FEATURES_UNLOCKED, STORE_BUILD } from '../../utils/permissions';
 import api from '../../services/api';
@@ -520,9 +520,9 @@ export default function Profile() {
       </button>
 
       <div className="profile-legal-links">
-        <a href="/terms" onClick={(e) => { e.preventDefault(); openLegal('/terms'); }}>CGU</a>
+        <a href="/terms" onClick={(e) => { e.preventDefault(); isNative ? openLegal('/terms') : navigate('/terms'); }}>CGU</a>
         <span>·</span>
-        <a href="/privacy" onClick={(e) => { e.preventDefault(); openLegal('/privacy'); }}>Confidentialité</a>
+        <a href="/privacy" onClick={(e) => { e.preventDefault(); isNative ? openLegal('/privacy') : navigate('/privacy'); }}>Confidentialité</a>
       </div>
 
       {/* Modale de confirmation suppression de compte */}

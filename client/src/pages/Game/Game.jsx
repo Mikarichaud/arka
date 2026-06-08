@@ -27,9 +27,9 @@ export default function Game() {
   const {
     session, pack, phase, isSpinning, spinResult, currentChallenge,
     currentComment, exagerateurMode,
-    gameHistory,
+    gameHistory, shareLink,
     setPhase, spin, nextPlayer, updatePlayerScore, addHistoryEntry,
-    addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration,
+    addMediaToLastEntry, resetGame, toggleExagerateur, getTimerDuration, setShareLink,
   } = useGameStore();
   const soundEnabled = useSettingsStore((s) => s.soundEnabled);
   const toggleSound = useSettingsStore((s) => s.toggleSound);
@@ -40,7 +40,6 @@ export default function Game() {
 
   const [timerRunning, setTimerRunning] = useState(false);
   const [lastPoints, setLastPoints] = useState(null);
-  const [shareLink, setShareLink] = useState(null);
 
   if (!session || !pack) {
     return <Navigate to="/" replace />;

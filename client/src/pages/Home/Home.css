@@ -7,7 +7,8 @@
   min-height: 100dvh;
   padding: 0;
   gap: 0;
-  background: linear-gradient(165deg, #0d1b3e 0%, #0a4082 45%, #0057A8 75%, #003d7a 100%);
+  /* Fond crème via variable de thème → s'adapte au dark mode automatiquement. */
+  background: var(--surface-bg);
   /* La section À propos peut faire scroller la page (utile pour SEO + contenu). */
   overflow-x: hidden;
 }
@@ -18,7 +19,7 @@
   padding: 48px max(20px, env(safe-area-inset-left)) max(56px, calc(env(safe-area-inset-bottom) + 40px));
   max-width: 720px;
   margin: 0 auto;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.55;
 }
@@ -26,17 +27,16 @@
 .home-about h2 {
   font-family: var(--font-titre);
   font-size: clamp(1.7rem, 5vw, 2.2rem);
-  color: var(--or-etoile);
+  color: var(--bleu-azur);
   letter-spacing: 0.02em;
   margin: 0 0 16px;
   text-align: center;
-  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
 .home-about h3 {
   font-family: var(--font-titre);
   font-size: 1.25rem;
-  color: white;
+  color: var(--bleu-azur);
   letter-spacing: 0.03em;
   margin: 28px 0 10px;
 }
@@ -46,13 +46,13 @@
 }
 
 .home-about strong {
-  color: var(--or-etoile-light);
+  color: var(--bleu-azur);
   font-weight: 700;
 }
 
 .home-about em {
   font-style: italic;
-  color: rgba(255, 255, 255, 0.95);
+  color: var(--text-primary);
 }
 
 .home-about ul {
@@ -104,8 +104,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -113,7 +113,7 @@
   transition: background var(--transition-fast), transform var(--transition-fast);
   -webkit-tap-highlight-color: transparent;
 }
-.theme-toggle:hover { background: rgba(255, 255, 255, 0.2); }
+.theme-toggle:hover { background: var(--surface-bg); }
 .theme-toggle:active { transform: scale(0.92); }
 
 /* ── 1 — Brand ── */
@@ -138,15 +138,14 @@
 .home-title {
   font-family: var(--font-titre);
   font-size: clamp(2.4rem, 9.5vw, 3.4rem);
-  color: white;
+  color: var(--bleu-azur);
   line-height: 0.95;
   letter-spacing: 0.02em;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.45);
   margin-bottom: 12px;
 }
 
 .home-tagline {
-  color: rgba(255, 255, 255, 0.62);
+  color: var(--text-secondary);
   font-size: 0.88rem;
   line-height: 1.5;
   max-width: 280px;
@@ -184,14 +183,6 @@
 
 .home-ghost-btn {
   width: 100%;
-  color: rgba(255, 255, 255, 0.92) !important;
-  border-color: rgba(255, 255, 255, 0.32) !important;
-  background: rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: blur(8px);
-}
-.home-ghost-btn:hover {
-  background: rgba(255, 255, 255, 0.18) !important;
-  border-color: rgba(255, 255, 255, 0.5) !important;
 }
 
 .home-premium-cta {

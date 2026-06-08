@@ -162,7 +162,7 @@
 .endgame-recap {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .recap-stats-row {
@@ -175,16 +175,16 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
-  padding: 12px 8px;
+  padding: 8px 6px;
 }
 
 .recap-stat-val {
   font-family: var(--font-titre);
-  font-size: 2rem;
+  font-size: 1.6rem;
   color: white;
   line-height: 1;
 }
@@ -228,7 +228,7 @@
 .recap-cases {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .recap-section-title {
@@ -242,7 +242,7 @@
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  height: 80px;
+  height: 52px;
 }
 
 .recap-case-col {
@@ -295,8 +295,8 @@
 .recap-distinction {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
+  gap: 10px;
+  padding: 8px 12px;
   border-radius: var(--radius-md);
   border: 1px solid transparent;
 }
@@ -328,6 +328,20 @@
 }
 
 /* ── Historique ── */
+/* Wrapper du contenu d'onglet : hauteur FIXE identique pour les 3 onglets (plus de
+   saut au switch) ; le contenu plus long (Récap) scrolle à l'intérieur. overflow-x
+   hidden clippe aussi le slide directionnel horizontal. */
+.endgame-tab-content {
+  margin: 0 -2px;
+  padding: 0 2px;
+  height: 290px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.endgame-tab-content::-webkit-scrollbar { width: 3px; }
+.endgame-tab-content::-webkit-scrollbar-track { background: transparent; }
+.endgame-tab-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+
 .endgame-history {
   display: flex;
   flex-direction: column;
@@ -344,16 +358,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
-  max-height: 300px;
-  overflow-y: auto;
   padding-right: 4px;
 }
 
-.endgame-history-list::-webkit-scrollbar { width: 3px; }
-.endgame-history-list::-webkit-scrollbar-track { background: transparent; }
-.endgame-history-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-
-.history-entry {
+/* Scopé sous .endgame-history-list pour gagner en spécificité contre le
+   .history-entry de SalonHistory.css (même nom de classe, fond clair → conflit). */
+.endgame-history-list .history-entry {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -363,8 +373,8 @@
   border-left: 3px solid transparent;
 }
 
-.history-entry.completed { border-left-color: #2DC653; }
-.history-entry.refused   { border-left-color: #E63946; }
+.endgame-history-list .history-entry.completed { border-left-color: #2DC653; }
+.endgame-history-list .history-entry.refused   { border-left-color: #E63946; }
 
 .history-entry-left {
   display: flex;

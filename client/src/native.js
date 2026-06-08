@@ -48,8 +48,44 @@ function pickStyle() {
   return lum < 0.5 ? Style.Dark : Style.Light;
 }
 
+// Maintient <meta name="theme-color"> à la couleur du fond courant (html, adapté
+// par page + thème via :has()). Le natif observe webView.themeColor (KVO) et
+// recolore la zone d'overscroll en conséquence. Utile aussi à la barre du navigateur web.
+function syncThemeColor() {
+  if (typeof document === 'undefined') return;
+  const bg = getComputedStyle(document.documentElement).backgroundColor;
+  if (!bg) return;
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (!meta) {
+    meta = document.createElement('meta');
+    meta.setAttribute('name', 'theme-color');
+    document.head.appendChild(meta);
+  }
+  meta.setAttribute('content', bg);
+}
+
+// Init une fois (web + natif). Le fond (html/body) transitionne (~0.2-0.3s) aussi
+// bien au changement de thème qu'au changement de page (sélecteurs :has()). On
+// resynchronise à la FIN de cette transition → la couleur reflète toujours la page
+// courante, sans dépendre du timing du routeur (en mode "wait", l'ancienne page est
+// encore affichée quand le routeur notifie → on lirait la mauvaise couleur).
+export function initThemeColor() {
+  if (typeof document === 'undefined') return;
+  syncThemeColor();
+  document.documentElement.addEventListener('transitionend', (e) => {
+    if (e.propertyName !== 'background-color') return;
+    if (e.target !== document.documentElement && e.target !== document.body) return;
+    syncStatusBar();
+  });
+  // Fallback si les transitions sont coupées (prefers-reduced-motion) : pas de
+  // transitionend → on resync sur le toggle de thème.
+  const obs = new MutationObserver(() => requestAnimationFrame(syncStatusBar));
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
 // À appeler à chaque changement d'écran (le fond peut changer).
 export function syncStatusBar() {
+  syncThemeColor();
   if (!isNative) return;
   requestAnimationFrame(() => {
     StatusBar.setStyle({ style: pickStyle() }).catch(() => {});

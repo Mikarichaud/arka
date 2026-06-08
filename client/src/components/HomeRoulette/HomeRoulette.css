@@ -80,7 +80,7 @@
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   animation: hr-blink 2.5s ease-in-out infinite;
   pointer-events: none;
 }
@@ -97,10 +97,6 @@
     rgba(0, 87, 168, 0.25) 40%,
     transparent 70%
   );
-}
-
-.home-roulette:hover .home-roulette-disc.idle-css-spin {
-  animation-duration: 20s; /* accélère légèrement au hover */
 }
 
 /* ── Desktop ── */

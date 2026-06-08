@@ -16,6 +16,7 @@ html {
 }
 
 /* Pages claires (crème) : le bg du html matche pour que l'overscroll soit fluide */
+html:has(.home-page),
 html:has(.auth-page),
 html:has(.editor-page),
 html:has(.profile-page),
@@ -305,6 +306,18 @@ body.has-bottomnav .mes-salons-page,
 body.has-bottomnav .profile-page,
 body.has-bottomnav .salon-page {
   padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+
+/* Mode PC : la nav est une sidebar à gauche → on réserve l'espace à gauche, pas en bas. */
+@media (min-width: 1024px) {
+  body.has-bottomnav .home-page,
+  body.has-bottomnav .library-page,
+  body.has-bottomnav .mes-salons-page,
+  body.has-bottomnav .profile-page,
+  body.has-bottomnav .salon-page {
+    padding-bottom: 0;
+    padding-left: 96px;
+  }
 }
 
 /* ── Éléments révélés au :hover → forcés visibles sur écran tactile (pas de survol) ── */

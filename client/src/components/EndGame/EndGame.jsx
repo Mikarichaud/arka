@@ -18,10 +18,19 @@ const LOSE_LINES = [
 const MEDALS = ['medal-gold', 'medal-silver', 'medal-bronze'];
 const TABS = ['Podium', 'Récap', 'Historique'];
 
+// Slide directionnel entre onglets : sens selon qu'on avance ou recule dans les onglets.
+const tabPanelVariants = {
+  initial: (d) => ({ opacity: 0, x: d >= 0 ? 26 : -26 }),
+  animate: { opacity: 1, x: 0, transition: { duration: 0.22, ease: 'easeOut' } },
+  exit: (d) => ({ opacity: 0, x: d >= 0 ? -26 : 26, transition: { duration: 0.16, ease: 'easeIn' } }),
+};
+
 export default function EndGame({ players, packName, shareLink, history = [], onRestart, onHome }) {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(false);
   const [tab, setTab] = useState(0);
+  const [tabDir, setTabDir] = useState(0);
+  const goTab = (i) => { setTabDir(i > tab ? 1 : -1); setTab(i); };
 
   const sorted = [...players].sort((a, b) => b.score - a.score);
   const winner = sorted[0];
@@ -104,7 +113,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
             <button
               key={t}
               className={`endgame-tab ${tab === i ? 'active' : ''}`}
-              onClick={() => setTab(i)}
+              onClick={() => goTab(i)}
             >
               {t}
             </button>
@@ -112,12 +121,14 @@ export default function EndGame({ players, packName, shareLink, history = [], on
         </div>
 
         {/* Contenu par onglet */}
-        <AnimatePresence mode="wait">
+        <div className="endgame-tab-content">
+        <AnimatePresence mode="wait" custom={tabDir}>
 
           {/* ── Onglet Podium ── */}
           {tab === 0 && (
             <motion.div key="podium"
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+              custom={tabDir} variants={tabPanelVariants}
+              initial="initial" animate="animate" exit="exit"
               className="endgame-podium"
             >
               {sorted.map((p, i) => (
@@ -147,7 +158,8 @@ export default function EndGame({ players, packName, shareLink, history = [], on
           {/* ── Onglet Récap ── */}
           {tab === 1 && (
             <motion.div key="recap"
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+              custom={tabDir} variants={tabPanelVariants}
+              initial="initial" animate="animate" exit="exit"
               className="endgame-recap"
             >
               {/* Stats rapides */}
@@ -191,7 +203,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
                   <div className="recap-cases-grid">
                     {Array.from({ length: 8 }, (_, i) => i + 1).map((n) => {
                       const count = caseCounts[n] || 0;
-                      const height = count > 0 ? Math.max(20, (count / maxCount) * 60) : 6;
+                      const height = count > 0 ? Math.max(14, (count / maxCount) * 38) : 5;
                       return (
                         <div key={n} className="recap-case-col">
                           <span className="recap-case-count">{count > 0 ? count : ''}</span>
@@ -241,7 +253,8 @@ export default function EndGame({ players, packName, shareLink, history = [], on
           {/* ── Onglet Historique ── */}
           {tab === 2 && (
             <motion.div key="history"
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+              custom={tabDir} variants={tabPanelVariants}
+              initial="initial" animate="animate" exit="exit"
               className="endgame-history"
             >
               {history.length === 0 ? (
@@ -278,6 +291,7 @@ export default function EndGame({ players, packName, shareLink, history = [], on
           )}
 
         </AnimatePresence>
+        </div>
 
         {/* Actions */}
         <div className="endgame-actions">

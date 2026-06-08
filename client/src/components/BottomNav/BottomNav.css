@@ -44,3 +44,35 @@
   border-color: rgba(255, 255, 255, 0.1);
 }
 [data-theme="dark"] .bottomnav-tab.is-active { color: var(--or-etoile); }
+
+/* ── Mode PC (≥1024px) : la barre passe en sidebar verticale à gauche ── */
+@media (min-width: 1024px) {
+  .bottomnav {
+    top: 0;
+    bottom: 0;
+    right: auto;
+    width: 96px;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 6px;
+    padding: 28px 0 24px;
+    padding-left: env(safe-area-inset-left);
+    border-top: none;
+    border-right: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+    box-shadow: 2px 0 14px rgba(0, 0, 0, 0.07);
+  }
+
+  .bottomnav-tab {
+    flex: 0 0 auto;
+    min-height: 0;
+    gap: 5px;
+    margin: 0 10px;
+    padding: 14px 0;
+    border-radius: 16px;
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  }
+
+  .bottomnav-tab.is-active { background: var(--surface-card, rgba(0, 87, 168, 0.08)); }
+
+  [data-theme="dark"] .bottomnav-tab.is-active { background: rgba(255, 255, 255, 0.06); }
+}
