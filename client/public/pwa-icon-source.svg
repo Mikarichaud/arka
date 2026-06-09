@@ -24,19 +24,19 @@
   <!-- Fond plein bord-à-bord, aucun arrondi : iOS / Android appliquent leur propre masque -->
   <rect width="512" height="512" fill="#F5F5F0"/>
 
-  <!-- Roulette centrée, scale 0.78 pour laisser la safe-zone des masques maskable Android -->
+  <!-- Roulette centrée — palette « Vélodrome » (bleu OM / blanc / or) -->
   <g transform="translate(256 256) scale(0.78)">
     <circle r="220" fill="url(#chrome)"/>
 
     <g>
-      <path d="M0,0 L0,-200 A200,200 0 0,1 141.42,-141.42 Z" fill="#3d6080"/>
-      <path d="M0,0 L141.42,-141.42 A200,200 0 0,1 200,0 Z" fill="#8a5f20"/>
-      <path d="M0,0 L200,0 A200,200 0 0,1 141.42,141.42 Z" fill="#1a3a5c"/>
-      <path d="M0,0 L141.42,141.42 A200,200 0 0,1 0,200 Z" fill="#8a6810"/>
-      <path d="M0,0 L0,200 A200,200 0 0,1 -141.42,141.42 Z" fill="#2d4d68"/>
-      <path d="M0,0 L-141.42,141.42 A200,200 0 0,1 -200,0 Z" fill="#6a3d10"/>
-      <path d="M0,0 L-200,0 A200,200 0 0,1 -141.42,-141.42 Z" fill="#0e2840"/>
-      <path d="M0,0 L-141.42,-141.42 A200,200 0 0,1 0,-200 Z" fill="#9a7015"/>
+      <path d="M0,0 L0,-200 A200,200 0 0,1 141.42,-141.42 Z" fill="#0057A8"/>
+      <path d="M0,0 L141.42,-141.42 A200,200 0 0,1 200,0 Z" fill="#dcdcd0"/>
+      <path d="M0,0 L200,0 A200,200 0 0,1 141.42,141.42 Z" fill="#0057A8"/>
+      <path d="M0,0 L141.42,141.42 A200,200 0 0,1 0,200 Z" fill="#C9A84C"/>
+      <path d="M0,0 L0,200 A200,200 0 0,1 -141.42,141.42 Z" fill="#0057A8"/>
+      <path d="M0,0 L-141.42,141.42 A200,200 0 0,1 -200,0 Z" fill="#dcdcd0"/>
+      <path d="M0,0 L-200,0 A200,200 0 0,1 -141.42,-141.42 Z" fill="#0057A8"/>
+      <path d="M0,0 L-141.42,-141.42 A200,200 0 0,1 0,-200 Z" fill="#C9A84C"/>
     </g>
 
     <circle r="200" fill="url(#sheen)" opacity="0.85"/>

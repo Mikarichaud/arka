@@ -162,11 +162,13 @@ Modération **owner-only** (décidé).
 **Texte promotionnel** (≤170) :
 > Oh le gaté ! La roulette tourne, elle s'arrête sur ton défi… à toi de jouer, champion. Le jeu d'apéro 100% marseillais, à plusieurs ou chacun son tél. Allez, vé !
 
-**Description** :
+**Description** (version finale validée user 09/06) :
 ```
-Oh le gaté ! Prépare l'apéro et rassemble la bande : La Roulade Marseillaise, c'est LE jeu de défis qui sent la garrigue, le mistral et le pastis.
+Oh mon gaté ! Prépare l'apéro et rassemble ta bande de fadas : La Roulade Marseillaise, c'est LE jeu de défis qui sent la garrigue et le mistral.
 
-La roulette à 8 cases tourne, té, elle s'arrête sur un défi, et le joueur du tour doit le relever sous le regard du jury (les autres collègues). Réussi ? Des points, champion. Dégonflé ? La honte, fais pas l'estrasse ! Le tout avec l'accent, l'humour et les clichés de la cité phocéenne.
+La roulette à 8 cases tourne, té, elle s'arrête sur un défi, et le joueur du tour doit le relever sous le regard de tes collègues.
+Réussi ? Des points, champion.
+Dégonflé ? La honte, fais pas l'estrasse ! Le tout avec l'accent, l'humour et les clichés de la cité phocéenne.
 
 🎡 COMMENT ON JOUE
 • On rentre les prénoms, on lance la roulette, et que le meilleur gagne
@@ -179,12 +181,15 @@ La roulette à 8 cases tourne, té, elle s'arrête sur un défi, et le joueur du
 • En salon : chacun sur son tél, la roulette se lance en même temps sur tous les écrans, le vote se fait à distance
 
 🐟 DES PACKS POUR CHAQUE SOIRÉE
-Mireille (la daronne qui fait du cinéma), Virage Sud (supporters OM), Mouloud le Pêcheur (rois de l'exagération), Soirée entre amis, et plus encore. Tu peux même créer tes propres packs de défis.
+Mireille (la daronne qui fait du cinéma), Virage Sud (les supporters de l'OM), Mouloud le Pêcheur (rois de l'exagération), Soirée entre amis, et plus encore. Tu peux même créer tes propres packs de défis.
 
 📸 LES SOUVENIRS DE LA SOIRÉE
 Prends des photos et vidéos pendant les défis et retrouve-les dans la galerie partagée de la soirée.
 
-Gratuit, sans pub, sans prise de tête. Allez l'OM, et bonne roulade, collègue !
+🕵️ ET MÉFIANCE…
+Une fonction bien cachée veille au grain pendant la partie. On dit qu'elle renifle les imposteurs… et qu'aucun Parisien infiltré ne lui échappe. On ne t'en dit pas plus, vé — à toi de la débusquer. 👀
+
+Gratuit, sans pub, sans prise de tête. Allez l'OM, et bonne roulade, le sang !
 ```
 
 **URL d'assistance / marketing** : `https://roulademarseillaise.fr`
