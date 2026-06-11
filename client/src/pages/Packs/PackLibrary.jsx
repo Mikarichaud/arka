@@ -331,9 +331,9 @@ export default function PackLibrary() {
                     {isLocked ? (
                       <div className="library-locked-cta">
                         <p className="library-locked-msg">
-                          {STORE_BUILD
-                            ? `Connecte-toi pour voir les ${detail.pack?.totalChallenges || 8} défis`
-                            : `+ ${(detail.pack?.totalChallenges || 8) - 1} défis accessibles en Premium`}
+                          {user
+                            ? `Encore ${(detail.pack?.totalChallenges || 8) - 1} défis à débloquer dans ce pack`
+                            : `Connecte-toi pour voir les ${detail.pack?.totalChallenges || 8} défis`}
                         </p>
                         <button
                           className="btn btn-gold btn-sm"
@@ -344,9 +344,7 @@ export default function PackLibrary() {
                             return setPaywallPack(detail.pack);
                           }}
                         >
-                          {STORE_BUILD
-                            ? (user ? 'Jouer avec ce pack' : 'Créer un compte gratuit')
-                            : (user ? 'Débloquer ce pack' : 'Se connecter pour débloquer')}
+                          {user ? 'Débloquer ce pack' : 'Créer un compte gratuit'}
                         </button>
                       </div>
                     ) : (
