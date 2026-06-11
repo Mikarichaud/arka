@@ -331,16 +331,22 @@ export default function PackLibrary() {
                     {isLocked ? (
                       <div className="library-locked-cta">
                         <p className="library-locked-msg">
-                          + {(detail.pack?.totalChallenges || 8) - 1} défis accessibles en Premium
+                          {STORE_BUILD
+                            ? `Connecte-toi pour voir les ${detail.pack?.totalChallenges || 8} défis`
+                            : `+ ${(detail.pack?.totalChallenges || 8) - 1} défis accessibles en Premium`}
                         </p>
                         <button
                           className="btn btn-gold btn-sm"
                           style={{ width: '100%' }}
-                          onClick={() => user
-                            ? setPaywallPack(detail.pack)
-                            : openAuthModal('login', { redirectTo: '/packs' })}
+                          onClick={() => {
+                            if (!user) return openAuthModal('login', { redirectTo: '/packs' });
+                            if (STORE_BUILD) return navigate('/session/setup', { state: { preselectedPackId: pack._id } });
+                            return setPaywallPack(detail.pack);
+                          }}
                         >
-                          {user ? 'Débloquer ce pack' : 'Se connecter pour débloquer'}
+                          {STORE_BUILD
+                            ? (user ? 'Jouer avec ce pack' : 'Créer un compte gratuit')
+                            : (user ? 'Débloquer ce pack' : 'Se connecter pour débloquer')}
                         </button>
                       </div>
                     ) : (
