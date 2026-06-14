@@ -24,6 +24,9 @@ import SalonJoin from './pages/Salon/SalonJoin';
 import SalonLobby from './pages/Salon/SalonLobby';
 import MesSalons from './pages/Salon/MesSalons';
 import SalonHistory from './pages/Salon/SalonHistory';
+import PermisHome from './pages/Permis/PermisHome';
+import PermisExam from './pages/Permis/PermisExam';
+import CertificatePublic from './pages/Permis/CertificatePublic';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/AuthModal/AuthModal';
 import AuthRouteRedirect from './components/AuthModal/AuthRouteRedirect';
@@ -93,6 +96,9 @@ function AnimatedRoutes() {
             <Route path="/salons" element={<ProtectedRoute><MesSalons /></ProtectedRoute>} />
             <Route path="/salon/:code/history" element={<ProtectedRoute><SalonHistory /></ProtectedRoute>} />
             <Route path="/salon/:code" element={<SalonLobby />} />
+            <Route path="/permis" element={<PermisHome />} />
+            <Route path="/permis/exam" element={<PermisExam />} />
+            <Route path="/certificat/:code" element={<CertificatePublic />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/shop" element={<Navigate to="/packs?tab=cosmetics" replace />} />

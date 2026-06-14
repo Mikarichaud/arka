@@ -312,4 +312,60 @@ router.delete('/packs/:id', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// ========================= QUIZ — Permis Marseillais =========================
+const QuizQuestion = require('../models/QuizQuestion');
+
+function validateQuizBody(body) {
+  const { category, text, options, correctIndex, difficulty, scope } = body;
+  if (!['parler', 'bouffe', 'om', 'geo', 'culture'].includes(category)) return 'Catégorie invalide.';
+  if (!text || !text.trim()) return 'Le texte de la question est obligatoire.';
+  if (!Array.isArray(options) || options.length !== 4 || options.some((o) => !o || !o.trim())) return 'Il faut exactement 4 propositions non vides.';
+  if (typeof correctIndex !== 'number' || correctIndex < 0 || correctIndex > 3) return 'La bonne réponse doit être entre 0 et 3.';
+  if (!['facile', 'moyen', 'difficile'].includes(difficulty)) return 'Difficulté invalide.';
+  if (!['trial', 'exam'].includes(scope)) return 'Scope invalide (trial ou exam).';
+  return null;
+}
+
+// Liste + compteurs (pour piloter l'équilibre 40 D / 25 M / 15 F).
+router.get('/quiz', async (req, res, next) => {
+  try {
+    const filter = {};
+    if (req.query.category) filter.category = req.query.category;
+    if (req.query.scope) filter.scope = req.query.scope;
+    if (req.query.difficulty) filter.difficulty = req.query.difficulty;
+    const questions = await QuizQuestion.find(filter).sort({ category: 1, scope: 1, difficulty: 1 });
+    const counts = await QuizQuestion.aggregate([
+      { $group: { _id: { scope: '$scope', difficulty: '$difficulty' }, n: { $sum: 1 } } },
+    ]);
+    res.json({ questions, counts });
+  } catch (err) { next(err); }
+});
+
+router.post('/quiz', async (req, res, next) => {
+  try {
+    const error = validateQuizBody(req.body);
+    if (error) return res.status(400).json({ message: error });
+    const q = await QuizQuestion.create(req.body);
+    res.status(201).json({ question: q });
+  } catch (err) { next(err); }
+});
+
+router.put('/quiz/:id', async (req, res, next) => {
+  try {
+    const error = validateQuizBody(req.body);
+    if (error) return res.status(400).json({ message: error });
+    const q = await QuizQuestion.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!q) return res.status(404).json({ message: 'Question introuvable.' });
+    res.json({ question: q });
+  } catch (err) { next(err); }
+});
+
+router.delete('/quiz/:id', async (req, res, next) => {
+  try {
+    const q = await QuizQuestion.findByIdAndUpdate(req.params.id, { isActive: false }, { new: true });
+    if (!q) return res.status(404).json({ message: 'Question introuvable.' });
+    res.json({ message: 'Question retirée.' });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;

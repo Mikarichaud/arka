@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maquette — Le Permis Marseillais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:ital,wght@0,400;0,700;0,800;1,400&family=Pinyon+Script&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bleu-azur: #0057A8;
+    --bleu-azur-dark: #003d7a;
+    --blanc-velodrome: #F5F5F0;
+    --or-etoile: #C9A84C;
+    --or-etoile-light: #e0c070;
+    --rouge-defi: #E63946;
+    --vert-valide: #2DC653;
+    --nuit-goudes: #0D1117;
+    --parchemin: #fbf6e9;
+    --parchemin-dark: #f3ead2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #1a2733;
+    background-image:
+      radial-gradient(circle at 20% 10%, #243446 0, transparent 55%),
+      radial-gradient(circle at 80% 90%, #1d2a38 0, transparent 55%);
+    color: var(--nuit-goudes);
+    padding: 40px 16px 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 48px;
+  }
+  .page-note {
+    color: #cdd7e0;
+    text-align: center;
+    max-width: 760px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .page-note strong { color: var(--or-etoile-light); }
+  .variant-label {
+    color: #9fb0c0;
+    font-family: 'Bebas Neue';
+    letter-spacing: 2px;
+    font-size: 20px;
+    margin-bottom: -28px;
+  }
+
+  /* ---------- LE DIPLÔME ---------- */
+  .certificat {
+    width: 1080px;
+    max-width: 96vw;
+    aspect-ratio: 1080 / 660;
+    position: relative;
+    background:
+      repeating-linear-gradient(132deg, rgba(201,168,76,.035) 0 2px, transparent 2px 7px),
+      radial-gradient(circle at 50% 38%, #ffffff 0, var(--parchemin) 42%, var(--parchemin-dark) 100%);
+    border-radius: 6px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.08);
+    padding: 30px;
+    overflow: hidden;
+  }
+  /* cadre doré double */
+  .cert-frame {
+    position: absolute;
+    inset: 18px;
+    border: 2px solid var(--or-etoile);
+    border-radius: 4px;
+  }
+  .cert-frame::after {
+    content: '';
+    position: absolute;
+    inset: 5px;
+    border: 1px solid rgba(201,168,76,.55);
+    border-radius: 2px;
+  }
+  /* ornement de coins */
+  .corner {
+    position: absolute;
+    width: 46px; height: 46px;
+    color: var(--or-etoile);
+    opacity: .9;
+  }
+  .corner.tl { top: 26px; left: 26px; }
+  .corner.tr { top: 26px; right: 26px; transform: scaleX(-1); }
+  .corner.bl { bottom: 26px; left: 26px; transform: scaleY(-1); }
+  .corner.br { bottom: 26px; right: 26px; transform: scale(-1,-1); }
+
+  /* filigrane Bonne Mère */
+  .watermark {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+  .watermark svg { width: 320px; height: 320px; opacity: .05; color: var(--bleu-azur); }
+
+  .cert-inner {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 14px 56px;
+  }
+
+  /* en-tête : autorité */
+  .cert-authority {
+    font-family: 'Bebas Neue';
+    letter-spacing: 3px;
+    font-size: 16px;
+    color: var(--bleu-azur);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .cert-authority .line { width: 46px; height: 1px; background: var(--or-etoile); }
+
+  .cert-crest { width: 74px; height: 74px; margin: 6px 0 2px; }
+
+  .cert-title {
+    font-family: 'Bebas Neue';
+    font-size: 62px;
+    line-height: .9;
+    letter-spacing: 4px;
+    color: var(--bleu-azur-dark);
+    margin-top: 2px;
+    text-shadow: 1px 1px 0 rgba(201,168,76,.35);
+  }
+  .cert-subtitle {
+    font-size: 13px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #8a7b53;
+    font-weight: 800;
+    margin-top: 4px;
+  }
+  .cert-rule {
+    width: 180px; height: 0;
+    border-top: 1px solid var(--or-etoile);
+    position: relative;
+    margin: 14px 0 12px;
+  }
+  .cert-rule::before, .cert-rule::after {
+    content: '✦';
+    position: absolute; top: -10px;
+    color: var(--or-etoile);
+    font-size: 13px;
+  }
+  .cert-rule::before { left: -18px; }
+  .cert-rule::after { right: -18px; }
+
+  .cert-body { font-size: 16px; color: #3a3326; line-height: 1.7; max-width: 760px; }
+  .cert-name {
+    display: block;
+    font-family: 'Bebas Neue';
+    font-size: 46px;
+    letter-spacing: 3px;
+    color: var(--rouge-defi);
+    margin: 6px 0;
+  }
+  .prov-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0,87,168,.1);
+    color: var(--bleu-azur-dark);
+    border: 1px solid rgba(0,87,168,.3);
+    border-radius: 50px;
+    padding: 2px 12px;
+    font-weight: 800;
+    font-size: 14px;
+  }
+  .cert-mention {
+    display: block;
+    font-family: 'Bebas Neue';
+    font-size: 40px;
+    letter-spacing: 2px;
+    margin: 8px 0 2px;
+  }
+  .cert-mention.ok { color: var(--vert-valide); }
+  .cert-mention.ko { color: var(--rouge-defi); }
+  .cert-score { font-weight: 800; }
+  .cert-score b { font-size: 22px; }
+
+  /* pied : matricule, sceau, signature, QR */
+  .cert-footer {
+    margin-top: auto;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: end;
+    gap: 10px;
+  }
+  .foot-left { text-align: left; font-size: 12px; color: #6b6047; line-height: 1.7; }
+  .foot-left .label { font-weight: 800; color: #8a7b53; text-transform: uppercase; letter-spacing: .5px; }
+  .matricule { font-family: 'Bebas Neue'; letter-spacing: 2px; font-size: 18px; color: var(--bleu-azur-dark); }
+
+  .foot-mid { display: flex; justify-content: center; }
+  /* tampon de cire */
+  .stamp {
+    width: 124px; height: 124px;
+    border-radius: 50%;
+    display: grid; place-items: center;
+    position: relative;
+    transform: rotate(-12deg);
+    font-family: 'Bebas Neue';
+  }
+  .stamp.ok { color: var(--vert-valide); border: 3px double var(--vert-valide); }
+  .stamp.ko { color: var(--rouge-defi); border: 3px double var(--rouge-defi); }
+  .stamp .ring {
+    position: absolute; inset: 8px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: .6;
+  }
+  .stamp .big { font-size: 26px; letter-spacing: 1px; line-height: .9; text-align: center; }
+  .stamp .small { font-size: 10px; letter-spacing: 2px; opacity: .85; margin-top: 2px; }
+  .stamp::after {
+    content: '';
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: .06;
+  }
+
+  .foot-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+  .signature { font-family: 'Pinyon Script', cursive; font-size: 34px; color: var(--bleu-azur-dark); line-height: .8; }
+  .sign-label { font-size: 11px; color: #8a7b53; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; border-top: 1px solid #cdbf95; padding-top: 3px; }
+  .qr { width: 58px; height: 58px; }
+
+  @media (max-width: 720px) {
+    .cert-inner { padding: 10px 18px; }
+    .cert-title { font-size: 40px; }
+    .cert-name { font-size: 32px; }
+    .cert-mention { font-size: 28px; }
+    .cert-body { font-size: 13px; }
+    .stamp { width: 92px; height: 92px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-note">
+  <strong>Maquette — Le Permis Marseillais.</strong> Deux variantes pour juger le ton :
+  un certificat <strong>homologué</strong> (réussi, prestige) et un <strong>recalé</strong> (raté, roast).
+  Tout est faux-officiel et humoristique. Rien n'est figé : couleurs, nom de l'autorité, format,
+  texte — dis-moi ce que tu veux changer.
+</div>
+
+<!-- ============ VARIANTE RÉUSSIE ============ -->
+<div class="variant-label">① Homologué — « Patron du Vieux-Port »</div>
+<div class="certificat">
+  <div class="cert-frame"></div>
+  <svg class="corner tl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner tr" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner bl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner br" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+
+  <div class="watermark">
+    <svg viewBox="0 0 100 100" fill="currentColor"><path d="M50 6a8 8 0 0 0-3 15v6h-8v8h8v34c-12-2-21-11-23-22l7 2-11-13-11 13 7-2c3 16 16 28 35 30 19-2 32-14 35-30l7 2-11-13-11 13 7-2c-2 11-11 20-23 22V35h8v-8h-8v-6A8 8 0 0 0 50 6z"/></svg>
+  </div>
+
+  <div class="cert-inner">
+    <div class="cert-authority"><span class="line"></span>République Marseillaise · Préfecture de la Bonne Mère<span class="line"></span></div>
+
+    <svg class="cert-crest" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" stroke-width="2.5"/>
+      <circle cx="50" cy="50" r="40" fill="#0057A8"/>
+      <g fill="#e0c070"><circle cx="50" cy="50" r="3"/>
+        <g stroke="#e0c070" stroke-width="2"><path d="M50 14v10M50 76v10M14 50h10M76 50h10M25 25l7 7M68 68l7 7M75 25l-7 7M32 68l-7 7"/></g></g>
+      <path d="M50 32a5 5 0 0 0-2 9.5V46h-5v5h5v18c-7-1-12-6-13-13l4 1-6-7-6 7 4-1c2 9 9 16 19 17 10-1 17-8 19-17l4 1-6-7-6 7 4-1c-1 7-6 12-13 13V51h5v-5h-5v-4.5A5 5 0 0 0 50 32z" fill="#F5F5F0"/>
+    </svg>
+
+    <div class="cert-title">Permis Marseillais</div>
+    <div class="cert-subtitle">Certificat officiel d'authenticité marseillaise</div>
+    <div class="cert-rule"></div>
+
+    <div class="cert-body">
+      Il est solennellement certifié que
+      <span class="cert-name">Mireille la Daronne</span>
+      originaire de <span class="prov-badge">⚓ Marseille · Le Panier (2e)</span>,
+      a subi l'épreuve du Permis Marseillais et a obtenu la mention
+      <span class="cert-mention ok">Patron du Vieux-Port</span>
+      <span class="cert-score">avec la note de <b>19</b>/20.</span>
+    </div>
+
+    <div class="cert-footer">
+      <div class="foot-left">
+        <div><span class="label">Matricule</span> <span class="matricule">13–A7K9P2QX</span></div>
+        <div><span class="label">Délivré le</span> 12 juin 2026, sous le mistral</div>
+        <div><span class="label">Vérifiable sur</span> roulademarseillaise.fr/certificat</div>
+      </div>
+      <div class="foot-mid">
+        <div class="stamp ok"><span class="ring"></span><div style="text-align:center"><div class="big">Homo-<br>logué</div><div class="small">★ MASSALIA ★</div></div></div>
+      </div>
+      <div class="foot-right">
+        <svg class="qr" viewBox="0 0 29 29" shape-rendering="crispEdges"><rect width="29" height="29" fill="#fff"/><path fill="#0D1117" d="M0 0h7v7H0zM8 0h1v1H8zM10 0h2v1h-2zM13 0h1v2h-1zM15 0h2v1h-2zM18 0h1v1h-1zM22 0h7v7h-7zM1 1h5v5H1zM9 1h1v1H9zM11 1h1v2h-1zM16 1h1v3h-1zM19 1h2v1h-2zM23 1h5v5h-5zM2 2h3v3H2zM13 2h1v1h-1zM24 2h3v3h-3zM10 3h1v1h-1zM18 3h1v2h-1zM8 4h2v1H8zM12 4h2v1h-2zM15 4h1v2h-1zM20 4h1v2h-1zM9 5h1v2H9zM11 5h2v1h-2zM17 5h1v1h-1zM0 8h1v1H0zM3 8h1v3H3zM5 8h2v1H5zM10 8h1v1h-1zM13 8h3v1h-3zM18 8h2v1h-2zM22 8h1v1h-1zM25 8h1v2h-1zM27 8h2v1h-2zM1 9h1v2H1zM7 9h2v1H7zM12 9h1v2h-1zM16 9h1v1h-1zM21 9h1v3h-1zM24 9h1v1h-1zM8 10h1v2H8zM14 10h2v1h-2zM19 10h2v1h-2zM26 10h2v1h-2zM0 11h2v1H0zM5 11h2v2H5zM10 11h2v1h-2zM17 11h2v1h-2zM23 11h1v2h-1zM27 11h1v3h-1zM3 12h2v1H3zM9 12h1v2H9zM13 12h2v2h-2zM20 12h1v1h-1zM25 12h1v1h-1zM1 13h2v1H1zM7 13h1v3H7zM16 13h1v2h-1zM18 13h2v1h-2zM22 13h2v1h-2zM4 14h2v2H4zM11 14h1v1h-1zM21 14h1v2h-1zM26 14h2v1h-2zM0 15h1v3H0zM10 15h1v2h-1zM15 15h1v1h-1zM19 15h1v3h-1zM24 15h2v1h-2zM2 16h3v1H2zM8 16h1v1H8zM13 16h1v2h-1zM17 16h1v2h-1zM27 16h1v2h-1zM6 17h2v1H6zM11 17h2v1h-2zM22 17h3v1h-3zM3 18h1v3H3zM9 18h1v1H9zM15 18h2v1h-2zM20 18h2v1h-2zM25 18h1v3h-1zM1 19h1v1H1zM5 19h3v1H5zM12 19h1v2h-1zM18 19h1v1h-1zM23 19h1v2h-1zM8 20h1v3H8zM10 20h1v1h-1zM16 20h2v2h-2zM21 20h1v1h-1zM27 20h1v1h-1zM0 21h1v1H0zM2 21h1v2H2zM6 21h1v3H6zM13 21h2v1h-2zM19 21h2v1h-2zM24 21h1v2h-1zM0 22h7v7H0zM10 22h1v2h-1zM12 22h1v1h-1zM15 22h1v3h-1zM18 22h1v2h-1zM22 22h7v7h-7zM1 23h5v5H1zM9 23h1v1H9zM11 23h1v2h-1zM13 23h1v3h-1zM20 23h1v2h-1zM23 23h5v5h-5zM2 24h3v3H2zM16 24h2v1h-2zM24 24h3v3h-3zM10 25h1v2h-1zM19 25h1v2h-1zM8 26h1v3H8zM14 26h1v2h-1zM17 26h2v1h-2zM12 27h2v1h-2zM16 27h1v2h-1zM20 27h2v1h-2z"/></svg>
+        <div class="signature">le Préfet</div>
+        <div class="sign-label">Le Préfet de la Bonne Mère</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ VARIANTE RECALÉE ============ -->
+<div class="variant-label">② Recalé — « Parisien démasqué »</div>
+<div class="certificat">
+  <div class="cert-frame"></div>
+  <svg class="corner tl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner tr" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner bl" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+  <svg class="corner br" viewBox="0 0 46 46" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h18M2 2v18M8 8c10 0 14 4 14 14"/><circle cx="6" cy="6" r="2" fill="currentColor" stroke="none"/></svg>
+
+  <div class="watermark">
+    <svg viewBox="0 0 100 100" fill="currentColor"><path d="M50 6a8 8 0 0 0-3 15v6h-8v8h8v34c-12-2-21-11-23-22l7 2-11-13-11 13 7-2c3 16 16 28 35 30 19-2 32-14 35-30l7 2-11-13-11 13 7-2c-2 11-11 20-23 22V35h8v-8h-8v-6A8 8 0 0 0 50 6z"/></svg>
+  </div>
+
+  <div class="cert-inner">
+    <div class="cert-authority"><span class="line"></span>République Marseillaise · Préfecture de la Bonne Mère<span class="line"></span></div>
+
+    <svg class="cert-crest" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" stroke-width="2.5"/>
+      <circle cx="50" cy="50" r="40" fill="#0057A8"/>
+      <g fill="#e0c070"><circle cx="50" cy="50" r="3"/>
+        <g stroke="#e0c070" stroke-width="2"><path d="M50 14v10M50 76v10M14 50h10M76 50h10M25 25l7 7M68 68l7 7M75 25l-7 7M32 68l-7 7"/></g></g>
+      <path d="M50 32a5 5 0 0 0-2 9.5V46h-5v5h5v18c-7-1-12-6-13-13l4 1-6-7-6 7 4-1c2 9 9 16 19 17 10-1 17-8 19-17l4 1-6-7-6 7 4-1c-1 7-6 12-13 13V51h5v-5h-5v-4.5A5 5 0 0 0 50 32z" fill="#F5F5F0"/>
+    </svg>
+
+    <div class="cert-title">Permis Marseillais</div>
+    <div class="cert-subtitle">Certificat officiel d'authenticité marseillaise</div>
+    <div class="cert-rule"></div>
+
+    <div class="cert-body">
+      Après examen attentif, la Préfecture déclare avec regret que
+      <span class="cert-name">Jean-Édouard de la Tour</span>
+      domicilié <span class="prov-badge" style="background:rgba(230,57,70,.1);color:var(--rouge-defi);border-color:rgba(230,57,70,.35)">🚇 Paris · code postal qui pue le RER</span>,
+      n'est qu'un
+      <span class="cert-mention ko">Parisien démasqué</span>
+      <span class="cert-score">avec la note de <b>6</b>/20. Reviens quand tu sauras dire « dégun ».</span>
+    </div>
+
+    <div class="cert-footer">
+      <div class="foot-left">
+        <div><span class="label">Matricule</span> <span class="matricule">75–RECALÉ</span></div>
+        <div><span class="label">Examiné le</span> 12 juin 2026, en soupirant</div>
+        <div><span class="label">Vérifiable sur</span> roulademarseillaise.fr/certificat</div>
+      </div>
+      <div class="foot-mid">
+        <div class="stamp ko"><span class="ring"></span><div style="text-align:center"><div class="big">Recalé</div><div class="small">★ ESTRANGER ★</div></div></div>
+      </div>
+      <div class="foot-right">
+        <svg class="qr" viewBox="0 0 29 29" shape-rendering="crispEdges"><rect width="29" height="29" fill="#fff"/><path fill="#0D1117" d="M0 0h7v7H0zM8 0h1v1H8zM10 0h2v1h-2zM13 0h1v2h-1zM15 0h2v1h-2zM18 0h1v1h-1zM22 0h7v7h-7zM1 1h5v5H1zM9 1h1v1H9zM11 1h1v2h-1zM16 1h1v3h-1zM19 1h2v1h-2zM23 1h5v5h-5zM2 2h3v3H2zM13 2h1v1h-1zM24 2h3v3h-3zM10 3h1v1h-1zM18 3h1v2h-1zM8 4h2v1H8zM12 4h2v1h-2zM15 4h1v2h-1zM20 4h1v2h-1zM9 5h1v2H9zM11 5h2v1h-2zM17 5h1v1h-1zM0 8h1v1H0zM3 8h1v3H3zM5 8h2v1H5zM10 8h1v1h-1zM13 8h3v1h-3zM18 8h2v1h-2zM22 8h1v1h-1zM25 8h1v2h-1zM27 8h2v1h-2zM1 9h1v2H1zM7 9h2v1H7zM12 9h1v2h-1zM16 9h1v1h-1zM21 9h1v3h-1zM24 9h1v1h-1zM8 10h1v2H8zM14 10h2v1h-2zM19 10h2v1h-2zM26 10h2v1h-2zM0 11h2v1H0zM5 11h2v2H5zM10 11h2v1h-2zM17 11h2v1h-2zM23 11h1v2h-1zM27 11h1v3h-1zM3 12h2v1H3zM9 12h1v2H9zM13 12h2v2h-2zM20 12h1v1h-1zM25 12h1v1h-1zM1 13h2v1H1zM7 13h1v3H7zM16 13h1v2h-1zM18 13h2v1h-2zM22 13h2v1h-2zM4 14h2v2H4zM11 14h1v1h-1zM21 14h1v2h-1zM26 14h2v1h-2zM0 15h1v3H0zM10 15h1v2h-1zM15 15h1v1h-1zM19 15h1v3h-1zM24 15h2v1h-2zM2 16h3v1H2zM8 16h1v1H8zM13 16h1v2h-1zM17 16h1v2h-1zM27 16h1v2h-1zM6 17h2v1H6zM11 17h2v1h-2zM22 17h3v1h-3zM3 18h1v3H3zM9 18h1v1H9zM15 18h2v1h-2zM20 18h2v1h-2zM25 18h1v3h-1zM1 19h1v1H1zM5 19h3v1H5zM12 19h1v2h-1zM18 19h1v1h-1zM23 19h1v2h-1zM8 20h1v3H8zM10 20h1v1h-1zM16 20h2v2h-2zM21 20h1v1h-1zM27 20h1v1h-1zM0 21h1v1H0zM2 21h1v2H2zM6 21h1v3H6zM13 21h2v1h-2zM19 21h2v1h-2zM24 21h1v2h-1zM0 22h7v7H0zM10 22h1v2h-1zM12 22h1v1h-1zM15 22h1v3h-1zM18 22h1v2h-1zM22 22h7v7h-7zM1 23h5v5H1zM9 23h1v1H9zM11 23h1v2h-1zM13 23h1v3h-1zM20 23h1v2h-1zM23 23h5v5h-5zM2 24h3v3H2zM16 24h2v1h-2zM24 24h3v3h-3zM10 25h1v2h-1zM19 25h1v2h-1zM8 26h1v3H8zM14 26h1v2h-1zM17 26h2v1h-2zM12 27h2v1h-2zM16 27h1v2h-1zM20 27h2v1h-2z"/></svg>
+        <div class="signature">le Préfet</div>
+        <div class="sign-label">Le Préfet de la Bonne Mère</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

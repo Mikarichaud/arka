@@ -17,6 +17,7 @@ const cosmeticRoutes = require('./routes/cosmetics');
 const salonRoutes = require('./routes/salons');
 const sitemapRoute = require('./routes/sitemap');
 const adminRoutes = require('./routes/admin');
+const permisRoutes = require('./routes/permis');
 
 const app = express();
 
@@ -114,6 +115,17 @@ app.use('/api/auth/change-password', resetPasswordLimiter);
 app.use('/api/auth/change-email', resetPasswordLimiter);
 app.use('/api/media/upload', uploadLimiter);
 
+// Démarrage d'un test/examen : anti-abus léger (un essai consomme du tirage DB).
+const permisStartLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 20,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { message: 'Doucement sur les examens, té !' },
+});
+app.use('/api/permis/exam/start', permisStartLimiter);
+app.use('/api/permis/trial/start', permisStartLimiter);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/packs', packRoutes);
@@ -125,6 +137,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/cosmetics', cosmeticRoutes);
 app.use('/api/salons', salonRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/permis', permisRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

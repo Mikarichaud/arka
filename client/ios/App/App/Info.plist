@@ -2,22 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
-    <key>CAPACITOR_DEBUG</key>
+	<key>CAPACITOR_DEBUG</key>
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>en</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Pour prendre une photo ou une vidéo pendant un défi et la partager dans ton salon.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Pour enregistrer le son de tes vidéos de défi.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Pour choisir une photo ou une vidéo à partager pendant une partie.</string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Pour enregistrer les souvenirs de tes parties dans ta photothèque.</string>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-        <string>Roulade Marseillaise</string>
+	<string>Roulade Marseillaise</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -31,9 +21,19 @@
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<string>2</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Pour prendre une photo ou une vidéo pendant un défi et la partager dans ton salon.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Pour enregistrer le son de tes vidéos de défi.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Pour enregistrer les souvenirs de tes parties dans ta photothèque.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Pour choisir une photo ou une vidéo à partager pendant une partie.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

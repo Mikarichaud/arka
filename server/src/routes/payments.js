@@ -96,6 +96,8 @@ router.post('/webhook', async (req, res) => {
           await activateSubscription(session.subscription, session.customer);
         } else if (session.mode === 'payment' && session.metadata?.kind === 'cosmetic') {
           await grantCosmetic(session.metadata.userId, session.metadata.cosmeticSlug);
+        } else if (session.mode === 'payment' && session.metadata?.kind === 'permis') {
+          await grantPermisAttempts(session.metadata.userId, parseInt(session.metadata.attempts, 10) || 3);
         }
         break;
       }
@@ -186,6 +188,17 @@ async function grantCosmetic(userId, slug) {
     { _id: userId },
     { $addToSet: { purchasedSkins: slug } }
   );
+}
+
+// Crédite des essais de Permis Marseillais (achat web Stripe one-shot).
+async function grantPermisAttempts(userId, attempts) {
+  if (!userId || !attempts) return;
+  const user = await User.findById(userId);
+  if (!user) return;
+  const Certificate = require('../models/Certificate');
+  const cert = await Certificate.getOrCreateForUser(user);
+  cert.attemptsRemaining += attempts;
+  await cert.save();
 }
 
 async function cancelSubscription(customerId) {
