@@ -7,8 +7,13 @@ import useAuthStore from '../../store/authStore';
 import useAuthModalStore from '../../store/authModalStore';
 import usePermisStore from '../../store/permisStore';
 import { STORE_BUILD } from '../../utils/permissions';
+import { iapAvailable, purchasePasseport } from '../../services/iap';
 import api from '../../services/api';
 import './Permis.css';
+
+// L'examen officiel (payant) est fermé pour le moment : seul le test blanc est ouvert.
+// Repasser à true pour rouvrir l'examen + l'achat d'essais.
+const EXAM_ENABLED = false;
 
 const CATEGORIES = [
   { icon: 'wave', label: 'Le parler', desc: 'dégun, esquiché, cagole…' },
@@ -37,7 +42,7 @@ export default function PermisHome() {
     if (params.get('purchased') === '1') {
       setToast('Té, 3 essais crédités ! En route pour le Passeport.');
       fetchStatus();
-      navigate('/permis', { replace: true });
+      navigate('/passeportmarseillais', { replace: true });
     }
   }, [location.search, fetchStatus, navigate]);
 
@@ -48,13 +53,39 @@ export default function PermisHome() {
   });
 
   const launch = async (mode) => {
-    if (!user) return openAuthModal('login', { redirectTo: '/permis' });
+    if (!user) return openAuthModal('login', { redirectTo: '/passeportmarseillais' });
     const res = await start(mode);
-    if (res.ok) navigate('/permis/exam');
+    if (res.ok) navigate('/passeportmarseillais/exam');
+  };
+
+  // Le crédit IAP arrive via webhook (asynchrone) → on re-fetch le statut quelques fois.
+  const pollStatus = async () => {
+    for (let i = 0; i < 5; i += 1) {
+      await new Promise((r) => setTimeout(r, 1500));
+      const s = await fetchStatus();
+      if (s && (s.unlimited || (s.attemptsRemaining ?? 0) > 0)) return;
+    }
   };
 
   const buy = async () => {
-    if (!user) return openAuthModal('login', { redirectTo: '/permis' });
+    if (!user) return openAuthModal('login', { redirectTo: '/passeportmarseillais' });
+
+    // iOS → achat in-app Apple (RevenueCat).
+    if (iapAvailable()) {
+      setBuying(true);
+      try {
+        await purchasePasseport(user._id || user.id);
+        setToast('Merci ! Tes essais arrivent…');
+        await pollStatus();
+      } catch (e) {
+        if (!e?.userCancelled) setToast('Achat indisponible, réessaie.');
+      } finally {
+        setBuying(false);
+      }
+      return;
+    }
+
+    // Web → Stripe Checkout.
     setBuying(true);
     try {
       const { data } = await api.post('/permis/checkout');
@@ -74,7 +105,7 @@ export default function PermisHome() {
       <SEO
         title="Le Passeport Marseillais"
         description="Passe l'examen officiel de marseillaisitude et décroche ton Passeport Marseillais. 100 questions sur le parler, la bouffe, l'OM, la géo et les traditions. Es-tu un vrai de vrai ?"
-        path="/permis"
+        path="/passeportmarseillais"
       />
 
       {toast && (
@@ -139,29 +170,46 @@ export default function PermisHome() {
           <span className="permis-action-tag">Le vrai Passeport</span>
           <h3>L'examen officiel</h3>
           <p>20 questions chronométrées (13 s chacune). Ton meilleur score fait foi.</p>
-          <div className="permis-attempts">
-            Essais restants : <strong>{user ? attempts : '—'}</strong>
-          </div>
-          {hasAttempts ? (
-            <button className="btn btn-gold" disabled={starting} onClick={() => launch('exam')}>
-              {starting ? 'On prépare l\'examen…' : 'Passer l\'examen'}
-            </button>
-          ) : STORE_BUILD ? (
-            <button className="btn btn-gold" disabled>Achat bientôt disponible</button>
+          {EXAM_ENABLED ? (
+            <>
+              <div className="permis-attempts">
+                Essais restants : <strong>{user ? attempts : '—'}</strong>
+              </div>
+              {hasAttempts ? (
+                <button className="btn btn-gold" disabled={starting} onClick={() => launch('exam')}>
+                  {starting ? 'On prépare l\'examen…' : 'Passer l\'examen'}
+                </button>
+              ) : (iapAvailable() || !STORE_BUILD) ? (
+                <button className="btn btn-gold" disabled={buying} onClick={buy}>
+                  {buying ? 'Achat en cours…' : (iapAvailable() ? 'Acheter 3 essais' : 'Acheter 3 essais — 13 €')}
+                </button>
+              ) : (
+                <button className="btn btn-gold" disabled>Achat bientôt disponible</button>
+              )}
+            </>
           ) : (
-            <button className="btn btn-gold" disabled={buying} onClick={buy}>
-              {buying ? 'Redirection…' : 'Acheter 3 essais — 13 €'}
-            </button>
+            <>
+              <p className="permis-soon-note">L'examen officiel arrive bientôt. En attendant, échauffe-toi avec le test blanc !</p>
+              <button className="btn btn-gold" disabled>Bientôt disponible</button>
+            </>
           )}
         </div>
       </motion.section>
+
+      {user && (
+        <div className="permis-hist-link">
+          <button className="btn btn-ghost btn-sm" onClick={() => navigate('/passeportmarseillais/historique')}>
+            <Icon name="trophy" size={16} style={{ marginRight: 6 }} /> Mon historique
+          </button>
+        </div>
+      )}
 
       {error && <p className="permis-error">{error}</p>}
 
       {!user && (
         <p className="permis-login-hint">
-          <button className="btn btn-ghost btn-sm" onClick={() => openAuthModal('login', { redirectTo: '/permis' })}>
-            Connecte-toi pour passer l'examen
+          <button className="btn btn-ghost btn-sm" onClick={() => openAuthModal('login', { redirectTo: '/passeportmarseillais' })}>
+            Connecte-toi pour tenter le test blanc
           </button>
         </p>
       )}

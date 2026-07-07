@@ -314,6 +314,9 @@ export default function GateCosmetics() {
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('/gate/packs')}>
           ← Espace Packs
         </button>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/gate/quiz')}>
+          → Passeport
+        </button>
       </div>
 
       <button className="btn btn-primary gate-new-cta" onClick={startNew}>

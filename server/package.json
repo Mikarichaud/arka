@@ -15,6 +15,7 @@
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/pinyon-script": "^5.2.8",
     "@resvg/resvg-js": "^2.6.2",
+    "apple-signin-auth": "^2.0.0",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.7.0",
     "cors": "^2.8.6",

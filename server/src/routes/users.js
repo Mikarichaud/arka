@@ -7,6 +7,8 @@ const Pack = require('../models/Pack');
 const Challenge = require('../models/Challenge');
 const Session = require('../models/Session');
 const Salon = require('../models/Salon');
+const Certificate = require('../models/Certificate');
+const QuizAttempt = require('../models/QuizAttempt');
 const stripe = require('../services/stripe');
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_\-.]{3,30}$/;
@@ -136,7 +138,11 @@ router.delete('/me', protect, async (req, res, next) => {
       { arrayFilters: [{ 'p.userId': userId }] }
     );
 
-    // 5. Le compte lui-même.
+    // 5. Passeport Marseillais : certificat + tentatives.
+    await Certificate.deleteOne({ userId });
+    await QuizAttempt.deleteMany({ userId });
+
+    // 6. Le compte lui-même.
     await User.findByIdAndDelete(userId);
 
     res.json({ ok: true, message: 'Compte supprimé. Adieu, té !' });

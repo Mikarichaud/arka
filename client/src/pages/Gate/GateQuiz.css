@@ -1,0 +1,65 @@
+/* Admin GateQuiz — banque de questions du Passeport */
+
+.quiz-opt-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.quiz-opt-row .input { flex: 1; }
+.quiz-opt-radio {
+  flex: none; width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid var(--surface-border); background: var(--surface-card);
+  color: var(--text-secondary); font-weight: 800; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.quiz-opt-radio:hover { border-color: var(--vert-valide); }
+.quiz-opt-radio.is-correct { background: var(--vert-valide); border-color: var(--vert-valide); color: #fff; }
+
+.quiz-filters {
+  display: flex; flex-direction: column; gap: 10px;
+  background: var(--surface-card); border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px;
+}
+.quiz-filter-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.quiz-filter-label {
+  flex: none; width: 78px; font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .4px; color: var(--text-secondary);
+}
+.quiz-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+.quiz-chip {
+  border: 1px solid var(--surface-border); background: var(--surface-bg, transparent);
+  color: var(--text-secondary); font-weight: 700; font-size: 13px;
+  padding: 5px 12px; border-radius: var(--radius-pill); cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, transform .1s;
+}
+.quiz-chip:hover { border-color: var(--bleu-azur); color: var(--text-primary); }
+.quiz-chip:active { transform: scale(.96); }
+.quiz-chip.active {
+  background: var(--bleu-azur); border-color: var(--bleu-azur); color: #fff;
+}
+.quiz-filter-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  border-top: 1px solid var(--surface-border); padding-top: 8px; margin-top: 2px;
+}
+.quiz-filter-count { font-size: 13px; font-weight: 800; color: var(--text-primary); }
+.quiz-filter-clear {
+  background: none; border: none; cursor: pointer;
+  color: var(--rouge-defi); font-weight: 700; font-size: 13px; padding: 4px 6px;
+}
+.quiz-filter-clear:hover { text-decoration: underline; }
+
+.quiz-stats {
+  background: var(--surface-card); border: 1px solid var(--surface-border);
+  border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 12px;
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+}
+.quiz-stats b.ok { color: var(--vert-valide); }
+.quiz-stats b.low { color: var(--rouge-defi); }
+
+.quiz-badge {
+  font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: var(--radius-pill);
+  text-transform: capitalize; letter-spacing: .3px;
+}
+.quiz-badge.exam { background: rgba(0,87,168,.12); color: var(--bleu-azur-dark); }
+.quiz-badge.trial { background: rgba(201,168,76,.15); color: #8a6d1a; }
+.quiz-badge.facile { background: rgba(45,198,83,.14); color: #1c7a36; }
+.quiz-badge.moyen { background: rgba(201,168,76,.15); color: #8a6d1a; }
+.quiz-badge.difficile { background: rgba(230,57,70,.12); color: var(--rouge-defi); }
+
+.quiz-correct { color: var(--vert-valide); font-weight: 700; font-size: 13px; margin: 4px 0; }

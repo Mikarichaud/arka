@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, getMe, forgotPassword, resetPassword, changePassword, changeEmail } = require('../controllers/authController');
+const { register, login, getMe, forgotPassword, resetPassword, changePassword, changeEmail, appleSignIn, completeProfile } = require('../controllers/authController');
 const { protect } = require('../middlewares/auth');
 
 router.post('/register', register);
 router.post('/login', login);
+router.post('/apple', appleSignIn);
+router.post('/complete-profile', protect, completeProfile);
 router.get('/me', protect, getMe);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPassword);

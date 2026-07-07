@@ -40,7 +40,7 @@ export default function CertificatePublic() {
       <div className="permis-page permis-cert-404">
         <SEO title="Certificat introuvable" path={`/certificat/${code}`} noindex />
         <h1>Ce certificat n'existe pas (ou plus)</h1>
-        <button className="btn btn-gold" onClick={() => navigate('/permis')}>Obtenir mon Passeport</button>
+        <button className="btn btn-gold" onClick={() => navigate('/passeportmarseillais')}>Obtenir mon Passeport</button>
       </div>
     );
   }
@@ -73,7 +73,7 @@ export default function CertificatePublic() {
         </div>
 
         <div className="cert-inner">
-          <div className="cert-authority"><span className="cert-line" />République Marseillaise · Préfecture de la Bonne Mère<span className="cert-line" /></div>
+          <div className="cert-authority"><span className="cert-line" />Ordre des Vrais Marseillais · Maison Mère du Panier<span className="cert-line" /></div>
 
           <svg className="cert-crest" viewBox="0 0 100 100">
             <circle cx="50" cy="50" r="46" fill="none" stroke="#C9A84C" strokeWidth="2.5" />
@@ -87,12 +87,12 @@ export default function CertificatePublic() {
           <div className="cert-rule" />
 
           <div className="cert-body">
-            Il est solennellement certifié que
+            L'Ordre des Vrais Marseillais reconnaît
             <span className="cert-name">{cert.pseudo}</span>
             <span className="cert-prov">{provLabel}</span>
             {cert.passed
-              ? <> a passé l'épreuve du Passeport Marseillais et a obtenu la mention</>
-              : <> s'est présenté à l'épreuve du Passeport Marseillais avec la mention</>}
+              ? <> qui a passé l'épreuve du Passeport Marseillais et a obtenu la mention</>
+              : <> qui s'est présenté à l'épreuve du Passeport Marseillais avec la mention</>}
             <span className={`cert-mention ${cert.passed ? 'ok' : 'ko'}`}>{cert.mention}</span>
             <span className="cert-scoreline">avec la note de <b>{cert.score}</b>/20.</span>
           </div>
@@ -105,14 +105,14 @@ export default function CertificatePublic() {
             <div className="cert-foot-mid">
               <div className={`cert-stamp ${cert.passed ? 'ok' : 'ko'}`}>
                 <span className="cert-ring" />
-                <span className="cert-stamp-big">{cert.passed ? 'Homo-\nlogué' : 'Recalé'}</span>
-                <span className="cert-stamp-small">★ MASSALIA ★</span>
+                <span className="cert-stamp-big">{cert.passed ? 'Adoubé' : 'Recalé'}</span>
+                <span className="cert-stamp-small">★ L'ORDRE ★</span>
               </div>
             </div>
             <div className="cert-foot-right">
               <QRCodeSVG value={`${SITE}/certificat/${code}`} size={56} bgColor="transparent" fgColor="#0D1117" level="M" />
-              <div className="cert-signature">le Préfet</div>
-              <div className="cert-sign-label">Le Préfet de la Bonne Mère</div>
+              <div className="cert-signature">la Bonne Mère</div>
+              <div className="cert-sign-label">Gardienne de l'Ordre</div>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@ export default function CertificatePublic() {
         <button className="btn btn-gold" onClick={share}>{copied ? 'Lien copié !' : 'Partager mon Passeport'}</button>
         <a className="btn btn-primary" href={`/api/permis/certificate/${code}/image.png?format=paysage&download=1`}>Télécharger · paysage</a>
         <a className="btn btn-primary" href={`/api/permis/certificate/${code}/image.png?format=portrait&download=1`}>Télécharger · portrait</a>
-        <button className="btn btn-ghost" onClick={() => navigate('/permis')}>Passer / repasser l'examen</button>
+        <button className="btn btn-ghost" onClick={() => navigate('/passeportmarseillais')}>Passer / repasser l'examen</button>
       </div>
     </div>
   );

@@ -31,6 +31,7 @@ const CREST_URI = `data:image/svg+xml;base64,${Buffer.from(CREST_SVG).toString('
 const PRESETS = {
   paysage: { W: 1200, H: 630, pad: 50, crest: 64, title: 60, name: 44, mention: 36, sub: 13, body: 19, auth: 15, stamp: 118, foot: 12, sig: 30, qr: 56 },
   portrait: { W: 840, H: 1180, pad: 64, crest: 92, title: 70, name: 50, mention: 46, sub: 14, body: 21, auth: 16, stamp: 140, foot: 13, sig: 36, qr: 64 },
+  carre: { W: 1024, H: 1024, pad: 70, crest: 96, title: 74, name: 52, mention: 46, sub: 14, body: 22, auth: 14, stamp: 150, foot: 13, sig: 38, qr: 70 },
 };
 
 const box = (style, children) => ({ type: 'div', props: { style: { display: 'flex', ...style }, children } });
@@ -46,7 +47,7 @@ function provLabel(zone) {
   return 'Sans papiers';
 }
 
-function buildDiploma(cert, P, qrUri) {
+function buildDiploma(cert, P, qrUri, opts = {}) {
   const passed = cert.passed;
   const stampColor = passed ? GREEN : RED;
   const mentionColor = passed ? GREEN : RED;
@@ -74,12 +75,12 @@ function buildDiploma(cert, P, qrUri) {
           // autorité
           box({ alignItems: 'center', gap: 12 }, [
             box({ width: 36, height: 1, backgroundColor: GOLD }, []),
-            txt('RÉPUBLIQUE MARSEILLAISE · PRÉFECTURE DE LA BONNE MÈRE', { fontFamily: 'Bebas Neue', fontSize: P.auth, color: BLEU, letterSpacing: 2 }),
+            txt('ORDRE DES VRAIS MARSEILLAIS · MAISON MÈRE DU PANIER', { fontFamily: 'Bebas Neue', fontSize: P.auth, color: BLEU, letterSpacing: 2 }),
             box({ width: 36, height: 1, backgroundColor: GOLD }, []),
           ]),
           img(CREST_URI, P.crest, P.crest),
-          txt('Passeport Marseillais', { fontFamily: 'Bebas Neue', fontSize: P.title, height: Math.round(P.title * 1.2), lineHeight: 1, alignItems: 'center', justifyContent: 'center', color: BLEU_DARK, letterSpacing: 4, marginTop: 6 }),
-          txt('CERTIFICAT OFFICIEL D\'AUTHENTICITÉ MARSEILLAISE', { fontSize: P.sub, color: SAND, fontWeight: 800, letterSpacing: 1, marginTop: 8 }),
+          txt('Passeport Marseillais', { fontFamily: 'Bebas Neue', fontSize: P.title, height: Math.round(P.title * 1.4), lineHeight: 1, alignItems: 'center', justifyContent: 'center', color: BLEU_DARK, letterSpacing: 4, marginTop: 10 }),
+          txt('CERTIFICAT OFFICIEL D\'AUTHENTICITÉ MARSEILLAISE', { fontSize: P.sub, color: SAND, fontWeight: 800, letterSpacing: 1, marginTop: 26 }),
           // filet
           box({ alignItems: 'center', gap: 10, marginTop: 14, marginBottom: 12 }, [
             dot(5), box({ width: 150, height: 1, backgroundColor: GOLD }, []), dot(5),
@@ -87,7 +88,7 @@ function buildDiploma(cert, P, qrUri) {
 
           // corps
           box({ flexDirection: 'column', alignItems: 'center', color: INK, fontSize: P.body }, [
-            txt(passed ? 'Il est solennellement certifié que' : 'Après examen, la Préfecture déclare que'),
+            txt(passed ? 'L\'Ordre reconnaît solennellement que' : 'Après examen, l\'Ordre déclare que'),
             txt(cert.pseudo, { fontFamily: 'Bebas Neue', fontSize: P.name, color: RED, letterSpacing: 3, marginTop: 8, marginBottom: 8 }),
             box({ backgroundColor: 'rgba(0,87,168,0.10)', border: `1px solid rgba(0,87,168,0.30)`, borderRadius: 30, paddingTop: 3, paddingBottom: 3, paddingLeft: 14, paddingRight: 14 }, [
               txt(provLabel(zone), { fontSize: P.sub + 1, color: BLEU_DARK, fontWeight: 800 }),
@@ -110,28 +111,41 @@ function buildDiploma(cert, P, qrUri) {
             // tampon
             box({ width: P.stamp, height: P.stamp, borderRadius: P.stamp, border: `3px solid ${stampColor}`, transform: 'rotate(-12deg)', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative' }, [
               box({ position: 'absolute', top: 8, left: 8, right: 8, bottom: 8, border: `1px solid ${stampColor}`, opacity: 0.6, borderRadius: P.stamp }, []),
-              txt(passed ? 'Homologué' : 'Recalé', { fontFamily: 'Bebas Neue', fontSize: P.stamp * 0.2, color: stampColor, letterSpacing: 1 }),
-              txt('MASSALIA', { fontSize: P.stamp * 0.08, color: stampColor, letterSpacing: 3, marginTop: 2 }),
+              txt(passed ? 'Adoubé' : 'Recalé', { fontFamily: 'Bebas Neue', fontSize: P.stamp * 0.2, color: stampColor, letterSpacing: 1 }),
+              txt('L\'ORDRE', { fontSize: P.stamp * 0.08, color: stampColor, letterSpacing: 3, marginTop: 2 }),
             ]),
             box({ flexDirection: 'column', alignItems: 'flex-end', gap: 3 }, [
               img(qrUri, P.qr, P.qr),
-              txt('le Préfet', { fontFamily: 'Pinyon Script', fontSize: P.sig, color: BLEU_DARK }),
-              txt('LE PRÉFET DE LA BONNE MÈRE', { fontSize: P.foot - 1, color: SAND, fontWeight: 800, letterSpacing: 0.5 }),
+              txt('la Bonne Mère', { fontFamily: 'Pinyon Script', fontSize: P.sig, color: BLEU_DARK }),
+              txt('GARDIENNE DE L\'ORDRE', { fontSize: P.foot - 1, color: SAND, fontWeight: 800, letterSpacing: 0.5 }),
             ]),
           ]),
         ]
       ),
+
+      // Bandeau « spécimen » (image produit App Store) — évite toute confusion avec un vrai document.
+      ...(opts.specimen ? [
+        box({
+          position: 'absolute', top: Math.round(P.H * 0.40), left: -60, right: -60,
+          height: Math.round(P.H * 0.14), backgroundColor: 'rgba(230,57,70,0.92)',
+          transform: 'rotate(-8deg)', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          border: '3px solid #ffffff',
+        }, [
+          txt('PASSEPORT DE TEST · SPÉCIMEN', { fontFamily: 'Bebas Neue', fontSize: Math.round(P.title * 0.72), color: '#ffffff', letterSpacing: 6, lineHeight: 1 }),
+          txt('document fictif — sans valeur officielle', { fontSize: P.sub, color: '#ffffff', fontWeight: 800, letterSpacing: 1, marginTop: 2 }),
+        ]),
+      ] : []),
     ]
   );
 }
 
-async function renderCertificateImage(cert, format = 'paysage') {
+async function renderCertificateImage(cert, format = 'paysage', opts = {}) {
   const P = PRESETS[format] || PRESETS.paysage;
   const url = `${SITE}/certificat/${cert.publicCode}`;
   const qrUri = await QRCode.toDataURL(url, { margin: 0, color: { dark: '#0D1117', light: '#0000' } });
 
   const { default: satori } = await import('satori');
-  const svg = await satori(buildDiploma(cert, P, qrUri), { width: P.W, height: P.H, fonts: FONTS });
+  const svg = await satori(buildDiploma(cert, P, qrUri, opts), { width: P.W, height: P.H, fonts: FONTS });
 
   const png = new Resvg(svg, { fitTo: { mode: 'width', value: P.W } }).render().asPng();
   return png;

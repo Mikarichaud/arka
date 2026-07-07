@@ -481,6 +481,10 @@ export default function Profile() {
               <Icon name="star" size={16} />
               <span>Gaté — Cosmétiques</span>
             </button>
+            <button className="profile-gate-pill" onClick={() => navigate('/gate/quiz')}>
+              <Icon name="medal-gold" size={16} />
+              <span>Gaté — Passeport</span>
+            </button>
           </div>
         )}
 

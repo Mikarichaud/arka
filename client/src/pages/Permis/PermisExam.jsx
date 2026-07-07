@@ -10,7 +10,7 @@ import './Permis.css';
 export default function PermisExam() {
   const navigate = useNavigate();
   const { play } = useSound();
-  const { session, submit, result, reset } = usePermisStore();
+  const { session, submit, result, reset, start, abandon } = usePermisStore();
 
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({}); // { questionId: choiceIndex }
@@ -26,7 +26,7 @@ export default function PermisExam() {
 
   // Pas de session active → retour accueil.
   useEffect(() => {
-    if (!session && !result) navigate('/permis', { replace: true });
+    if (!session && !result) navigate('/passeportmarseillais', { replace: true });
   }, [session, result, navigate]);
 
   const finish = useCallback(async (finalAnswers) => {
@@ -79,10 +79,39 @@ export default function PermisExam() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, timed, current, picked]);
 
-  const quit = () => {
+  const quit = async () => {
+    // En examen : quitter = abandon (l'essai est perdu, on enregistre la cagade).
+    if (session?.mode === 'exam') {
+      const payload = Object.entries(answers).map(([questionId, choiceIndex]) => ({ questionId, choiceIndex }));
+      await abandon(payload); // → result.abandoned → écran cagade
+      return;
+    }
     reset();
-    navigate('/permis', { replace: true });
+    navigate('/passeportmarseillais', { replace: true });
   };
+
+  // ---------- ÉCRAN ABANDON ----------
+  if (result && result.abandoned) {
+    return (
+      <div className="permis-page permis-result-page">
+        <SEO title="Abandon" path="/passeportmarseillais/exam" noindex />
+        <motion.div
+          className="permis-result-card is-fail"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 16 }}
+        >
+          <strong className="permis-result-mention">La cagade !</strong>
+          <p className="permis-result-msg">
+            T'as quitté l'examen en plein milieu, hé bé. L'essai est cramé, comme un pastis oublié au cagnard.
+          </p>
+          <div className="permis-result-actions">
+            <button className="btn btn-gold" onClick={() => { reset(); navigate('/passeportmarseillais'); }}>Retour au Passeport</button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   // ---------- ÉCRAN RÉSULTAT ----------
   if (result) {
@@ -92,7 +121,7 @@ export default function PermisExam() {
 
     return (
       <div className="permis-page permis-result-page">
-        <SEO title="Résultat du Passeport" path="/permis/exam" noindex />
+        <SEO title="Résultat du Passeport" path="/passeportmarseillais/exam" noindex />
         <motion.div
           className={`permis-result-card ${result.passed ? 'is-pass' : 'is-fail'}`}
           initial={{ scale: 0.9, opacity: 0 }}
@@ -109,7 +138,10 @@ export default function PermisExam() {
           {result.teaser ? (
             <>
               <p className="permis-result-teaser">C'était le test blanc. Le vrai examen t'attend pour décrocher ton Passeport officiel.</p>
-              <button className="btn btn-gold" onClick={() => { reset(); navigate('/permis'); }}>Passer le vrai examen</button>
+              <div className="permis-result-actions">
+                <button className="btn btn-gold" onClick={async () => { const r = await start('exam'); navigate(r.ok ? '/passeportmarseillais/exam' : '/passeportmarseillais'); }}>Passer le vrai examen</button>
+                <button className="btn btn-ghost btn-sm" onClick={() => { reset(); navigate('/passeportmarseillais'); }}>Retour au Passeport</button>
+              </div>
             </>
           ) : (
             <div className="permis-result-actions">
@@ -118,7 +150,7 @@ export default function PermisExam() {
                   Voir mon certificat
                 </button>
               )}
-              <button className="btn btn-ghost btn-sm" onClick={() => { reset(); navigate('/permis'); }}>Retour au Permis</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { reset(); navigate('/passeportmarseillais'); }}>Retour au Permis</button>
             </div>
           )}
         </motion.div>
@@ -161,7 +193,7 @@ export default function PermisExam() {
 
   return (
     <div className="permis-page permis-exam">
-      <SEO title={session.mode === 'trial' ? 'Test blanc' : 'Examen du Passeport'} path="/permis/exam" noindex />
+      <SEO title={session.mode === 'trial' ? 'Test blanc' : 'Examen du Passeport'} path="/passeportmarseillais/exam" noindex />
 
       <div className="permis-exam-head">
         <button className="permis-exam-quit" onClick={quit} aria-label="Quitter">✕</button>

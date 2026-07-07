@@ -19,7 +19,10 @@ const useAuthStore = create(
       register: async (username, email, password, postalCode) => {
         set({ isLoading: true });
         try {
-          const { data } = await api.post('/auth/register', { username, email, password, postalCode });
+          // Attribution campagne stickers : si l'user vient d'un QR /tournee, on relie l'inscription au spot.
+          const spot = localStorage.getItem('tournee_spot') || undefined;
+          const { data } = await api.post('/auth/register', { username, email, password, postalCode, spot });
+          if (spot) localStorage.removeItem('tournee_spot');
           localStorage.setItem('token', data.token);
           set({ user: data.user, token: data.token, isLoading: false });
         } catch (err) {

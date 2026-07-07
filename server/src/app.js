@@ -18,6 +18,7 @@ const salonRoutes = require('./routes/salons');
 const sitemapRoute = require('./routes/sitemap');
 const adminRoutes = require('./routes/admin');
 const permisRoutes = require('./routes/permis');
+const tourneeRoutes = require('./routes/tournee');
 
 const app = express();
 
@@ -62,7 +63,7 @@ const globalLimiter = rateLimit({
   limit: 300,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  skip: (req) => req.originalUrl === '/api/payments/webhook',
+  skip: (req) => req.originalUrl === '/api/payments/webhook' || req.originalUrl === '/api/permis/iap/webhook',
   message: { message: 'Té, doucement avec les requêtes !' },
 });
 
@@ -108,6 +109,7 @@ const resetPasswordLimiter = rateLimit({
 
 app.use('/api', globalLimiter);
 app.use('/api/auth/login', loginLimiter);
+app.use('/api/auth/apple', loginLimiter);
 app.use('/api/auth/register', registerLimiter);
 app.use('/api/auth/forgot-password', forgotPasswordLimiter);
 app.use('/api/auth/reset-password', resetPasswordLimiter);
@@ -138,6 +140,7 @@ app.use('/api/cosmetics', cosmeticRoutes);
 app.use('/api/salons', salonRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/permis', permisRoutes);
+app.use('/api/tournee', tourneeRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: "C'est bon, on est entre nous." });

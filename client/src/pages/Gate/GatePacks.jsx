@@ -460,6 +460,9 @@ export default function GatePacks() {
         <button className="btn btn-ghost btn-sm" onClick={() => navigate('/gate/cosmetics')}>
           → Cosmétiques
         </button>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/gate/quiz')}>
+          → Passeport
+        </button>
       </div>
 
       {/* Section Catégories repliable */}

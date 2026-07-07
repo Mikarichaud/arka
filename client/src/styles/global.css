@@ -24,6 +24,11 @@ html:has(.packs-page),
 html:has(.library-page),
 html:has(.setup-page),
 html:has(.gate-page),
+html:has(.salon-page),
+html:has(.mes-salons-page),
+html:has(.salon-history-page),
+html:has(.permis-page),
+html:has(.legal-page),
 html:has(.history-page) {
   background-color: var(--surface-bg);
 }
@@ -304,8 +309,13 @@ body.has-bottomnav .home-page,
 body.has-bottomnav .library-page,
 body.has-bottomnav .mes-salons-page,
 body.has-bottomnav .profile-page,
+body.has-bottomnav .permis-page,
 body.has-bottomnav .salon-page {
   padding-bottom: calc(60px + env(safe-area-inset-bottom));
+}
+/* Passeport : un poil plus d'air sous le dernier bouton (« Mon historique »). */
+body.has-bottomnav .permis-page {
+  padding-bottom: calc(92px + env(safe-area-inset-bottom));
 }
 
 /* Mode PC : la nav est une sidebar à gauche → on réserve l'espace à gauche, pas en bas. */
@@ -314,6 +324,7 @@ body.has-bottomnav .salon-page {
   body.has-bottomnav .library-page,
   body.has-bottomnav .mes-salons-page,
   body.has-bottomnav .profile-page,
+  body.has-bottomnav .permis-page,
   body.has-bottomnav .salon-page {
     padding-bottom: 0;
     padding-left: 96px;

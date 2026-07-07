@@ -47,6 +47,20 @@ const usePermisStore = create((set, get) => ({
     return data;
   },
 
+  // Abandon explicite d'un examen en cours → enregistre la cagade côté serveur.
+  abandon: async (answers = []) => {
+    const { session } = get();
+    if (!session) return null;
+    try {
+      const { data } = await api.post('/permis/exam/abandon', { sessionId: session.sessionId, answers });
+      set({ result: data });
+      return data;
+    } catch {
+      set({ session: null, result: null });
+      return null;
+    }
+  },
+
   reset: () => set({ session: null, result: null, error: null }),
 }));
 

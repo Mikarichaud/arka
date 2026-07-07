@@ -9,6 +9,7 @@ import useAuthStore from '../../store/authStore';
 import AdminGallery from './AdminGallery';
 import AdminUsers from './AdminUsers';
 import AdminReports from './AdminReports';
+import AdminTournee from './AdminTournee';
 import api from '../../services/api';
 import './Dashboard.css';
 
@@ -148,6 +149,13 @@ export default function Dashboard() {
           <Icon name="camera" size={14} style={{ marginRight: 6 }} />
           Galerie
         </button>
+        <button
+          className={`admin-tab ${tab === 'tournee' ? 'is-active' : ''}`}
+          onClick={() => setTab('tournee')}
+        >
+          <Icon name="anchor" size={14} style={{ marginRight: 6 }} />
+          Tournée
+        </button>
       </div>
 
       {error && tab === 'stats' && (
@@ -160,6 +168,8 @@ export default function Dashboard() {
         <AdminGallery />
       ) : tab === 'users' ? (
         <AdminUsers />
+      ) : tab === 'tournee' ? (
+        <AdminTournee />
       ) : tab === 'reports' ? (
         <AdminReports />
       ) : loading && !data ? (

@@ -9,6 +9,7 @@ const Pack = require('../models/Pack');
 const Session = require('../models/Session');
 const Salon = require('../models/Salon');
 const Report = require('../models/Report');
+const TourneeSpot = require('../models/TourneeSpot');
 const cloudinary = require('../services/cloudinary');
 const { activeSockets } = require('../sockets');
 
@@ -448,6 +449,51 @@ router.post('/reports/:id/resolve', protect, requireOwner, async (req, res, next
       await report.save();
     }
 
+    res.json({ ok: true });
+  } catch (err) { next(err); }
+});
+
+// --- Campagne stickers « Tournée » : stats par spot + mapping quartier ---
+const withStats = (s) => {
+  const conversions = (s.appClicks || 0) + (s.signups || 0);
+  const rate = s.scans > 0 ? Math.round((conversions / s.scans) * 100) : 0;
+  return { ...s, conversions, rate };
+};
+
+router.get('/tournee', protect, requireOwner, async (req, res, next) => {
+  try {
+    await TourneeSpot.seedDefaultsIfEmpty();
+    const spots = await TourneeSpot.find().sort({ createdAt: 1 }).lean();
+    res.json({ spots: spots.map(withStats) });
+  } catch (err) { next(err); }
+});
+
+// Crée un nouveau spot (nouveau sticker) avec un ID séquentiel.
+router.post('/tournee', protect, requireOwner, async (req, res, next) => {
+  try {
+    const spotId = await TourneeSpot.nextSpotId();
+    const label = typeof req.body.label === 'string' ? req.body.label.trim().slice(0, 60) : '';
+    const spot = await TourneeSpot.create({ spot: spotId, label });
+    res.status(201).json({ spot: withStats(spot.toObject()) });
+  } catch (err) { next(err); }
+});
+
+// Mappe un spot à un quartier (label) et/ou remet ses compteurs à zéro.
+router.put('/tournee/:spot', protect, requireOwner, async (req, res, next) => {
+  try {
+    const update = {};
+    if (typeof req.body.label === 'string') update.label = req.body.label.trim().slice(0, 60);
+    if (req.body.reset === true) { update.scans = 0; update.appClicks = 0; update.signups = 0; }
+    const spot = await TourneeSpot.findOneAndUpdate({ spot: req.params.spot }, update, { new: true });
+    if (!spot) return res.status(404).json({ message: 'Spot introuvable.' });
+    res.json({ spot: withStats(spot.toObject()) });
+  } catch (err) { next(err); }
+});
+
+// Supprime un spot.
+router.delete('/tournee/:spot', protect, requireOwner, async (req, res, next) => {
+  try {
+    await TourneeSpot.deleteOne({ spot: req.params.spot });
     res.json({ ok: true });
   } catch (err) { next(err); }
 });

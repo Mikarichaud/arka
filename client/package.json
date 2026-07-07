@@ -22,6 +22,7 @@
     "@fontsource/bebas-neue": "^5.2.7",
     "@fontsource/nunito": "^5.2.7",
     "@fontsource/pacifico": "^5.2.7",
+    "@revenuecat/purchases-capacitor": "^13.1.7",
     "axios": "^1.15.0",
     "framer-motion": "^12.38.0",
     "qrcode.react": "^4.2.0",

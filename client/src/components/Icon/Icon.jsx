@@ -350,6 +350,54 @@ const icons = {
     </svg>
   ),
 
+  /* ── Apéro : chope de bière ────────────────────────────────── */
+
+  beer: (id) => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#FCD34D"/>
+          <stop offset="100%" stopColor="#C9A84C"/>
+        </linearGradient>
+      </defs>
+      {/* Anse bleu azur */}
+      <path d="M16.5 10 H19 a3 3 0 0 1 3 3 v1 a3 3 0 0 1 -3 3 H16.5" fill="none" stroke="#0057A8" strokeWidth="2.2" strokeLinecap="round"/>
+      {/* Chope */}
+      <rect x="4" y="8" width="12.5" height="13" rx="1.6" fill={`url(#${id}-g)`} stroke="#8a6a20" strokeWidth="0.8"/>
+      {/* Reflet */}
+      <rect x="6" y="10" width="1.6" height="9" rx="0.8" fill="#fff" opacity="0.35"/>
+      {/* Mousse */}
+      <g fill="#fff" stroke="#e6e6ea" strokeWidth="0.4">
+        <circle cx="6.5" cy="7.5" r="2.5"/>
+        <circle cx="10" cy="6.2" r="2.8"/>
+        <circle cx="13.5" cy="7.2" r="2.4"/>
+        <circle cx="15.5" cy="8" r="1.8"/>
+      </g>
+      {/* Bulles */}
+      <circle cx="8.5" cy="13" r="0.9" fill="#fff" opacity="0.5"/>
+      <circle cx="12" cy="16" r="0.8" fill="#fff" opacity="0.45"/>
+      <circle cx="9.5" cy="18" r="0.7" fill="#fff" opacity="0.4"/>
+    </svg>
+  ),
+
+  /* ── Mobile / app ──────────────────────────────────────────── */
+
+  mobile: (id) => (
+    <svg viewBox="0 0 24 24" fill="none">
+      <defs>
+        <linearGradient id={`${id}-g`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#0057A8"/>
+          <stop offset="100%" stopColor="#003d7a"/>
+        </linearGradient>
+      </defs>
+      <rect x="6" y="2" width="12" height="20" rx="2.6" fill={`url(#${id}-g)`}/>
+      <rect x="7.6" y="4.6" width="8.8" height="13" rx="1" fill="#dde8f5"/>
+      <path d="M12 8 L13 10.4 L15.6 10.6 L13.6 12.3 L14.2 14.9 L12 13.5 L9.8 14.9 L10.4 12.3 L8.4 10.6 L11 10.4 Z" fill="#C9A84C"/>
+      <line x1="10.5" y1="3.3" x2="13.5" y2="3.3" stroke="#dde8f5" strokeWidth="0.8" strokeLinecap="round"/>
+      <circle cx="12" cy="19.6" r="1.1" fill="#C9A84C"/>
+    </svg>
+  ),
+
   /* ── Vague méditerranée ────────────────────────────────────── */
 
   wave: (id) => (

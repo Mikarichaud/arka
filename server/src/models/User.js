@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true, trim: true },
   email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-  password: { type: String, required: true, minlength: 6 },
+  password: { type: String, default: null }, // null pour les comptes Sign in with Apple
+  appleUserId: { type: String, default: null }, // `sub` Apple stable (unicité via index partiel ci-dessous)
   avatar: { type: String, default: null },
   postalCode: { type: String, default: null }, // code postal français (5 chiffres), pour le badge de provenance
   tier: { type: String, enum: ['free', 'premium'], default: 'free' },
@@ -31,6 +32,10 @@ const userSchema = new mongoose.Schema({
   passwordResetTokenHash: { type: String, default: null, select: false },
   passwordResetExpiresAt: { type: Date, default: null, select: false },
 }, { timestamps: true });
+
+// Unicité du compte Apple SANS bloquer les comptes sans Apple : index partiel
+// (on n'indexe que les docs où appleUserId est une vraie chaîne, pas les null/absents).
+userSchema.index({ appleUserId: 1 }, { unique: true, partialFilterExpression: { appleUserId: { $type: 'string' } } });
 
 userSchema.pre('save', async function () {
   if (!this.isModified('password')) return;

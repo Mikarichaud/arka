@@ -18,6 +18,7 @@ import Privacy from './pages/Legal/Privacy';
 import Terms from './pages/Legal/Terms';
 import GatePacks from './pages/Gate/GatePacks';
 import GateCosmetics from './pages/Gate/GateCosmetics';
+import GateQuiz from './pages/Gate/GateQuiz';
 import AdminDashboard from './pages/Admin/Dashboard';
 import SalonNew from './pages/Salon/SalonNew';
 import SalonJoin from './pages/Salon/SalonJoin';
@@ -26,7 +27,9 @@ import MesSalons from './pages/Salon/MesSalons';
 import SalonHistory from './pages/Salon/SalonHistory';
 import PermisHome from './pages/Permis/PermisHome';
 import PermisExam from './pages/Permis/PermisExam';
+import PermisHistory from './pages/Permis/PermisHistory';
 import CertificatePublic from './pages/Permis/CertificatePublic';
+import TourneeBar from './pages/Tournee/TourneeBar';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthModal from './components/AuthModal/AuthModal';
 import AuthRouteRedirect from './components/AuthModal/AuthRouteRedirect';
@@ -89,6 +92,7 @@ function AnimatedRoutes() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/gate/packs" element={<ProtectedRoute gateOnly><GatePacks /></ProtectedRoute>} />
             <Route path="/gate/cosmetics" element={<ProtectedRoute gateOnly><GateCosmetics /></ProtectedRoute>} />
+            <Route path="/gate/quiz" element={<ProtectedRoute gateOnly><GateQuiz /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/salon/new" element={<ProtectedRoute><SalonNew /></ProtectedRoute>} />
             <Route path="/salon/join" element={<SalonJoin />} />
@@ -96,9 +100,12 @@ function AnimatedRoutes() {
             <Route path="/salons" element={<ProtectedRoute><MesSalons /></ProtectedRoute>} />
             <Route path="/salon/:code/history" element={<ProtectedRoute><SalonHistory /></ProtectedRoute>} />
             <Route path="/salon/:code" element={<SalonLobby />} />
-            <Route path="/permis" element={<PermisHome />} />
-            <Route path="/permis/exam" element={<PermisExam />} />
+            <Route path="/passeportmarseillais" element={<PermisHome />} />
+            <Route path="/passeportmarseillais/exam" element={<PermisExam />} />
+            <Route path="/passeportmarseillais/historique" element={<PermisHistory />} />
+            <Route path="/permis" element={<Navigate to="/passeportmarseillais" replace />} />
             <Route path="/certificat/:code" element={<CertificatePublic />} />
+            <Route path="/tournee" element={<TourneeBar />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/shop" element={<Navigate to="/packs?tab=cosmetics" replace />} />

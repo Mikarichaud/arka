@@ -1,0 +1,142 @@
+/* Page virale /tournee — sticker bar « qui régale la prochaine tournée ? » */
+
+/* Overscroll : la zone de rebond (iOS) montre le fond du body — on le met au ton
+   sable tant que cette page est affichée, sinon on voit le bleu nuit de l'app. */
+html:has(.tournee-page),
+body:has(.tournee-page) {
+  background: var(--blanc-velodrome);
+}
+
+.tournee-page {
+  /* Affiche de bar : thème clair verrouillé (indépendant du dark mode),
+     sinon le texte clair passerait invisible sur le sable et la roue bleue
+     se noierait sur le fond nuit. */
+  --text-primary: #16233b;
+  --text-secondary: #59637a;
+  --surface-border: #e0dccf;
+  --surface-card: #ffffff;
+  --surface-bg: #ffffff;
+
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 28px 18px 32px;
+  gap: 18px;
+  background: var(--blanc-velodrome);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Bloc titre + carte : centré verticalement dans l'espace dispo (pas de trou mort). */
+.tournee-main {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+}
+
+.tournee-head { text-align: center; }
+.tournee-brand {
+  font-weight: 800; letter-spacing: .5px; text-transform: uppercase;
+  font-size: 13px; color: var(--bleu-azur);
+}
+.tournee-title {
+  font-family: var(--font-titre);
+  font-size: clamp(34px, 9vw, 58px);
+  line-height: .92; letter-spacing: 1px;
+  color: var(--bleu-azur-dark); margin-top: 6px;
+}
+
+.tournee-card {
+  width: 100%; max-width: 460px;
+  background: transparent; border: none;
+  border-radius: var(--radius-lg); padding: 0;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: none;
+}
+.tournee-lead { font-weight: 700; color: var(--text-primary); }
+
+/* Icône alignée dans une ligne de texte */
+.tournee-inline-ico { display: inline-flex; vertical-align: -5px; }
+
+.tournee-names { display: flex; flex-direction: column; gap: 8px; }
+.tournee-name-row { display: flex; align-items: center; gap: 8px; }
+.tournee-input { flex: 1; }
+.tournee-remove {
+  flex: none; width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--surface-border); background: none; cursor: pointer;
+  color: var(--text-secondary); font-size: 14px;
+}
+.tournee-remove:hover { border-color: var(--rouge-defi); color: var(--rouge-defi); }
+.tournee-add { align-self: flex-start; }
+.tournee-error { color: var(--rouge-defi); font-weight: 700; text-align: center; }
+.tournee-spin { width: 100%; padding: 16px; font-size: 1.1rem; margin-top: 4px; }
+.tournee-reassure {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  font-size: 13px; font-weight: 700; color: var(--text-secondary); margin-top: -4px;
+}
+.tournee-dl { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* Tirage */
+.tournee-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.tournee-chip {
+  padding: 12px 18px; border-radius: var(--radius-pill);
+  background: var(--surface-bg, #fff); border: 2px solid var(--surface-border);
+  font-weight: 800; font-size: 17px; color: var(--text-primary);
+  transition: transform .1s, background .1s, border-color .1s, color .1s;
+}
+.tournee-chip.on {
+  background: var(--bleu-azur); border-color: var(--bleu-azur); color: #fff;
+  transform: scale(1.06);
+}
+.tournee-chip.win {
+  background: var(--or-etoile); border-color: var(--or-etoile); color: #2a2208;
+  transform: scale(1.16);
+  box-shadow: 0 6px 20px -6px rgba(201,168,76,.7);
+}
+.tournee-spinning-msg { text-align: center; color: var(--text-secondary); font-weight: 700; }
+
+/* Résultat */
+.tournee-result { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+.tournee-result-emoji { font-size: 48px; }
+.tournee-result-line { font-family: var(--font-titre); font-size: 28px; letter-spacing: .5px; color: var(--bleu-azur-dark); }
+.tournee-result-line strong { color: var(--or-etoile); }
+.tournee-result-sub { color: var(--text-secondary); }
+.tournee-replay { margin-top: 8px; }
+
+.tournee-cta {
+  margin-top: 16px; width: 100%;
+  border-top: 1px dashed var(--surface-border); padding-top: 16px;
+  display: flex; flex-direction: column; gap: 8px; align-items: center;
+}
+.tournee-cta-title { font-family: var(--font-titre); font-size: 22px; letter-spacing: .5px; color: var(--bleu-azur); }
+.tournee-cta-sub { font-size: 14px; color: var(--text-secondary); }
+.tournee-cta .btn { width: 100%; }
+.tournee-cta-note {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px; flex-wrap: wrap;
+  font-size: 12px; color: var(--text-secondary); text-align: center; margin-top: 2px;
+}
+
+.tournee-foot {
+  margin-top: auto; display: inline-flex; align-items: center; gap: 6px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text-secondary); font-weight: 700; font-size: 13px;
+}
+
+/* Roue */
+.tw-wrap { position: relative; width: min(82vw, 340px); aspect-ratio: 1; margin: 6px auto 12px; }
+.tw-wrap--preview { width: min(58vw, 230px); margin: 0 auto 6px; }
+.tw-disc { width: 100%; height: 100%; will-change: transform; }
+.tw-pin {
+  position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+  z-index: 3; line-height: 0;
+}
+
+/* Confettis */
+.tournee-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+.tournee-conf { position: absolute; top: 0; font-size: 26px; }

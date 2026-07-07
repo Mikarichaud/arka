@@ -11,12 +11,12 @@ const TABS = [
   // Salons : connecté → ses salons ; anonyme → page de jointure publique (code/QR).
   { to: '/salons', anonTo: '/salon/join', label: 'Salons', icon: 'anchor' },
   { to: '/packs', label: 'Packs', icon: 'trophy' },
-  { to: '/permis', label: 'Passeport', icon: 'medal-gold' },
+  { to: '/passeportmarseillais', label: 'Passeport', icon: 'medal-gold' },
   { to: '/profile', label: 'Profil', icon: 'wave', protected: true },
 ];
 
 // La barre ne s'affiche QUE sur les écrans racine (pas pendant une partie, un salon, etc.).
-const SHOW_ON = ['/', '/packs', '/salons', '/permis', '/profile'];
+const SHOW_ON = ['/', '/packs', '/salons', '/passeportmarseillais', '/profile'];
 
 export default function BottomNav() {
   const navigate = useNavigate();

@@ -55,8 +55,10 @@ export default defineConfig({
     port: 5177,
     strictPort: true,
     proxy: {
+      // Doit pointer sur le port du serveur (server.js : PORT, défaut 5004).
+      // Override possible : SERVER_PORT=5010 npm run dev
       '/api': {
-        target: 'http://localhost:5003',
+        target: `http://localhost:${process.env.SERVER_PORT || 5010}`,
         changeOrigin: true,
         ws: true,
       },
